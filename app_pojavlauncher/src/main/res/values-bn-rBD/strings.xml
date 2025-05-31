@@ -30,13 +30,11 @@
     <string name="mcl_launch_downloading_progress">"%s (%.2f এমবি / %.2f এমবি) ডাউনলোড হচ্ছে"</string>
     <string name="mcl_launch_download_assets">রিসোর্স ডাউনলোড করার জন্য প্রস্তুতি করা হচ্ছে</string>
     <string name="mcl_options">অপশনসমূহ</string>
-    <string name="mcl_option_customcontrol">কাস্টম কন্ট্রোল</string>
     <string name="mcl_setting_title_use_surface_view">বিকল্প সারফেস রেন্ডারিং ব্যবহার করুন</string>
     <string name="mcl_setting_title_ignore_notch">খাঁজ উপেক্ষা করুন</string>
     <string name="mcl_setting_title_resolution_scaler">রেজল্যুশন স্কেলার</string>
     <string name="mcl_setting_title_buttonscale">নিয়ন্ত্রণ বাটন স্কেলিং</string>
     <string name="mcl_setting_title_mousescale">মাউস স্কেলিং</string>
-    <string name="mcl_setting_title_javaargs">JVM লঞ্চ আর্গুমেন্ট</string>
     <string name="mcl_setting_subtitle_javaargs">সতর্কতা অবলম্বন করুন, জ্ঞান ছাড়াই পরিবর্তন করা হলে এটি গেম ক্র্যাশ করতে পারে.</string>
     <!-- Global strings -->
     <!-- MainActivity: strings -->

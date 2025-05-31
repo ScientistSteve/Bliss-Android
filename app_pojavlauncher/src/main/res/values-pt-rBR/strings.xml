@@ -48,11 +48,9 @@
     <string name="mcl_setting_title_javaargs">Argumentos JVM</string>
     <string name="mcl_setting_subtitle_javaargs">Cuidado, isto pode causar falhas no seu jogo caso modificado sem conhecimento.</string>
     <string name="mcl_setting_category_renderer">Renderizador</string>
-    <string name="mcl_setting_renderer_gles2_4">Holy GL4ES - (todas as versões, rápido)</string>
     <string name="mcl_setting_renderer_vulkan_zink">Zink (Vulkan) - (todas as versões, mediano)</string>
     <string name="mcl_setting_renderer_ltw">LTW (OpenGL ES 3) - apenas 1.17+</string>
     <string name="mcl_setting_veroption_release">Versões finais</string>
-    <string name="mcl_setting_veroption_snapshot">Snapshot</string>
     <string name="mcl_setting_veroption_oldalpha">Alpha antiga</string>
     <string name="mcl_setting_veroption_oldbeta">Beta antiga</string>
     <string name="mcl_setting_java_sandbox">Execução de .jar sandbox</string>
@@ -79,20 +77,10 @@
     <string name="mcn_exit_confirm">Tem certeza que deseja forçar o encerramento?</string>
     <string name="mcn_check_fail_vulkan_support">O renderizador Zink (Vulkan) não é compatível com este dispositivo!</string>
     <!-- MainActivity: Control buttons -->
-    <string name="control_chat">Chat</string>
     <string name="control_debug">Depuração</string>
     <string name="control_primary">Esq</string>
     <string name="control_secondary">Dir</string>
-    <string name="control_shift">◇</string>
-    <string name="control_inventory">Inv</string>
-    <string name="control_up">▲</string>
-    <string name="control_left">◀</string>
-    <string name="control_right">▶</string>
-    <string name="control_down">▼</string>
-    <string name="control_jump">⬛</string>
     <string name="control_thirdperson">visão</string>
-    <string name="control_listplayers">Tab</string>
-    <string name="control_mouse">Mouse</string>
     <string name="control_mouseoff">Mouse: desligado</string>
     <string name="control_mouseon">Mouse: ligado </string>
     <!-- MainActivity: Menu advanced controls -->
@@ -122,7 +110,6 @@
     <string name="customctrl_button_opacity">Opacidade do botão</string>
     <string name="customctrl_addbutton">Adicionar botão</string>
     <string name="customctrl_addbutton_drawer">Adicionar botão gaveta</string>
-    <string name="customctrl_addbutton_joystick">Adicionar analógico</string>
     <string name="customctrl_addsubbutton">Adicionar sub-botão</string>
     <string name="customctrl_selectdefault">Selecionar controle padrão</string>
     <string name="customctrl_export">Exportar controles</string>
@@ -143,7 +130,6 @@
     <string name="mcl_setting_subtitle_mousespeed">Altera a velocidade do mouse virtual.</string>
     <string name="customctrl_passthru">Mouse pode atravessar</string>
     <string name="customctrl_swipeable">Deslizável</string>
-    <string name="customctrl_forward_lock">Trava para correr</string>
     <string name="customctrl_absolute_tracking">Movimento absoluto</string>
     <string name="memory_warning_msg">A quantidade atual de RAM livre (%d) é menor que a RAM alocada (%d), no qual pode causar falhas. Altere a quantidade se o jogo apresentar alguma falha.</string>
     <string name="address_memory_warning_msg">A quantidade atual de RAM livre (%d) é menor que a RAM alocada (%d), no qual pode causar falhas. Altere a quantidade se o jogo apresentar alguma falha.</string>
@@ -151,7 +137,6 @@
     <string name="mcl_memory_allocation_subtitle">Controla o quanto de RAM será disponibilizado para o Minecraft.</string>
     <string name="multirt_runtime_corrupt">Java Runtime corrompido</string>
     <string name="multirt_runtime_incompatiblearch">Arquitetura incompatível: %s</string>
-    <string name="multirt_config_title">Java Runtimes</string>
     <string name="multirt_config_add">Adicionar nova</string>
     <string name="multirt_title">Gerenciador do Runtime</string>
     <string name="multirt_subtitle">Gerenciar Java VMs instalados.</string>
@@ -174,7 +159,6 @@
     <string name="preference_java_description">Java Runtimes, argumentos JVM, quantidade de RAM e sandbox</string>
     <string name="preference_misc_title">Configurações diversas</string>
     <string name="preference_misc_description">Lista de versões e verificação das bibliotecas</string>
-    <string name="preference_experimental_title">Opções experimentais</string>
     <string name="preference_experimental_description">Use estas opções com cuidado, não daremos suporte</string>
     <string name="preference_sustained_performance_title">Ativar o modo de desempenho sustentado</string>
     <string name="preference_sustained_performance_description">Evitar o aumento de temperatura, limitando o pico de desempenho.</string>
@@ -197,9 +181,7 @@
     <string name="profiles_latest_snapshot">Última snapshot</string>
     <string name="profiles_latest_release">Última versão</string>
     <string name="profiles_profile_name">Nome</string>
-    <string name="profiles_profile_version">Versão</string>
     <string name="global_delete">Excluir</string>
-    <string name="pedit_java_runtime">Java Runtime</string>
     <string name="pedit_renderer">Renderizador</string>
     <string name="arc_capes_title">Capas da Cosmetica</string>
     <string name="arc_capes_desc">Ativa capas da Cosmetica (anteriormente Arc). Para mais informações visite https://cosmetica.cc. Requer OptiFine.</string>
@@ -225,9 +207,9 @@
     <string name="xerr_child">Sua conta é uma conta de criança, e precisa ser colocada em uma família para poder entrar.</string>
     <string name="minecraft_not_owned">Parece que esta conta não tem um perfil do Minecraft. Se você tiver o Xbox Game Pass, faça login em https://minecraft.net/ e configure-o.</string>
     <string name="xerr_not_available">Xbox Live não está disponível em seu país</string>
-    <string name="preference_enable_gyro_title">Habilitar controles por giroscópio</string>
+    <string name="preference_enable_gyro_title">Habilitar controles do gyrocópio</string>
     <string name="preference_enable_gyro_description">Habilitar isto permite que você rotacione do jogo, rotacionando seu celular.</string>
-    <string name="preference_gyro_sensitivity_title">Sensibilidade de controles por giroscópio</string>
+    <string name="preference_gyro_sensitivity_title">Sensibilidade de controles do Giroscópio</string>
     <string name="preference_gyro_sensitivity_description">Ajustar a sensibilidade dos controles por giroscópio.</string>
     <string name="toast_turn_on_gyro">Ative os controles por giroscópio primeiro para usar isto!</string>
     <string name="preference_gyro_sample_rate_title">Taxa de amostragem do giroscópio</string>
@@ -236,11 +218,8 @@
     <string name="storage_required">O PojavLauncher requer que o armazenamento externo seja conectado. Por favor, reconecte-o e reinicie o aplicativo.</string>
     <string name="mcl_setting_title_buttonallcaps">Somente use letras maiúsculas em rótulos de botões</string>
     <string name="mcl_setting_subtitle_buttonallcaps">Desative isso se você quiser usar letras minúsculas em seus controles.</string>
-    <string name="create_profile">Criar novo perfil</string>
     <string name="preference_shader_dump_title">Habilitar despejo de shader</string>
     <string name="preference_shader_dump_description">Registrar shaders convertidos no arquivo de registro.</string>
-    <string name="percent_format">%d%%</string>
-    <string name="millisecond_format">%d ms</string>
     <string name="customctrl_editor_exit_title">Saindo?</string>
     <string name="customctrl_editor_exit_msg">Tem certeza que deseja sair?</string>
     <string name="customctrl_editor_exit">Sair do editor</string>
@@ -343,11 +322,6 @@
     <string name="log_view_label_log_output">Registro de saída:</string>
     <string name="execute_jar_failed_to_read_file">Falha na leitura do arquivo .jar</string>
     <string name="execute_jar_incompatible_runtime">O recurso Executar .jar não é compatível com Java %d</string>
-    <string name="controller_button_a">A</string>
-    <string name="controller_button_b">B</string>
-    <string name="controller_button_x">X</string>
-    <string name="controller_button_y">Y</string>
-    <string name="controller_button_start">Começar</string>
     <string name="controller_button_select">Selecionar</string>
     <string name="controller_button_trigger_left">Botão esquerdo</string>
     <string name="controller_button_trigger_right">Botão direito</string>
@@ -362,15 +336,14 @@
     <string name="controller_remapper_exit_part1">Segurar</string>
     <string name="controller_remapper_exit_part2">para sair</string>
     <string name="controller_remapper_operating_mode">Modo atual</string>
-    <string name="customctrl_visibility_title">Visibilidade</string>
     <string name="customctrl_visibility_ingame">No jogo</string>
     <string name="customctrl_visibility_in_menus">Nos menus</string>
     <string name="preference_remap_controller_title">Alterar mapeamento dos botões</string>
     <string name="preference_remap_controller_description">Permite que você modifique as teclas do teclado vinculadas à cada botão do controle</string>
-    <string name="mcl_button_discord">Discord</string>
     <string name="ltw_render_distance_warning_msg">A sua GPU não possui capacidade para renderizar a distância acima de 7 sem o Sodium ou outros mods semelhantes. A renderização de distância será reduzida automaticamente ao clicar em \"OK\".</string>
     <string name="mcl_button_open_directory">Abrir diretório do jogo</string>
     <string name="local_login_bad_username_title">Nome de usuário inadequado</string>
     <string name="local_login_bad_username_text">O nome de usuário deve ter entre 3 a 16 caracteres, deve conter somente letras latinas, número de 0 a 9 e sublinhados.</string>
     <string name="quick_setting_title">Configurações rápidas</string>
+    <string name="preference_experimental_title">Opções experimentais</string>
 </resources>

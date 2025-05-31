@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <!-- App name part -->
+    <string name="app_name">Amethyst</string>
     <!-- Action bar part -->
     <!-- Languages list part -->
     <!-- Login strings -->
@@ -32,7 +33,7 @@
     <string name="mcl_launch_downloading_progress">"Загрузка %s (%.2f Мбайт / %.2f Мбайт)"</string>
     <string name="mcl_launch_download_assets">Подготовка к загрузке ресурсов</string>
     <string name="mcl_options">Опции</string>
-    <string name="mcl_option_customcontrol">Раскладка управления</string>
+    <string name="mcl_option_customcontrol">Пользовательское управление</string>
     <string name="mcl_setting_title_use_surface_view">Альтернативный визуализатор</string>
     <string name="mcl_setting_subtitle_use_surface_view">Может помочь в случаях, когда производительность ограничена медленным ГП.</string>
     <string name="mcl_setting_title_ignore_notch">Полноэкранный режим</string>
@@ -47,9 +48,11 @@
     <string name="mcl_setting_subtitle_mousescale">Изменить размер указателя виртуальной мыши.</string>
     <string name="mcl_setting_title_javaargs">Аргументы запуска JVM</string>
     <string name="mcl_setting_subtitle_javaargs">Осторожно, необдуманное изменение может привести к сбою игры.</string>
+    <string name="mcl_setting_title_renderer_settings">Дополнительные настройки визуализации</string>
+    <string name="mcl_setting_title_renderer_subtitle">Особые настройки визуализации</string>
     <string name="mcl_setting_category_renderer">Визуализатор</string>
-    <string name="mcl_setting_renderer_gles2_4">Holy GL4ES (все версии, быстрый)</string>
     <string name="mcl_setting_renderer_vulkan_zink">Zink (Vulkan; все версии, средний)</string>
+    <string name="mcl_setting_renderer_mobileglues">MobileGlues (OpenGL ES) - (только 1.17+, быстро)</string>
     <string name="mcl_setting_renderer_ltw">LTW (OpenGL ES 3; 1.17 и выше)</string>
     <string name="mcl_setting_veroption_release">Релизы</string>
     <string name="mcl_setting_veroption_snapshot">Снапшоты</string>
@@ -61,9 +64,9 @@
     <!-- Global strings -->
     <string name="global_edit">Редактировать</string>
     <string name="global_error">Ошибка</string>
-    <string name="global_load">Загрузить</string>
+    <string name="global_load">Загрузка</string>
     <string name="global_name">Имя</string>
-    <string name="global_remove">  Удалить  </string>
+    <string name="global_remove">Удалить</string>
     <string name="global_clone">Копировать</string>
     <string name="global_restart">Перезапуск</string>
     <string name="global_save">Сохранить</string>
@@ -73,6 +76,7 @@
     <string name="global_select">Выбрать</string>
     <string name="global_retry">Обновить</string>
     <string name="global_default">По умолчанию</string>
+    <string name="global_off">Выкл</string>
     <!-- MainActivity: strings -->
     <string name="mcn_exit_title">Произошёл собой приложения/игры с кодом %d. Проверьте latestlog.txt, чтобы получить больше информации.</string>
     <string name="mcn_signal_title">Произошло аварийное завершение игры с сигналом %d. Проверьте latestlog.txt, чтобы получить больше информации.</string>
@@ -96,7 +100,7 @@
     <string name="control_mouseoff">Мышь: Выкл</string>
     <string name="control_mouseon">Мышь: Вкл </string>
     <!-- MainActivity: Menu advanced controls -->
-    <string name="control_forceclose">Завершить процесс</string>
+    <string name="control_forceclose">Принудительное закрытие</string>
     <string name="control_viewout">Журнал</string>
     <string name="control_adebug">Отладка ввода</string>
     <string name="control_customkey">Нажать клавишу</string>
@@ -111,19 +115,19 @@
     <string name="control_more3"></string>
     <string name="control_more4"></string>
 -->
-    <string name="customctrl_toggle">Переключать касанием</string>
+    <string name="customctrl_toggle">Переключаемый</string>
     <string name="customctrl_size">Размер</string>
-    <string name="customctrl_mapping">Клавиши</string>
+    <string name="customctrl_mapping">Кнопки</string>
     <string name="customctrl_orientation">Сторона разворота</string>
     <string name="customctrl_background_color">Цвет фона</string>
     <string name="customctrl_corner_radius">Радиус скругления</string>
     <string name="customctrl_stroke_width">Ширина контура</string>
-    <string name="customctrl_stroke_color">Цвет контура</string>
+    <string name="customctrl_stroke_color">Цвет обводки</string>
     <string name="customctrl_button_opacity">Видимость кнопки</string>
     <string name="customctrl_addbutton">Добавить кнопку</string>
     <string name="customctrl_addbutton_drawer">Добавить группу кнопок</string>
     <string name="customctrl_addbutton_joystick">Добавить джойстик</string>
-    <string name="customctrl_addsubbutton">Добавить</string>
+    <string name="customctrl_addsubbutton">Добавить под-кнопку</string>
     <string name="customctrl_selectdefault">Выбрать основную</string>
     <string name="customctrl_export">Поделиться раскладкой</string>
     <string name="main_share_logs">Поделиться журналом</string>
@@ -142,8 +146,8 @@
     <string name="mcl_setting_title_mousespeed">Скорость указателя</string>
     <string name="mcl_setting_subtitle_mousespeed">Изменить скорость указателя виртуальный мыши.</string>
     <string name="customctrl_passthru">Пропускать касание в игру</string>
-    <string name="customctrl_swipeable">Считывать движение пальца</string>
-    <string name="customctrl_forward_lock">Фиксатор движения</string>
+    <string name="customctrl_swipeable">Пролистываемый</string>
+    <string name="customctrl_forward_lock">Блокировка движения вперёд</string>
     <string name="customctrl_absolute_tracking">Динамический центр</string>
     <string name="memory_warning_msg">Текущий объем свободной оперативной памяти (%d) меньше, чем выделенная (%d), что может привести к сбоям. Измените количество выделенной памяти при сбое игры.</string>
     <string name="address_memory_warning_msg">Текущий объём линейно адресуемой оперативной памяти (%d) меньше, чем выделенная (%d), что может привести к сбою. В случае сбоя игры измените количество выделенной памяти.</string>
@@ -168,13 +172,12 @@
     <string name="preference_mouse_start_description">При запуске игры виртуальная мышь будет включена по умолчанию.</string>
     <string name="preference_video_title">Настройки графики</string>
     <string name="preference_video_description">Разрешение, визуализатор и производительность</string>
-    <string name="preference_control_title">Настройки управления</string>
+    <string name="preference_control_title">Настройка управления</string>
     <string name="preference_control_description">Жесты, кнопки и размер</string>
     <string name="preference_java_title">Настройки Java</string>
     <string name="preference_java_description">Среды выполнения Java, аргументы JVM, выделение памяти и безопасность</string>
     <string name="preference_misc_title">Другие настройки</string>
     <string name="preference_misc_description">Список версий и проверка библиотек</string>
-    <string name="preference_experimental_title">Экспериментальные</string>
     <string name="preference_experimental_description">Используйте эти функции с осторожностью; поддержка не предоставляется.</string>
     <string name="preference_sustained_performance_title">Режим стабилизации производительности</string>
     <string name="preference_sustained_performance_description">Уменьшает перегрев устройства за счёт ограничения максимальной производительности.</string>
@@ -199,13 +202,13 @@
     <string name="profiles_profile_name">Имя</string>
     <string name="profiles_profile_version">Версия</string>
     <string name="global_delete">Удалить</string>
-    <string name="pedit_java_runtime">Java Runtime</string>
+    <string name="pedit_java_runtime">Среда выполнения Java</string>
     <string name="pedit_renderer">Визуализатор</string>
     <string name="arc_capes_title">Плащи Cosmetica</string>
     <string name="arc_capes_desc">Включает плащи от Cosmetica (ранее Arc). Для получения дополнительной информации посетите https://cosmetica.cc. Требуется OptiFine.</string>
     <string name="notif_channel_name">Общее</string>
     <string name="lazy_service_default_title">Активная служба Amethyst</string>
-    <string name="mcl_setting_veroption_installed">Установленные</string>
+    <string name="mcl_setting_veroption_installed">Установлено</string>
     <string name="use_global_default">(Как везде)</string>
     <string name="default_control">Раскладка управления</string>
     <string name="progresslayout_tasks_in_progress">Выполняется задач: %d</string>
@@ -237,7 +240,7 @@
     <string name="storage_required">PojavLauncher требует подключения к внешнему хранилищу. Переподключите его и перезапустите приложение.</string>
     <string name="mcl_setting_title_buttonallcaps">Заглавные буквы на кнопках</string>
     <string name="mcl_setting_subtitle_buttonallcaps">Отключите, если хотите использовать строчные буквы в своей раскладке управления.</string>
-    <string name="create_profile">Новый профиль</string>
+    <string name="create_profile">Создать новый профиль</string>
     <string name="preference_shader_dump_title">Сохранять дамп шейдеров</string>
     <string name="preference_shader_dump_description">Записывать в файл журнала данные о конвертации шейдеров.</string>
     <string name="percent_format">%d %%</string>
@@ -348,7 +351,7 @@
     <string name="controller_button_b">B</string>
     <string name="controller_button_x">X</string>
     <string name="controller_button_y">Y</string>
-    <string name="controller_button_start">Старт</string>
+    <string name="controller_button_start">Пуск</string>
     <string name="controller_button_select">Выбрать</string>
     <string name="controller_button_trigger_left">Левый курок</string>
     <string name="controller_button_trigger_right">Правый курок</string>
@@ -367,7 +370,7 @@
     <string name="controller_remapper_exit_part1">Удерживайте</string>
     <string name="controller_remapper_exit_part2">, чтобы выйти</string>
     <string name="controller_remapper_operating_mode">Текущий режим</string>
-    <string name="customctrl_visibility_title">Отображение</string>
+    <string name="customctrl_visibility_title">Видимость</string>
     <string name="customctrl_visibility_ingame">В игре</string>
     <string name="customctrl_visibility_in_menus">В меню</string>
     <string name="controller_remapper_expand_entry">Нажмите для изменения кодов клавиш</string>
@@ -379,4 +382,45 @@
     <string name="local_login_bad_username_title">Неподходящее имя пользователя</string>
     <string name="local_login_bad_username_text">Имя пользователя должно быть от 3 до 16 символов в длину и содержать только латинские символы, цифры 0–9 или нижние подчёркивания.</string>
     <string name="quick_setting_title">Быстрые настройки</string>
+    <string name="create_bta_profile">Создать профиль «Better than Adventure!»</string>
+    <string name="select_bta_version">Выбрать версию «Better than Adventure!»</string>
+    <string name="bta_installer_available_versions">Поддерживаемые версии BTA</string>
+    <string name="bta_installer_untested_versions">Непроверенные версии BTA</string>
+    <string name="bta_installer_nightly_versions">Ночные версии BTA</string>
+    <string name="newdl_extracting_native_libraries">Извлечение собственных библиотек (%d/%d)</string>
+    <string name="toast_not_available_demo">Это не доступно в демо-режиме</string>
+    <string name="preference_renderer_mobileglues_settings">Настройки отображения MobileGlues</string>
+    <string name="mg_renderer_glsl_cache">Максимальный размер кэша GLSL</string>
+    <string name="mg_renderer_angle">Использовать ANGLE в качестве драйвера</string>
+    <string name="mg_renderer_multidraw">Режим эмуляции MultiDraw</string>
+    <string name="mg_renderer_title_errorSetting">Ошибка фильтрации</string>
+    <string name="mg_renderer_title_timerQueryExt">Отключить использование графического процессора в меню F3</string>
+    <string name="mg_renderer_summary_timerQueryExt">Исправляет случайные вылеты когда F3 открыто на некоторых устройствах Mali</string>
+    <string name="preference_ANGLE_only">Параметры только для ANGLE</string>
+    <string name="mg_renderer_title_angleDepthClearFixMode">Исправление прохождения предметов в руке и руки через блоки</string>
+    <string name="mg_renderer_summary_angleDepthClearFixMode">Влияет только на ANGLE, может повлиять на производительность.</string>
+    <string name="preference_experimental_title">Экспериментальные</string>
+    <string name="mg_renderer_title_gl43exts">Извещать экспериментальные расширения OpenGL 4.3</string>
+    <string name="mg_renderer_summary_gl43exts">Может помочь при сбоях мода. Отключите, если не требуется, может привести к сбоям.</string>
+    <string name="mg_renderer_title_computeShaderext">Извещать экспериментальное расширение вычислительного шейдера</string>
+    <string name="mg_renderer_summary_computeShaderext">Может помочь при сбоях набора шейдеров. Отключите, если не требуется, может привести к сбоям.</string>
+    <string name="mg_renderer_title_multidrawCompute">Использовать вычислительную эмуляцию MultiDraw</string>
+    <string name="mg_renderer_summary_multidrawCompute">Использует вычислительные шейдеры для эмуляции MultiDraw</string>
+    <string name="app_short_name">Amethyst</string>
+    <string name="demo_versions_supported">Только ванильные версии от 1.3.1 поддерживается для демонстрационных учётных записей</string>
+    <string name="demo_unsupported">Демо-профиль не поддерживается</string>
+    <string name="change_account">Пожалуйста, измените учётную запись для использования этой функции</string>
+    <string name="no_minecraft_account_found">Не найдено учётной записи Minecraft</string>
+    <string name="feature_requires_java_account">Для этой функции требуется учётная запись Microsoft, владеющая копией Minecraft Java Edition.</string>
+    <string name="delete_account_and_login">Удалить учётную запись и войти</string>
+    <string name="login_again">Пожалуйста, войдите снова</string>
+    <string name="account_corrupted">Выбранная учётная запись повреждена</string>
+    <string name="modloader_dl_install_neoforge">Создать профиль Neoforge</string>
+    <string name="neoforge_dl_select_version">Выберите версию NeoForge</string>
+    <string name="neoforge_dl_no_installer">К сожалению, у этой версии NeoForge отсутствует поддерживаемый установщик.</string>
+    <string name="preference_category_touchcontroller_settings">Настройки сенсорного контроллера</string>
+    <string name="preference_force_enable_touchcontroller_title">Принудительное включение сенсорного контроллера</string>
+    <string name="preference_force_enable_touchcontroller_description">Принудительно включает интеграцию сенсорного контроллера, даже если файл мода не найден.</string>
+    <string name="preference_touchcontroller_vibrate_length_title">Длина вибрации сенсорного контроллера</string>
+    <string name="preference_touchcontroller_vibrate_length_description">Установите продолжительность вибрации при использовании сенсорного контроллера.</string>
 </resources>

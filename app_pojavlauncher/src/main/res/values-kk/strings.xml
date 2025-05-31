@@ -59,17 +59,8 @@
     <!-- MainActivity: Control buttons -->
     <string name="control_chat">Чат</string>
     <string name="control_debug">Оңдау</string>
-    <string name="control_primary">Pri</string>
-    <string name="control_secondary">Sec</string>
-    <string name="control_shift">◇</string>
     <string name="control_inventory">Инв</string>
-    <string name="control_up">▲</string>
-    <string name="control_left">◀</string>
-    <string name="control_right">▶</string>
-    <string name="control_down">▼</string>
-    <string name="control_jump">⬛</string>
     <string name="control_thirdperson">F5</string>
-    <string name="control_listplayers">Tab</string>
     <string name="control_mouse">Тінтуір</string>
     <string name="control_mouseoff">Тінтуір: өшір.</string>
     <string name="control_mouseon">Тінтуір: қос.</string>

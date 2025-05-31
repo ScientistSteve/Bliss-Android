@@ -37,7 +37,6 @@
     <string name="global_default">Standard</string>
     <!-- MainActivity: strings -->
     <!-- MainActivity: Control buttons -->
-    <string name="control_primary">Pri</string>
     <string name="control_secondary">Sek</string>
     <string name="control_inventory">Fakt</string>
     <string name="control_thirdperson">3: e</string>

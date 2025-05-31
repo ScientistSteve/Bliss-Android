@@ -22,7 +22,6 @@
     <string name="toast_3">Exit</string>
     -->
     <!-- MCLauncherActivity: Tabs -->
-    <string name="mcl_tab_wiki">Wiki</string>
     <!-- MCLauncherActivity: Account status -->
     <!-- MCLauncherActivity: Strings -->
     <string name="mcl_launch_cleancache">Čistí sa vyrovnávacia pamäť</string>
@@ -45,11 +44,8 @@
     <string name="mcl_setting_subtitle_mousescale">Možnosť zmeniť veľkosť virtuálnej myši.</string>
     <string name="mcl_setting_title_javaargs">Spúštacie argumenty pre JVM</string>
     <string name="mcl_setting_subtitle_javaargs">Pozor! Zmena JVM argumentov môže spôsobiť pád hry ak neviete, čo robíte.</string>
-    <string name="mcl_setting_category_renderer">Vykresľovač</string>
-    <string name="mcl_setting_renderer_gles2_4">Holy GL4ES - (všetky verzie, rýchly)</string>
     <string name="mcl_setting_renderer_vulkan_zink">Zink - (všetky verzie, priemerný)</string>
     <string name="mcl_setting_veroption_release">Vydanie</string>
-    <string name="mcl_setting_veroption_snapshot">Snapshot</string>
     <string name="mcl_setting_veroption_oldalpha">Stará alfa</string>
     <string name="mcl_setting_veroption_oldbeta">Stará beta</string>
     <string name="mcl_setting_java_sandbox">Sandbox spúšťania .jar súborov</string>
@@ -58,7 +54,7 @@
     <!-- Global strings -->
     <string name="global_edit">Upraviť</string>
     <string name="global_error">Chyba</string>
-    <string name="global_load">Otvoriť</string>
+    <string name="global_load">Načítať</string>
     <string name="global_name">Názov</string>
     <string name="global_remove">Odstrániť</string>
     <string name="global_clone">Duplikovať</string>
@@ -67,7 +63,6 @@
     <string name="global_unpacking">Rozbaľovanie %s</string>
     <string name="global_error_field_empty">Toto pole nesmie byť prázdne</string>
     <string name="global_waiting">Čakajte</string>
-    <string name="global_select">Vyber</string>
     <string name="global_retry">Skúsiť znova</string>
     <string name="global_default">Predvolené</string>
     <!-- MainActivity: strings -->
@@ -76,24 +71,13 @@
     <string name="mcn_check_fail_vulkan_support">Zink (Vulkan) vykresľovač nie je podporovaný na tomto zariadení!</string>
     <!-- MainActivity: Control buttons -->
     <string name="control_chat">Čet</string>
-    <string name="control_debug">Debug</string>
-    <string name="control_primary">Pri</string>
-    <string name="control_secondary">Sec</string>
-    <string name="control_shift">◇</string>
-    <string name="control_inventory">Inv</string>
-    <string name="control_up">▲</string>
-    <string name="control_left">◀</string>
-    <string name="control_right">▶</string>
-    <string name="control_down">▼</string>
-    <string name="control_jump">⬛</string>
     <string name="control_thirdperson">F5</string>
-    <string name="control_listplayers">Tab</string>
     <string name="control_mouse">Myš</string>
     <string name="control_mouseoff">Myš vypnutá</string>
     <string name="control_mouseon">Myš zapnutá</string>
     <!-- MainActivity: Menu advanced controls -->
     <string name="control_forceclose">Vynútené ukončenie</string>
-    <string name="control_viewout">Záznam logu</string>
+    <string name="control_viewout">Záznam výstupu</string>
     <string name="control_adebug">Debug vstupov</string>
     <string name="control_customkey">Poslať vlastný kláves</string>
     <!-- ImportControlActivity Strings -->
@@ -107,9 +91,9 @@
     <string name="control_more3"></string>
     <string name="control_more4"></string>
 -->
-    <string name="customctrl_toggle">Prepínateľné (toggle)</string>
+    <string name="customctrl_toggle">Prepnuteľné (toggle) - po ťuknutí klávesa ostane stlačená</string>
     <string name="customctrl_size">Veľkosť</string>
-    <string name="customctrl_mapping">Bindy</string>
+    <string name="customctrl_mapping">Priradenie ku klávese (bind)</string>
     <string name="customctrl_orientation">Orientácia</string>
     <string name="customctrl_background_color">Farba pozadia tlačidla</string>
     <string name="customctrl_corner_radius">Zaoblenie rohu tlačidla</string>
@@ -118,7 +102,6 @@
     <string name="customctrl_button_opacity">Priehľadnosť tlačidla</string>
     <string name="customctrl_addbutton">Pridať tlačidlo</string>
     <string name="customctrl_addbutton_drawer">Pridať priečinok tlačidiel</string>
-    <string name="customctrl_addbutton_joystick">Pridať joystick</string>
     <string name="customctrl_addsubbutton">Pridať podtlačidlo</string>
     <string name="customctrl_selectdefault">Vybrať predvolené kontrolky</string>
     <string name="customctrl_export">Exportovať kontrolky</string>
@@ -139,7 +122,6 @@
     <string name="mcl_setting_subtitle_mousespeed">Možnosť zmeniť rýchlosť virtuálnej myši.</string>
     <string name="customctrl_passthru">Mierenie tlačidlom</string>
     <string name="customctrl_swipeable">Posunovateľné</string>
-    <string name="customctrl_forward_lock">Zámok chodenia vpred</string>
     <string name="customctrl_absolute_tracking">Absolútne nasledovanie prsta</string>
     <string name="memory_warning_msg">Aktuálne množstvo voľnej RAM (%d) je nižšia ako pridelená RAM (%d), čo môže viesť k pádu. Zmeňte alokáciu, ak hra spadne.</string>
     <string name="mcl_memory_allocation">Pridelenie pamäte</string>
@@ -150,7 +132,6 @@
     <string name="multirt_config_add">Pridať nový</string>
     <string name="multirt_title">Runtime Manažer</string>
     <string name="multirt_subtitle">Spravovať nainštalované Java inštalácie.</string>
-    <string name="multirt_progress_caching">Caching...</string>
     <string name="multirt_config_setdefault">Nastaviť predvolené</string>
     <string name="multirt_config_setdefault_already">Predvolené</string>
     <string name="multirt_config_removeerror_last">Musíte mať aspoň jednu inštaláciu Javy.</string>
@@ -168,7 +149,6 @@
     <string name="preference_java_description">Inštalácie Javy, JVM Argumenty, Pamäť a sandbox</string>
     <string name="preference_misc_title">Iné nastavenia</string>
     <string name="preference_misc_description">Zoznam verzií a kontrola knižníc</string>
-    <string name="preference_experimental_title">Experimentálne nastavenia</string>
     <string name="preference_experimental_description">Používajte tieto veci s uvážením, nepodporujeme</string>
     <string name="preference_sustained_performance_title">Zapnúť režim trvalého výkonu</string>
     <string name="preference_sustained_performance_description">Umožňuje pokles teploty zariadenia limitovaním výkonu.</string>
@@ -190,14 +170,10 @@
     <string name="profiles_latest_snapshot">Najnovší snapshot</string>
     <string name="profiles_latest_release">Najnovšie vydanie (release)</string>
     <string name="profiles_profile_name">Názov</string>
-    <string name="profiles_profile_version">Verzia</string>
     <string name="global_delete">Vymazať</string>
-    <string name="pedit_java_runtime">Java Runtime</string>
-    <string name="pedit_renderer">Vykresľovač</string>
     <string name="arc_capes_title">Cosmetica Capeky</string>
     <string name="arc_capes_desc">Aktivuje capeky (plášte) Cosmetica. Pre info navštívte https://cosmetica.cc. Pre ich funkčnosť je potrebný OptiFine.</string>
     <string name="notif_channel_name">Všeobecné nastavenia notifikácií</string>
-    <string name="lazy_service_default_title">Amethyst Foreground Service</string>
     <string name="use_global_default">(Použiť predvolené nastavenie)</string>
     <string name="default_control">Predvolené kontrolky</string>
     <string name="progresslayout_tasks_in_progress">Počet prebiehajúcich operácií: %d</string>
@@ -218,9 +194,7 @@
     <string name="xerr_child">Vaše konto je detské konto a na prihlásenie je potrebné pridať ho do rodiny v rámci Microsoftu.</string>
     <string name="minecraft_not_owned">Zdá sa, že toto konto nemá profil Minecraft. Ak máte službu Xbox Game Pass, prihláste sa na stránke https://minecraft.net/ a nastavte si účet.</string>
     <string name="xerr_not_available">Služba Xbox Live nie je dostupná vo vašej krajine</string>
-    <string name="preference_enable_gyro_title">Ovládanie gyroskopom</string>
     <string name="preference_enable_gyro_description">Povolením tohto sa budete môcť otáčať v hre otáčaním mobilu.</string>
-    <string name="preference_gyro_sensitivity_title">Citlivosť gyroskopu</string>
     <string name="preference_gyro_sensitivity_description">Upravte si citlivosť gyroskopu na otáčanie.</string>
     <string name="toast_turn_on_gyro">Zapnite ovládanie gyroskopom pred použitím tohto nastavenia!</string>
     <string name="preference_gyro_sample_rate_title">Obnovovacia frekvencia gyroskopu</string>
@@ -229,10 +203,8 @@
     <string name="storage_required">PojavLauncher vyžaduje pripojené externé úložisko. Pripojte ho a reštartujte aplikáciu.</string>
     <string name="mcl_setting_title_buttonallcaps">V označeniach tlačidiel používať len veľké písmená</string>
     <string name="mcl_setting_subtitle_buttonallcaps">Ak chcete v ovládacích prvkoch používať malé písmená, vypnite toto.</string>
-    <string name="create_profile">Vytvoriť nový profil</string>
     <string name="preference_shader_dump_title">Povolenie shader dumpingu</string>
     <string name="preference_shader_dump_description">Všetky konvertované shadery sa vypíšu do logu.</string>
-    <string name="percent_format">%d%%</string>
     <string name="customctrl_editor_exit_title">Koniec?</string>
     <string name="customctrl_editor_exit_msg">Ste si istí, že chcete odísť?</string>
     <string name="customctrl_editor_exit">Opustiť editor</string>
@@ -274,7 +246,6 @@
     <string name="preference_vulkan_driver_system_description">Núti launcher používať systémový Vulkan ovládač namiesto Turnipu na Adreno grafických čipoch. Ovplyvňuje len Zink a módy, ktoré používajú Vulkan.</string>
     <string name="generic_install">Inštalovať</string>
     <string name="generic_apply">Použiť</string>
-    <string name="generic_debug">Debug</string>
     <string name="search_modpack_no_result">Neboli nájdené žiadne modpacky</string>
     <string name="search_modpack_error">Nebolo možné nájsť modpacky</string>
     <string name="search_modpack_download_error">Nebolo možné stiahnuť metadáta modpacku</string>
@@ -321,5 +292,5 @@
     <string name="exception_failed_to_unpack_jre17">Nepodarilo sa nainštalovať Javu 17</string>
     <string name="newdl_starting">Čítanie metadát hry…</string>
     <string name="newdl_downloading_metadata">Sťahovanie metadát hry (%s)</string>
-    <string name="controller_button_select">Vyber</string>
+    <string name="preference_experimental_title">Experimentálne nastavenia</string>
 </resources>
