@@ -241,7 +241,7 @@ public class LauncherPreferences {
         MGConfigJson.put("enableExtGL43", gl43exts);
         MGConfigJson.put("enableExtComputeShader", computeShaderext);
         MGConfigJson.put("angleDepthClearFixMode", angleDepthClearFixMode);
-        MGConfigJson.put("timerQueryExt", timerQueryExt);
+        MGConfigJson.put("enableExtTimerQuery", timerQueryExt);
         if (DEFAULT_PREF.getBoolean("mg_renderer_multidrawCompute", false)) {
             MGConfigJson.put("multidrawMode", 5); // Special handling for the (special mayhaps) compute emulation
         } else MGConfigJson.put("multidrawMode", Integer.parseInt(DEFAULT_PREF.getString("mg_renderer_setting_multidraw", "0")));
