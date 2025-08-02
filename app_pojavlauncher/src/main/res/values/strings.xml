@@ -484,5 +484,6 @@
     <string name="controllableFound">Controllable currently has a random chance of crashing on launch. Either keep trying again and hope it launches or use another mod like Controlify.</string>
     <string name="mg_renderer_title_dsaExt">Advertise Experimental Direct State Access extension</string>
     <string name="mg_renderer_summary_dsaExt">May help with Iris shaderpacks, required for AcceleratedRendering mod</string>
+    <string name="mg_renderer_title_fsr">AMD FSR 1 Upscaling</string>
     <string name="autorendererselectfailed">Auto-renderer select failed, defaulting to HolyGL4ES</string>
 </resources>
