@@ -242,10 +242,12 @@ public class LauncherPreferences {
         int computeShaderext = DEFAULT_PREF.getBoolean("mg_renderer_computeShaderext", false) ? 1 : 0;
         int angleDepthClearFixMode = DEFAULT_PREF.getBoolean("mg_renderer_setting_angleDepthClearFixMode", false) ? 1 : 0;
         int timerQueryExt = DEFAULT_PREF.getBoolean("mg_renderer_setting_timerQueryExt", false) ? 1 : 0;
+        int dsaExt = DEFAULT_PREF.getBoolean("mg_renderer_dsaExt", false) ? 1 : 0;
         MGConfigJson.put("enableExtGL43", gl43exts);
         MGConfigJson.put("enableExtComputeShader", computeShaderext);
         MGConfigJson.put("angleDepthClearFixMode", angleDepthClearFixMode);
         MGConfigJson.put("enableExtTimerQuery", timerQueryExt);
+        MGConfigJson.put("enableExtDirectStateAccess", dsaExt);
         if (DEFAULT_PREF.getBoolean("mg_renderer_multidrawCompute", false)) {
             MGConfigJson.put("multidrawMode", 5); // Special handling for the (special mayhaps) compute emulation
         } else MGConfigJson.put("multidrawMode", Integer.parseInt(DEFAULT_PREF.getString("mg_renderer_setting_multidraw", "0")));
