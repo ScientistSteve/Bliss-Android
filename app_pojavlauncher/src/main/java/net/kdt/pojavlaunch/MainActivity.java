@@ -67,6 +67,7 @@ import net.kdt.pojavlaunch.value.MinecraftAccount;
 import net.kdt.pojavlaunch.value.launcherprofiles.LauncherProfiles;
 import net.kdt.pojavlaunch.value.launcherprofiles.MinecraftProfile;
 
+import org.libsdl.app.SDLActivity;
 import org.libsdl.app.SDLActivityComponent;
 import org.libsdl.app.SDLComponentReceiver;
 import org.lwjgl.glfw.CallbackBridge;
@@ -654,6 +655,9 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         sdlActivityComponent.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            Tools.setFullscreen(this, setFullscreen());
+        }
         super.onWindowFocusChanged(hasFocus);
     }
 
