@@ -3,6 +3,7 @@ package net.kdt.pojavlaunch;
 import static net.kdt.pojavlaunch.Tools.currentDisplayMetrics;
 import static net.kdt.pojavlaunch.Tools.dialogForceClose;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_ENABLE_GYRO;
+import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_GAMEPAD_PASSTHRU;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_SUSTAINED_PERFORMANCE;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_USE_ALTERNATE_SURFACE;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_VIRTUAL_MOUSE_START;
@@ -30,7 +31,6 @@ import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowInsets;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -74,11 +74,12 @@ import org.lwjgl.glfw.CallbackBridge;
 
 import java.io.File;
 import java.io.IOException;
-
+import java.lang.reflect.Method;
 import java.util.Objects;
 
 public class MainActivity extends BaseActivity implements ControlButtonMenuListener, EditorExitable, ServiceConnection, SDLComponentReceiver, View.OnSystemUiVisibilityChangeListener {
     public static volatile ClipboardManager GLOBAL_CLIPBOARD;
+    public static final String TAG = "MainActivity";
     public static final String INTENT_MINECRAFT_VERSION = "intent_version";
 
     volatile public static boolean isInputStackCall;
@@ -163,6 +164,22 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
         ContextExecutor.setActivity(this);
         //Now, attach to the service. The game will only start when this happens, to make sure that we know the right state.
         bindService(gameServiceIntent, this, 0);
+    }
+
+    @Override
+    public boolean onGenericMotionEvent(MotionEvent event) {
+        Log.i(TAG, "onGenericMotionEvent: " + event.getDevice().getName() + ": " + "x: " + event.getAxisValue(MotionEvent.AXIS_X) + " | y: " + event.getAxisValue(MotionEvent.AXIS_Y) + " | " + event.getDeviceId());
+        try {
+            Class<?> sdlActivityClass = Class.forName("org.libsdl.app.SDLActivityComponent");
+            Method getMotionListener = sdlActivityClass.getDeclaredMethod("getMotionListener");
+            getMotionListener.setAccessible(true);
+            View.OnGenericMotionListener motionListener = (View.OnGenericMotionListener) getMotionListener.invoke(null);
+            assert motionListener != null;
+            motionListener.onGenericMotion(minecraftGLView, event);
+        } catch (Exception e) {
+            Tools.showErrorRemote("Oh no!", e);
+        }
+        return super.onGenericMotionEvent(event);
     }
 
     protected void initLayout(int resId) {
@@ -498,10 +515,31 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if (!sdlActivityComponent.dispatchKeyEvent(event)) {
-            return false;
-        }
+        if ((event.getSource() & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK ||
+            (event.getSource() & InputDevice.SOURCE_GAMEPAD)  == InputDevice.SOURCE_GAMEPAD  &&
+            // We only use SDL for controller stuff so only pass in controller stuff
+            // We don't wanna affect keyboards and stuff with the below.
+            event.getKeyCode() >= KeyEvent.KEYCODE_BUTTON_A &&
+            event.getKeyCode() <= KeyEvent.KEYCODE_BUTTON_MODE
+            // Android loves to bundle in garbage KeyEvents for compatibility with apps
+            // that don't have controller code so we are.
+        ){
+            if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_UP ||
+                event.getKeyCode() == KeyEvent.KEYCODE_DPAD_DOWN ||
+                event.getKeyCode() == KeyEvent.KEYCODE_DPAD_LEFT ||
+                event.getKeyCode() == KeyEvent.KEYCODE_DPAD_RIGHT ||
+                event.getKeyCode() == KeyEvent.KEYCODE_DPAD_CENTER)
+                // DPADs should be handled entirely by MotionEvent.
+                // Using this tends to not be reliable.
+                // This is part of androids shoving random garbage KeyEvents everywhere mitigation.
+                return true;
 
+            Log.i(TAG, "dispatchKeyEvent: " + event.getDevice().getName() + ": " + event.getAction() + " | " + event.getKeyCode()
+                    + " | " + event.getSource() + " | " + event.getScanCode()   );
+            if (!sdlActivityComponent.dispatchKeyEvent(event)) return true;
+            SDLActivityComponent.handleKeyEvent(minecraftGLView, event.getKeyCode(), event, null);
+            return true;
+        }
         if(isInEditor) {
             if(event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
                 if(event.getAction() == KeyEvent.ACTION_DOWN) mControlLayout.askToExit(this);

@@ -11,6 +11,7 @@ import static org.lwjgl.glfw.CallbackBridge.windowWidth;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.SurfaceTexture;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -43,7 +44,13 @@ import net.kdt.pojavlaunch.utils.JREUtils;
 import net.kdt.pojavlaunch.utils.MCOptionUtils;
 import net.kdt.pojavlaunch.utils.TouchControllerUtils;
 
+import org.libsdl.app.SDLActivity;
+import org.libsdl.app.SDLActivityComponent;
+import org.libsdl.app.SDLControllerManager;
+import org.libsdl.app.SDLInputConnection;
 import org.lwjgl.glfw.CallbackBridge;
+
+import java.lang.reflect.Method;
 
 import fr.spse.gamepad_remapper.GamepadHandler;
 import fr.spse.gamepad_remapper.RemapperManager;
@@ -80,6 +87,7 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
     final Object mSurfaceReadyListenerLock = new Object();
     /* View holding the surface, either a SurfaceView or a TextureView */
     View mSurface;
+    String TAG = "MinecraftGLSurface";
 
     private final InGameEventProcessor mIngameProcessor = new InGameEventProcessor(mSensitivityFactor);
     private final InGUIEventProcessor mInGUIProcessor = new InGUIEventProcessor();
@@ -179,6 +187,7 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
 
     }
 
+
     /**
      * The touch event for both grabbed an non-grabbed mouse state on the touch screen
      * Does not cover the virtual mouse touchpad
@@ -231,6 +240,7 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
     @SuppressLint("NewApi")
     @Override
     public boolean dispatchGenericMotionEvent(MotionEvent event) {
+        super.dispatchGenericMotionEvent(event);
         int mouseCursorIndex = -1;
 
         if(Gamepad.isGamepadEvent(event)){
