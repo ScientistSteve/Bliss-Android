@@ -168,7 +168,9 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
 
     @Override
     public boolean onGenericMotionEvent(MotionEvent event) {
-        Log.i(TAG, "onGenericMotionEvent: " + event.getDevice().getName() + ": " + "x: " + event.getAxisValue(MotionEvent.AXIS_X) + " | y: " + event.getAxisValue(MotionEvent.AXIS_Y) + " | " + event.getDeviceId());
+        try {
+          Log.i(TAG, "onGenericMotionEvent: " + event.getDevice().getName() + ": " + "x: " + event.getAxisValue(MotionEvent.AXIS_X) + " | y: " + event.getAxisValue(MotionEvent.AXIS_Y) + " | " + event.getDeviceId());
+          } catch (NullPointerException ignored){Logger.appendToLog(event.toString());}
         try {
             Class<?> sdlActivityClass = Class.forName("org.libsdl.app.SDLActivityComponent");
             Method getMotionListener = sdlActivityClass.getDeclaredMethod("getMotionListener");
@@ -533,9 +535,10 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
                 // Using this tends to not be reliable.
                 // This is part of androids shoving random garbage KeyEvents everywhere mitigation.
                 return true;
-
-            Log.i(TAG, "dispatchKeyEvent: " + event.getDevice().getName() + ": " + event.getAction() + " | " + event.getKeyCode()
+            try {
+              Log.i(TAG, "dispatchKeyEvent: " + event.getDevice().getName() + ": " + event.getAction() + " | " + event.getKeyCode()
                     + " | " + event.getSource() + " | " + event.getScanCode()   );
+            } catch (NullPointerException ignored)  {Logger.appendToLog(event.toString());}
             if (!sdlActivityComponent.dispatchKeyEvent(event)) return true;
             SDLActivityComponent.handleKeyEvent(minecraftGLView, event.getKeyCode(), event, null);
             return true;
