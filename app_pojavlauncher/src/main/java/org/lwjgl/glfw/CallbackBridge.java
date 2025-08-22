@@ -196,10 +196,6 @@ public class CallbackBridge {
     @SuppressWarnings("unused")
     @Keep
     private static void onDirectInputEnable() {
-        Log.i("CallbackBridge", "onDirectInputEnable()");
-        DirectGamepadEnableHandler enableHandler = Tools.getWeakReference(sDirectGamepadEnableHandler);
-        if(enableHandler != null) enableHandler.onDirectGamepadEnabled();
-        sGamepadDirectInput = true;
     }
 
     //Called from JRE side
