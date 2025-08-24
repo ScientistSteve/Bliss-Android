@@ -1,6 +1,6 @@
 LOCAL_PATH := $(call my-dir)
 HERE_PATH := $(LOCAL_PATH)
-
+include $(LOCAL_PATH)/SDL/Android.mk
 # include $(HERE_PATH)/crash_dump/libbase/Android.mk
 # include $(HERE_PATH)/crash_dump/libbacktrace/Android.mk
 # include $(HERE_PATH)/crash_dump/debuggerd/Android.mk
