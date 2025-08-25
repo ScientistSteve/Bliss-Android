@@ -1002,27 +1002,23 @@ public class GLFW
         // If we give them 0.0, some mods don't like it, so we base our assumptions on a per renderer basis
         int glMajor = 3;
         int glMinor = 3;
+        boolean turnipLoad = System.getenv("POJAV_LOAD_TURNIP") != null &&
+                System.getenv("POJAV_LOAD_TURNIP").equals("1");
         // These values can be found at headings_array.xml
-        switch (System.getenv("POJAV_RENDERER")) {
-            case "vulkan_zink":
-                Boolean turnipLoad = System.getenv("POJAV_LOAD_TURNIP") != null ?
-                    System.getenv("POJAV_LOAD_TURNIP").equals("1") : false;
-                if (turnipLoad) {
-                    System.out.println("GLFW: Turnip+Zink detected, setting GL context to 4.6");
-                    glMajor = 4;
-                    glMinor = 6;
-                }
-            case "opengles3_virgl":
-                System.out.println("GLFW: virglrenderer detected, setting GL context to 4.3");
-                glMajor = 4;
-                glMinor = 3;
-            case "opengles_mobileglues":
-                System.out.println("GLFW: MobileGlues detected, setting GL context to 4.0");
-                glMajor = 4;
-                glMinor = 0;
-                break;
-            default:
-                System.out.println("GLFW: "+ System.getenv("POJAV_RENDERER") + " detected, defaulting GL context to 3.3");
+        if (turnipLoad && System.getenv("POJAV_RENDERER").equals("vulkan_zink")) {
+            System.out.println("GLFW: Turnip+Zink detected, setting GL context to 4.6");
+            glMajor = 4;
+            glMinor = 6;
+        } else if (System.getenv("POJAV_RENDERER").equals("opengles3_virgl")) {
+            System.out.println("GLFW: virglrenderer detected, setting GL context to 4.3");
+            glMajor = 4;
+            glMinor = 3;
+        } else if (System.getenv("POJAV_RENDERER").equals("opengles_mobileglues")) {
+            System.out.println("GLFW: MobileGlues detected, setting GL context to 4.0");
+            glMajor = 4;
+            glMinor = 0;
+        } else {
+            System.out.println("GLFW: " + System.getenv("POJAV_RENDERER") + " detected, defaulting GL context to 3.3");
         }
         win.windowAttribs.put(GLFW_CONTEXT_VERSION_MAJOR, glMajor);
         win.windowAttribs.put(GLFW_CONTEXT_VERSION_MINOR, glMinor);
