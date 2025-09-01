@@ -35,12 +35,18 @@ public class LauncherPreferenceFragment extends PreferenceFragmentCompat impleme
 
     private void setupNotificationRequestPreference() {
         Preference mRequestNotificationPermissionPreference = requirePreference("notification_permission_request");
+        Preference mMicrophonePermissionPreference = requirePreference("microphone_permission_request");
         Activity activity = getActivity();
         if(activity instanceof LauncherActivity) {
             LauncherActivity launcherActivity = (LauncherActivity)activity;
             mRequestNotificationPermissionPreference.setVisible(!launcherActivity.checkForNotificationPermission());
             mRequestNotificationPermissionPreference.setOnPreferenceClickListener(preference -> {
                 launcherActivity.askForNotificationPermission(()->mRequestNotificationPermissionPreference.setVisible(false));
+                return true;
+            });
+            mMicrophonePermissionPreference.setVisible(!launcherActivity.checkForMicrophonePermission());
+            mMicrophonePermissionPreference.setOnPreferenceClickListener(preference -> {
+                launcherActivity.askForMicrophonePermission(()->mMicrophonePermissionPreference.setVisible(false));
                 return true;
             });
         }else{
