@@ -222,7 +222,7 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
     }
 
     private void createGamepad(View contextView, InputDevice inputDevice) {
-        if(CallbackBridge.sGamepadDirectInput) {
+        if(CallbackBridge.sGamepadDirectInput && !PREF_GAMEPAD_PASSTHRU) {
             mGamepadHandler = new DirectGamepad();
         }else {
             mGamepadHandler = new Gamepad(contextView, inputDevice, DefaultDataProvider.INSTANCE, true);

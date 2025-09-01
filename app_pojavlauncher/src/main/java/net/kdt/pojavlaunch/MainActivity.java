@@ -111,20 +111,25 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try {
-            System.loadLibrary("SDL3");
-            SDL.initialize();
-            SDL.setupJNI();
-            SDL.setContext(this);
-            new SDLSurface(this);
-        } catch (Exception e) {
-            Tools.showErrorRemote("SDL did not load properly", e);
-        }
-        try {
-            motionListener = (View.OnGenericMotionListener)
-                    runMethodbyReflection("org.libsdl.app.SDLActivity",
-                            "getMotionListener");
-        } catch (Exception ignored) {
+        if (LauncherPreferences.PREF_GAMEPAD_PASSTHRU) {
+            try {
+                System.loadLibrary("SDL3");
+                SDL.initialize();
+                SDL.setupJNI();
+                SDL.setContext(this);
+                new SDLSurface(this);
+            } catch (Exception e) {
+                Tools.showErrorRemote("SDL did not load properly", e);
+            }
+            try {
+                motionListener = (View.OnGenericMotionListener)
+                        runMethodbyReflection("org.libsdl.app.SDLActivity",
+                                "getMotionListener");
+            } catch (Exception ignored) {
+                motionListener = (v, event) -> false;
+            }
+
+        } else {
             motionListener = (v, event) -> false;
         }
 
@@ -520,6 +525,7 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
             event.getKeyCode() <= KeyEvent.KEYCODE_BUTTON_MODE
             // Android loves to bundle in garbage KeyEvents for compatibility with apps
             // that don't have controller code so we are.
+            && LauncherPreferences.PREF_GAMEPAD_PASSTHRU
         ){
             if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_UP ||
                 event.getKeyCode() == KeyEvent.KEYCODE_DPAD_DOWN ||
