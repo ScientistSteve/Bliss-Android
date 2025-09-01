@@ -2,6 +2,7 @@ package net.kdt.pojavlaunch;
 
 import static net.kdt.pojavlaunch.MainActivity.touchCharInput;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_MOUSE_GRAB_FORCE;
+import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_GAMEPAD_PASSTHRU;
 import static net.kdt.pojavlaunch.utils.MCOptionUtils.getMcScale;
 import static org.lwjgl.glfw.CallbackBridge.sendMouseButton;
 import static org.lwjgl.glfw.CallbackBridge.windowHeight;
@@ -270,6 +271,10 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
 
     /** The event for keyboard/ gamepad button inputs */
     public boolean processKeyEvent(KeyEvent event) {
+        if (PREF_GAMEPAD_PASSTHRU) {
+            return false;
+        }
+
         //Log.i("KeyEvent", event.toString());
 
         //Filtering useless events by order of probability
