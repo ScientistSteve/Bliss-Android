@@ -1,3 +1,8 @@
+/*
+ * This file is part of SDL3 android-project java code.
+ * Licensed under the zlib license: https://www.libsdl.org/license.php
+ */
+
 package org.libsdl.app;
 
 import android.content.Context;
