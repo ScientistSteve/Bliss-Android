@@ -91,6 +91,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
@@ -1572,5 +1574,22 @@ public final class Tools {
             }
         }
         return false;
+    }
+
+    public static Object runMethodbyReflection(String className, String methodName) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        Class<?> clazz = Class.forName(className);
+        Method method = clazz.getDeclaredMethod(methodName);
+        method.setAccessible(true);
+        Object motionListener = method.invoke(null);
+        assert motionListener != null;
+        return motionListener;
+    }
+
+    static class SDL {
+        public static native void onNativeMouse(int button, int action, float x, float y, boolean relative);
+        public static native void onNativeTouch(int touchDevId, int pointerFingerId,
+                                                int action, float x,
+                                                float y, float p);
+        public static native void onNativePen(int penId, int button, int action, float x, float y, float p);
     }
 }

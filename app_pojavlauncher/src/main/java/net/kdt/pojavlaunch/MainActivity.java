@@ -2,6 +2,7 @@ package net.kdt.pojavlaunch;
 
 import static net.kdt.pojavlaunch.Tools.currentDisplayMetrics;
 import static net.kdt.pojavlaunch.Tools.dialogForceClose;
+import static net.kdt.pojavlaunch.Tools.runMethodbyReflection;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_ENABLE_GYRO;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_GAMEPAD_PASSTHRU;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_SUSTAINED_PERFORMANCE;
@@ -67,22 +68,24 @@ import net.kdt.pojavlaunch.value.MinecraftAccount;
 import net.kdt.pojavlaunch.value.launcherprofiles.LauncherProfiles;
 import net.kdt.pojavlaunch.value.launcherprofiles.MinecraftProfile;
 
+import org.libsdl.app.SDL;
 import org.libsdl.app.SDLActivity;
-import org.libsdl.app.SDLActivityComponent;
-import org.libsdl.app.SDLComponentReceiver;
+import org.libsdl.app.SDLSurface;
 import org.lwjgl.glfw.CallbackBridge;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
-public class MainActivity extends BaseActivity implements ControlButtonMenuListener, EditorExitable, ServiceConnection, SDLComponentReceiver, View.OnSystemUiVisibilityChangeListener {
+public class MainActivity extends BaseActivity implements ControlButtonMenuListener, EditorExitable, ServiceConnection {
     public static volatile ClipboardManager GLOBAL_CLIPBOARD;
     public static final String TAG = "MainActivity";
     public static final String INTENT_MINECRAFT_VERSION = "intent_version";
 
     volatile public static boolean isInputStackCall;
+    private static View.OnGenericMotionListener motionListener;
 
     public static TouchCharInput touchCharInput;
     private MinecraftGLSurface minecraftGLView;
@@ -105,15 +108,25 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
 
     private QuickSettingSideDialog mQuickSettingSideDialog;
 
-    private SDLActivityComponent sdlActivityComponent;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        sdlActivityComponent = new SDLActivityComponent(this);
-        sdlActivityComponent.setLibraries(new String[] { "SDL3" });
-        sdlActivityComponent.onCreate();
+        try {
+            System.loadLibrary("SDL3");
+            SDL.initialize();
+            SDL.setupJNI();
+            SDL.setContext(this);
+            new SDLSurface(this);
+        } catch (Exception e) {
+            Tools.showErrorRemote("SDL did not load properly", e);
+        }
+        try {
+            motionListener = (View.OnGenericMotionListener)
+                    runMethodbyReflection("org.libsdl.app.SDLActivity",
+                            "getMotionListener");
+        } catch (Exception ignored) {
+            motionListener = (v, event) -> false;
+        }
 
         minecraftProfile = LauncherProfiles.getCurrentProfile();
 
@@ -168,19 +181,7 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
 
     @Override
     public boolean onGenericMotionEvent(MotionEvent event) {
-        try {
-          Log.i(TAG, "onGenericMotionEvent: " + event.getDevice().getName() + ": " + "x: " + event.getAxisValue(MotionEvent.AXIS_X) + " | y: " + event.getAxisValue(MotionEvent.AXIS_Y) + " | " + event.getDeviceId());
-          } catch (NullPointerException ignored){Logger.appendToLog(event.toString());}
-        try {
-            Class<?> sdlActivityClass = Class.forName("org.libsdl.app.SDLActivityComponent");
-            Method getMotionListener = sdlActivityClass.getDeclaredMethod("getMotionListener");
-            getMotionListener.setAccessible(true);
-            View.OnGenericMotionListener motionListener = (View.OnGenericMotionListener) getMotionListener.invoke(null);
-            assert motionListener != null;
-            motionListener.onGenericMotion(minecraftGLView, event);
-        } catch (Exception e) {
-            Tools.showErrorRemote("Oh no!", e);
-        }
+        motionListener.onGenericMotion(minecraftGLView, event);
         return super.onGenericMotionEvent(event);
     }
 
@@ -320,13 +321,11 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
         }
         CallbackBridge.nativeSetWindowAttrib(LwjglGlfwKeycode.GLFW_HOVERED, 0);
 
-        sdlActivityComponent.onPause();
         super.onPause();
     }
 
     @Override
     protected void onStart() {
-        sdlActivityComponent.onStart();
         super.onStart();
 
         CallbackBridge.nativeSetWindowAttrib(LwjglGlfwKeycode.GLFW_VISIBLE, 1);
@@ -336,13 +335,11 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     protected void onStop() {
         CallbackBridge.nativeSetWindowAttrib(LwjglGlfwKeycode.GLFW_VISIBLE, 0);
 
-        sdlActivityComponent.onStop();
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
-        sdlActivityComponent.onDestroy();
         super.onDestroy();
 
         CallbackBridge.removeGrabListener(touchpad);
@@ -352,7 +349,6 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
 
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        sdlActivityComponent.onConfigurationChanged(newConfig);
         super.onConfigurationChanged(newConfig);
 
         if(mGyroControl != null) mGyroControl.updateOrientation();
@@ -377,7 +373,6 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        sdlActivityComponent.onActivityResult(requestCode, resultCode, data);
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
@@ -531,16 +526,11 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
                 event.getKeyCode() == KeyEvent.KEYCODE_DPAD_LEFT ||
                 event.getKeyCode() == KeyEvent.KEYCODE_DPAD_RIGHT ||
                 event.getKeyCode() == KeyEvent.KEYCODE_DPAD_CENTER)
+                return true;
                 // DPADs should be handled entirely by MotionEvent.
                 // Using this tends to not be reliable.
                 // This is part of androids shoving random garbage KeyEvents everywhere mitigation.
-                return true;
-            try {
-              Log.i(TAG, "dispatchKeyEvent: " + event.getDevice().getName() + ": " + event.getAction() + " | " + event.getKeyCode()
-                    + " | " + event.getSource() + " | " + event.getScanCode()   );
-            } catch (NullPointerException ignored)  {Logger.appendToLog(event.toString());}
-            if (!sdlActivityComponent.dispatchKeyEvent(event)) return true;
-            SDLActivityComponent.handleKeyEvent(minecraftGLView, event.getKeyCode(), event, null);
+            SDLActivity.handleKeyEvent(minecraftGLView, event.getKeyCode(), event, null);
             return true;
         }
         if(isInEditor) {
@@ -695,7 +685,6 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
-        sdlActivityComponent.onWindowFocusChanged(hasFocus);
         if (hasFocus) {
             Tools.setFullscreen(this, setFullscreen());
         }
@@ -704,30 +693,11 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
 
     @Override
     public void onTrimMemory(int level) {
-        sdlActivityComponent.onTrimMemory(level);
         super.onTrimMemory(level);
     }
 
     @Override
     public void onBackPressed() {
-        if (sdlActivityComponent.onBackPressed()) {
-            super.onBackPressed();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        sdlActivityComponent.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-    }
-
-    @Override
-    public void onSystemUiVisibilityChange(int visibility) {
-        sdlActivityComponent.onSystemUiVisibilityChange(visibility);
-    }
-
-    @Override
-    public void superOnBackPressed() {
         super.onBackPressed();
     }
 }
