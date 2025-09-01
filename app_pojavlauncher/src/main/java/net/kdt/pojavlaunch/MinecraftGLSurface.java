@@ -2,7 +2,7 @@ package net.kdt.pojavlaunch;
 
 import static net.kdt.pojavlaunch.MainActivity.touchCharInput;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_MOUSE_GRAB_FORCE;
-import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_GAMEPAD_PASSTHRU;
+import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_GAMEPAD_SDL_PASSTHRU;
 import static net.kdt.pojavlaunch.utils.MCOptionUtils.getMcScale;
 import static org.lwjgl.glfw.CallbackBridge.sendMouseButton;
 import static org.lwjgl.glfw.CallbackBridge.windowHeight;
@@ -11,7 +11,6 @@ import static org.lwjgl.glfw.CallbackBridge.windowWidth;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.SurfaceTexture;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -182,7 +181,6 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
 
     }
 
-
     /**
      * The touch event for both grabbed an non-grabbed mouse state on the touch screen
      * Does not cover the virtual mouse touchpad
@@ -222,11 +220,11 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
     }
 
     private void createGamepad(View contextView, InputDevice inputDevice) {
-        if(CallbackBridge.sGamepadDirectInput && !PREF_GAMEPAD_PASSTHRU) {
+        if(CallbackBridge.sGamepadDirectInput && !PREF_GAMEPAD_SDL_PASSTHRU) {
             mGamepadHandler = new DirectGamepad();
-        }else {
+        }else if(!PREF_GAMEPAD_SDL_PASSTHRU) {
             mGamepadHandler = new Gamepad(contextView, inputDevice, DefaultDataProvider.INSTANCE, true);
-        }
+        }else mGamepadHandler = (code, value) -> {}; // Ensure it isn't null while also not processing the events.
     }
 
     /**
@@ -238,7 +236,7 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
         super.dispatchGenericMotionEvent(event);
         int mouseCursorIndex = -1;
 
-        if(Gamepad.isGamepadEvent(event)){
+        if(!PREF_GAMEPAD_SDL_PASSTHRU && Gamepad.isGamepadEvent(event)){
             if(mGamepadHandler == null) createGamepad(this, event.getDevice());
 
             mInputManager.handleMotionEventInput(getContext(), event, mGamepadHandler);
@@ -276,10 +274,6 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
 
     /** The event for keyboard/ gamepad button inputs */
     public boolean processKeyEvent(KeyEvent event) {
-        if (PREF_GAMEPAD_PASSTHRU) {
-            return false;
-        }
-
         //Log.i("KeyEvent", event.toString());
 
         //Filtering useless events by order of probability
@@ -314,7 +308,7 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
             }
         }
 
-        if(Gamepad.isGamepadEvent(event)){
+        if(!PREF_GAMEPAD_SDL_PASSTHRU && Gamepad.isGamepadEvent(event)){
             if(mGamepadHandler == null) createGamepad(this, event.getDevice());
 
             mInputManager.handleKeyEventInput(getContext(), event, mGamepadHandler);

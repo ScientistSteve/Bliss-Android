@@ -4,7 +4,6 @@ import static net.kdt.pojavlaunch.Tools.currentDisplayMetrics;
 import static net.kdt.pojavlaunch.Tools.dialogForceClose;
 import static net.kdt.pojavlaunch.Tools.runMethodbyReflection;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_ENABLE_GYRO;
-import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_GAMEPAD_PASSTHRU;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_SUSTAINED_PERFORMANCE;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_USE_ALTERNATE_SURFACE;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_VIRTUAL_MOUSE_START;
@@ -75,8 +74,6 @@ import org.lwjgl.glfw.CallbackBridge;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Objects;
 
 public class MainActivity extends BaseActivity implements ControlButtonMenuListener, EditorExitable, ServiceConnection {
@@ -111,7 +108,18 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (LauncherPreferences.PREF_GAMEPAD_PASSTHRU) {
+        if (LauncherPreferences.PREF_GAMEPAD_SDL_PASSTHRU) {
+            // SDL integration is here because android will send garbage keycodes for the purpose of
+            // "old app compatibility" so every input gets duplicated and attached with a correlated
+            // keycode like the O button on PS4 being KEYCODE_BACK = 4 or the X button being KEYCODE_SPACE
+
+
+            // TODO: Use lower level HID capture that needs a dialogue box from the user for the
+            // app to fully take focus of the input devices. Might cause issues with older android
+            // versions so we don't use that right now. Needs testing.
+            // Currently tried but only identification works OOTB, inputs aren't being sent.
+
+            // TODO: Use a hook to load SDL logic depending on whether libSDL3.so is loaded.
             try {
                 System.loadLibrary("SDL3");
                 SDL.initialize();
@@ -332,21 +340,18 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     @Override
     protected void onStart() {
         super.onStart();
-
         CallbackBridge.nativeSetWindowAttrib(LwjglGlfwKeycode.GLFW_VISIBLE, 1);
     }
 
     @Override
     protected void onStop() {
         CallbackBridge.nativeSetWindowAttrib(LwjglGlfwKeycode.GLFW_VISIBLE, 0);
-
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         CallbackBridge.removeGrabListener(touchpad);
         CallbackBridge.removeGrabListener(minecraftGLView);
         ContextExecutor.clearActivity();
@@ -355,7 +360,6 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-
         if(mGyroControl != null) mGyroControl.updateOrientation();
         // Layout resize is practically guaranteed on a configuration change, and `onConfigurationChanged`
         // does not implicitly start a layout. So, request a layout and expect the screen dimensions to be valid after the]
@@ -525,7 +529,7 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
             event.getKeyCode() <= KeyEvent.KEYCODE_BUTTON_MODE
             // Android loves to bundle in garbage KeyEvents for compatibility with apps
             // that don't have controller code so we are.
-            && LauncherPreferences.PREF_GAMEPAD_PASSTHRU
+            && LauncherPreferences.PREF_GAMEPAD_SDL_PASSTHRU
         ){
             if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_UP ||
                 event.getKeyCode() == KeyEvent.KEYCODE_DPAD_DOWN ||
