@@ -472,4 +472,6 @@
     <string name="preference_touchcontroller_vibrate_length_title">TouchController vibrate length</string>
     <string name="preference_touchcontroller_vibrate_length_description">Set the length of the vibration when using TouchController.</string>
     <string name="error_vanilla_json_corrupt">Vanilla json seems to be corrupt. Please send a bug report on github or discord.</string>
+    <string name="preference_ask_for_microphone_title">Allow microphone</string>
+    <string name="preference_ask_for_microphone_description">Click to re-request the notification permission, required for voice chat mods like Simple Voice Chat.</string>
 </resources>
