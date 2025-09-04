@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.telecom.Call;
 import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
@@ -74,6 +75,7 @@ import org.lwjgl.glfw.CallbackBridge;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
 public class MainActivity extends BaseActivity implements ControlButtonMenuListener, EditorExitable, ServiceConnection {
@@ -82,7 +84,7 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     public static final String INTENT_MINECRAFT_VERSION = "intent_version";
 
     volatile public static boolean isInputStackCall;
-    private static View.OnGenericMotionListener motionListener;
+    private static View.OnGenericMotionListener motionListener = (v, event) -> false;;
 
     public static TouchCharInput touchCharInput;
     private MinecraftGLSurface minecraftGLView;
@@ -121,20 +123,18 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
 
             // TODO: Use a hook to load SDL logic depending on whether libSDL3.so is loaded.
             try {
-                System.loadLibrary("SDL3");
+                SDL.loadLibrary("SDL3", this);
                 SDL.initialize();
                 SDL.setupJNI();
                 SDL.setContext(this);
                 new SDLSurface(this);
-            } catch (Exception e) {
-                Tools.showErrorRemote("SDL did not load properly", e);
-            }
-            try {
                 motionListener = (View.OnGenericMotionListener)
                         runMethodbyReflection("org.libsdl.app.SDLActivity",
                                 "getMotionListener");
-            } catch (Exception ignored) {
-                motionListener = (v, event) -> false;
+            } catch (UnsatisfiedLinkError ignored) {
+                // Ignore because if SDL.setupJNI(); fails, SDL wasn't loaded.
+            } catch (ReflectiveOperationException e) {
+                Tools.showErrorRemote("SDL did not load properly.", e);
             }
 
         } else {

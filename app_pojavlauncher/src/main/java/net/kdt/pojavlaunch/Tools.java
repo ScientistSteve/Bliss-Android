@@ -1576,7 +1576,7 @@ public final class Tools {
         return false;
     }
 
-    public static Object runMethodbyReflection(String className, String methodName) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public static Object runMethodbyReflection(String className, String methodName) throws ReflectiveOperationException{
         Class<?> clazz = Class.forName(className);
         Method method = clazz.getDeclaredMethod(methodName);
         method.setAccessible(true);
