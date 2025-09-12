@@ -84,7 +84,7 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     public static final String INTENT_MINECRAFT_VERSION = "intent_version";
 
     volatile public static boolean isInputStackCall;
-    private static View.OnGenericMotionListener motionListener = (v, event) -> false;;
+    private static View.OnGenericMotionListener motionListener = (v, event) -> false;
 
     public static TouchCharInput touchCharInput;
     private MinecraftGLSurface minecraftGLView;
@@ -115,7 +115,6 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
             // "old app compatibility" so every input gets duplicated and attached with a correlated
             // keycode like the O button on PS4 being KEYCODE_BACK = 4 or the X button being KEYCODE_SPACE
 
-
             // TODO: Use lower level HID capture that needs a dialogue box from the user for the
             // app to fully take focus of the input devices. Might cause issues with older android
             // versions so we don't use that right now. Needs testing.
@@ -137,9 +136,6 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
             } catch (ReflectiveOperationException e) {
                 Tools.showErrorRemote("SDL did not load properly.", e);
             }
-
-        } else {
-            motionListener = (v, event) -> false;
         }
 
         minecraftProfile = LauncherProfiles.getCurrentProfile();
@@ -522,27 +518,30 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if ((event.getSource() & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK ||
-            (event.getSource() & InputDevice.SOURCE_GAMEPAD)  == InputDevice.SOURCE_GAMEPAD  &&
-            // We only use SDL for controller stuff so only pass in controller stuff
-            // We don't wanna affect keyboards and stuff with the below.
-            event.getKeyCode() >= KeyEvent.KEYCODE_BUTTON_A &&
-            event.getKeyCode() <= KeyEvent.KEYCODE_BUTTON_MODE
-            // Android loves to bundle in garbage KeyEvents for compatibility with apps
-            // that don't have controller code so we are.
-            && LauncherPreferences.PREF_GAMEPAD_SDL_PASSTHRU
-        ){
-            if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_UP ||
-                event.getKeyCode() == KeyEvent.KEYCODE_DPAD_DOWN ||
-                event.getKeyCode() == KeyEvent.KEYCODE_DPAD_LEFT ||
-                event.getKeyCode() == KeyEvent.KEYCODE_DPAD_RIGHT ||
-                event.getKeyCode() == KeyEvent.KEYCODE_DPAD_CENTER)
+        if (LauncherPreferences.PREF_GAMEPAD_SDL_PASSTHRU) {
+            int eventSource = event.getSource();
+            int eventKeycode = event.getKeyCode();
+            boolean isFromJoystick = (eventSource & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK;
+            boolean isFromGamepad = (eventSource & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD;
+            // Android bundles in garbage KeyEvents for compatibility with old apps
+            // that don't have controller code so we are, checking for em.
+            boolean isControllerKey = eventKeycode >= KeyEvent.KEYCODE_BUTTON_A &&
+                    eventKeycode <= KeyEvent.KEYCODE_BUTTON_MODE;
+            if ((isFromJoystick || isFromGamepad) && isControllerKey) {
+                try {
+                    SDLActivity.handleKeyEvent(minecraftGLView, eventKeycode, event, null);
+                }catch (Throwable ignored){
+                    Log.e(TAG, "SDL failed to send keyevent!");
+                }
                 return true;
-                // DPADs should be handled entirely by MotionEvent.
-                // Using this tends to not be reliable.
-                // This is part of androids shoving random garbage KeyEvents everywhere mitigation.
-            SDLActivity.handleKeyEvent(minecraftGLView, event.getKeyCode(), event, null);
-            return true;
+            }
+            // This consumes DPAD events because those are processed by MotionEvent..somehow
+            if (eventKeycode == KeyEvent.KEYCODE_DPAD_UP ||
+                eventKeycode == KeyEvent.KEYCODE_DPAD_DOWN ||
+                eventKeycode == KeyEvent.KEYCODE_DPAD_LEFT ||
+                eventKeycode == KeyEvent.KEYCODE_DPAD_RIGHT ||
+                eventKeycode == KeyEvent.KEYCODE_DPAD_CENTER)
+                return true;
         }
         if(isInEditor) {
             if(event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
