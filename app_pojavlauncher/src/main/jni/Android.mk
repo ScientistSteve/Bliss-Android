@@ -15,6 +15,7 @@ include $(CLEAR_VARS)
 # Link GLESv2 for test
 LOCAL_LDLIBS := -ldl -llog -landroid
 # -lGLESv2
+LOCAL_SHARED_LIBRARIES := SDL3
 LOCAL_MODULE := pojavexec
 # LOCAL_CFLAGS += -DDEBUG
 # -DGLES_TEST

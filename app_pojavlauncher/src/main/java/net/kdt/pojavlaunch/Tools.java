@@ -1586,6 +1586,8 @@ public final class Tools {
     }
 
     static class SDL {
+
+        public static native void initializeControllerSubsystems();
         public static native void onNativeMouse(int button, int action, float x, float y, boolean relative);
         public static native void onNativeTouch(int touchDevId, int pointerFingerId,
                                                 int action, float x,

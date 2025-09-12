@@ -131,6 +131,7 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
                 motionListener = (View.OnGenericMotionListener)
                         runMethodbyReflection("org.libsdl.app.SDLActivity",
                                 "getMotionListener");
+                Tools.SDL.initializeControllerSubsystems();
             } catch (UnsatisfiedLinkError ignored) {
                 // Ignore because if SDL.setupJNI(); fails, SDL wasn't loaded.
             } catch (ReflectiveOperationException e) {
