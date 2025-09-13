@@ -1,5 +1,6 @@
 package net.kdt.pojavlaunch;
 
+import static net.kdt.pojavlaunch.Tools.NATIVE_LIB_DIR;
 import static net.kdt.pojavlaunch.Tools.currentDisplayMetrics;
 import static net.kdt.pojavlaunch.Tools.dialogForceClose;
 import static net.kdt.pojavlaunch.Tools.runMethodbyReflection;
@@ -26,6 +27,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.system.ErrnoException;
+import android.system.Os;
 import android.telecom.Call;
 import android.util.Log;
 import android.view.InputDevice;
@@ -123,6 +126,8 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
             // TODO: Use a hook to load SDL logic depending on whether libSDL3.so is loaded.
             try {
                 SDL.loadLibrary("SDL3", this);
+//                Os.setenv("SDL3_DYNAMIC_API", NATIVE_LIB_DIR + "/libSDL3.so", true);
+//                SDL.loadLibrary("SDL2", this);
                 SDL.initialize();
                 SDL.setupJNI();
                 SDL.setContext(this);
@@ -135,6 +140,8 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
                 // Ignore because if SDL.setupJNI(); fails, SDL wasn't loaded.
             } catch (ReflectiveOperationException e) {
                 Tools.showErrorRemote("SDL did not load properly.", e);
+//            } catch (ErrnoException e) {
+//                throw new RuntimeException(e);
             }
         }
 
