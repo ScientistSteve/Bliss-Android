@@ -87,7 +87,7 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     public static final String INTENT_MINECRAFT_VERSION = "intent_version";
 
     volatile public static boolean isInputStackCall;
-    private static View.OnGenericMotionListener motionListener = (v, event) -> false;
+    protected static View.OnGenericMotionListener motionListener = (v, event) -> false;
 
     public static TouchCharInput touchCharInput;
     private MinecraftGLSurface minecraftGLView;
@@ -113,7 +113,7 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (LauncherPreferences.PREF_GAMEPAD_SDL_PASSTHRU) {
+        if (true) {
             // SDL integration is here because android will send garbage keycodes for the purpose of
             // "old app compatibility" so every input gets duplicated and attached with a correlated
             // keycode like the O button on PS4 being KEYCODE_BACK = 4 or the X button being KEYCODE_SPACE
@@ -525,7 +525,7 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if (LauncherPreferences.PREF_GAMEPAD_SDL_PASSTHRU) {
+        if (true) {
             int eventSource = event.getSource();
             int eventKeycode = event.getKeyCode();
             boolean isFromJoystick = (eventSource & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK;
@@ -540,15 +540,7 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
                 }catch (Throwable ignored){
                     Log.e(TAG, "SDL failed to send keyevent!");
                 }
-                return true;
             }
-            // This consumes DPAD events because those are processed by MotionEvent..somehow
-            if (eventKeycode == KeyEvent.KEYCODE_DPAD_UP ||
-                eventKeycode == KeyEvent.KEYCODE_DPAD_DOWN ||
-                eventKeycode == KeyEvent.KEYCODE_DPAD_LEFT ||
-                eventKeycode == KeyEvent.KEYCODE_DPAD_RIGHT ||
-                eventKeycode == KeyEvent.KEYCODE_DPAD_CENTER)
-                return true;
         }
         if(isInEditor) {
             if(event.getKeyCode() == KeyEvent.KEYCODE_BACK) {

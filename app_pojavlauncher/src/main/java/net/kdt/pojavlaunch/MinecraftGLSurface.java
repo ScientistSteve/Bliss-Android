@@ -2,7 +2,6 @@ package net.kdt.pojavlaunch;
 
 import static net.kdt.pojavlaunch.MainActivity.touchCharInput;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_MOUSE_GRAB_FORCE;
-import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_GAMEPAD_SDL_PASSTHRU;
 import static net.kdt.pojavlaunch.utils.MCOptionUtils.getMcScale;
 import static org.lwjgl.glfw.CallbackBridge.sendMouseButton;
 import static org.lwjgl.glfw.CallbackBridge.windowHeight;
@@ -220,11 +219,11 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
     }
 
     private void createGamepad(View contextView, InputDevice inputDevice) {
-        if(CallbackBridge.sGamepadDirectInput && !PREF_GAMEPAD_SDL_PASSTHRU) {
+        if(CallbackBridge.sGamepadDirectInput) {
             mGamepadHandler = new DirectGamepad();
-        }else if(!PREF_GAMEPAD_SDL_PASSTHRU) {
+        }else {
             mGamepadHandler = new Gamepad(contextView, inputDevice, DefaultDataProvider.INSTANCE, true);
-        }else mGamepadHandler = (code, value) -> {}; // Ensure it isn't null while also not processing the events.
+        }
     }
 
     /**
@@ -236,7 +235,7 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
         super.dispatchGenericMotionEvent(event);
         int mouseCursorIndex = -1;
 
-        if(!PREF_GAMEPAD_SDL_PASSTHRU && Gamepad.isGamepadEvent(event)){
+        if(Gamepad.isGamepadEvent(event)){
             if(mGamepadHandler == null) createGamepad(this, event.getDevice());
 
             mInputManager.handleMotionEventInput(getContext(), event, mGamepadHandler);
@@ -308,7 +307,7 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
             }
         }
 
-        if(!PREF_GAMEPAD_SDL_PASSTHRU && Gamepad.isGamepadEvent(event)){
+        if(Gamepad.isGamepadEvent(event)){
             if(mGamepadHandler == null) createGamepad(this, event.getDevice());
 
             mInputManager.handleKeyEventInput(getContext(), event, mGamepadHandler);

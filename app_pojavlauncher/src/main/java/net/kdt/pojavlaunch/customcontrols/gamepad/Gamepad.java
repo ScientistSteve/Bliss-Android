@@ -42,7 +42,6 @@ import static net.kdt.pojavlaunch.customcontrols.gamepad.GamepadJoystick.DIRECTI
 import static net.kdt.pojavlaunch.customcontrols.gamepad.GamepadJoystick.DIRECTION_WEST;
 import static net.kdt.pojavlaunch.customcontrols.gamepad.GamepadJoystick.isJoystickEvent;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_DEADZONE_SCALE;
-import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_GAMEPAD_SDL_PASSTHRU;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_SCALE_FACTOR;
 import static net.kdt.pojavlaunch.utils.MCOptionUtils.getMcScale;
 import static org.lwjgl.glfw.CallbackBridge.sendKeyPress;
@@ -91,9 +90,6 @@ public class Gamepad implements GrabListener, GamepadHandler {
     private boolean mRemoved = false;
 
     public Gamepad(View contextView, InputDevice inputDevice, GamepadDataProvider mapProvider, boolean showCursor){
-        if (PREF_GAMEPAD_SDL_PASSTHRU) {
-            throw new IllegalStateException("Gamepad should never have been constructed if passthru is on.");
-        }
 
         Settings.setDeadzoneScale(PREF_DEADZONE_SCALE);
 
@@ -196,14 +192,14 @@ public class Gamepad implements GrabListener, GamepadHandler {
     }
 
     public static boolean isGamepadEvent(MotionEvent event){
-        return isJoystickEvent(event) && !PREF_GAMEPAD_SDL_PASSTHRU;
+        return isJoystickEvent(event);
     }
 
     public static boolean isGamepadEvent(KeyEvent event){
         boolean isGamepad = ((event.getSource() & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD)
                 || ((event.getDevice() != null) && ((event.getDevice().getSources() & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD));
 
-        return isGamepad && GamepadDpad.isDpadEvent(event) && !PREF_GAMEPAD_SDL_PASSTHRU;
+        return isGamepad && GamepadDpad.isDpadEvent(event);
     }
 
     /**
