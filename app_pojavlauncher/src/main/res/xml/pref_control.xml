@@ -14,7 +14,7 @@
     </Preference>
 
     <androidx.preference.SwitchPreferenceCompat
-        android:defaultValue="false"
+        android:defaultValue="true"
         android:icon="@drawable/ic_menu_custom_controls"
         android:key="gamepadPassthru"
         android:summary="@string/mcl_gamepad_SDL_subtitle"
