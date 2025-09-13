@@ -78,7 +78,6 @@ import org.lwjgl.glfw.CallbackBridge;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
 public class MainActivity extends BaseActivity implements ControlButtonMenuListener, EditorExitable, ServiceConnection {
@@ -114,10 +113,6 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (true) {
-            // SDL integration is here because android will send garbage keycodes for the purpose of
-            // "old app compatibility" so every input gets duplicated and attached with a correlated
-            // keycode like the O button on PS4 being KEYCODE_BACK = 4 or the X button being KEYCODE_SPACE
-
             // TODO: Use lower level HID capture that needs a dialogue box from the user for the
             // app to fully take focus of the input devices. Might cause issues with older android
             // versions so we don't use that right now. Needs testing.
@@ -194,12 +189,6 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
         ContextExecutor.setActivity(this);
         //Now, attach to the service. The game will only start when this happens, to make sure that we know the right state.
         bindService(gameServiceIntent, this, 0);
-    }
-
-    @Override
-    public boolean onGenericMotionEvent(MotionEvent event) {
-        motionListener.onGenericMotion(minecraftGLView, event);
-        return super.onGenericMotionEvent(event);
     }
 
     protected void initLayout(int resId) {
@@ -525,23 +514,6 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
-        if (true) {
-            int eventSource = event.getSource();
-            int eventKeycode = event.getKeyCode();
-            boolean isFromJoystick = (eventSource & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK;
-            boolean isFromGamepad = (eventSource & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD;
-            // Android bundles in garbage KeyEvents for compatibility with old apps
-            // that don't have controller code so we are, checking for em.
-            boolean isControllerKey = eventKeycode >= KeyEvent.KEYCODE_BUTTON_A &&
-                    eventKeycode <= KeyEvent.KEYCODE_BUTTON_MODE;
-            if ((isFromJoystick || isFromGamepad) && isControllerKey) {
-                try {
-                    SDLActivity.handleKeyEvent(minecraftGLView, eventKeycode, event, null);
-                }catch (Throwable ignored){
-                    Log.e(TAG, "SDL failed to send keyevent!");
-                }
-            }
-        }
         if(isInEditor) {
             if(event.getKeyCode() == KeyEvent.KEYCODE_BACK) {
                 if(event.getAction() == KeyEvent.ACTION_DOWN) mControlLayout.askToExit(this);

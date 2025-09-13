@@ -42,6 +42,7 @@ import net.kdt.pojavlaunch.utils.JREUtils;
 import net.kdt.pojavlaunch.utils.MCOptionUtils;
 import net.kdt.pojavlaunch.utils.TouchControllerUtils;
 
+import org.libsdl.app.SDLActivity;
 import org.lwjgl.glfw.CallbackBridge;
 
 
@@ -232,6 +233,7 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
     @SuppressLint("NewApi")
     @Override
     public boolean dispatchGenericMotionEvent(MotionEvent event) {
+        MainActivity.motionListener.onGenericMotion(this, event);
         super.dispatchGenericMotionEvent(event);
         int mouseCursorIndex = -1;
 
@@ -306,7 +308,16 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
                 return true;
             }
         }
-
+        // Android bundles in garbage KeyEvents for compatibility with old apps
+        // that don't have controller code so we are, checking for em.
+        if (eventKeycode >= KeyEvent.KEYCODE_BUTTON_A &&
+            eventKeycode <= KeyEvent.KEYCODE_BUTTON_MODE) {
+                try {
+                    SDLActivity.handleKeyEvent(this, eventKeycode, event, null);
+                } catch (Throwable ignored){
+                    Log.e(TAG, "SDL failed to send keyevent!");
+                }
+            }
         if(Gamepad.isGamepadEvent(event)){
             if(mGamepadHandler == null) createGamepad(this, event.getDevice());
 
