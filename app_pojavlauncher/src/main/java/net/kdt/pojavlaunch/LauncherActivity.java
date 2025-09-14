@@ -166,7 +166,9 @@ public class LauncherActivity extends BaseActivity {
     };
 
     private ActivityResultLauncher<String> mRequestNotificationPermissionLauncher;
+    private ActivityResultLauncher<String> mRequestMicrophonePermissionLauncher;
     private WeakReference<Runnable> mRequestNotificationPermissionRunnable;
+    private WeakReference<Runnable> mRequestMicrophonePermissionRunnable;
 
     @Override
     protected boolean shouldIgnoreNotch() {
@@ -202,6 +204,16 @@ public class LauncherActivity extends BaseActivity {
                     if(!isAllowed) handleNoNotificationPermission();
                     else {
                         Runnable runnable = Tools.getWeakReference(mRequestNotificationPermissionRunnable);
+                        if(runnable != null) runnable.run();
+                    }
+                }
+        );
+        mRequestMicrophonePermissionLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                isAllowed -> {
+                    if(!isAllowed) handleNoNotificationPermission();
+                    else {
+                        Runnable runnable = Tools.getWeakReference(mRequestMicrophonePermissionRunnable);
                         if(runnable != null) runnable.run();
                     }
                 }
@@ -343,6 +355,11 @@ public class LauncherActivity extends BaseActivity {
                 this,
                 Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_DENIED;
     }
+    public boolean checkForMicrophonePermission() {
+        return ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_DENIED;
+    }
 
     public void askForNotificationPermission(Runnable onSuccessRunnable) {
         if(Build.VERSION.SDK_INT < 33) return;
@@ -350,6 +367,13 @@ public class LauncherActivity extends BaseActivity {
             mRequestNotificationPermissionRunnable = new WeakReference<>(onSuccessRunnable);
         }
         mRequestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+    }
+
+    public void askForMicrophonePermission(Runnable onSuccessRunnable) {
+        if(onSuccessRunnable != null) {
+            mRequestMicrophonePermissionRunnable = new WeakReference<>(onSuccessRunnable);
+        }
+        mRequestMicrophonePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO);
     }
 
     /** Stuff all the view boilerplate here */

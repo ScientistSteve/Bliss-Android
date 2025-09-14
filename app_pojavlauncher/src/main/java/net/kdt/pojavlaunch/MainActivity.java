@@ -392,27 +392,27 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     }
 
     private void runCraft(String versionId, JMinecraftVersionList.Version version) throws Throwable {
+        String assetVersion;
+        if (version.inheritsFrom != null) { // We are almost definitely modded if this runs
+            File vanillaJsonFile = new File(Tools.DIR_HOME_VERSION + "/" + version.inheritsFrom + "/" + version.inheritsFrom + ".json");
+            JMinecraftVersionList.Version vanillaJson;
+            try { // Get the vanilla json from modded instance
+                vanillaJson = Tools.GLOBAL_GSON.fromJson(Tools.read(vanillaJsonFile.getAbsolutePath()), JMinecraftVersionList.Version.class);
+            } catch (IOException ignored) { // Should never happen, we check for this in MinecraftDownloader().start()
+                throw new RuntimeException(getString(R.string.error_vanilla_json_corrupt));
+            }
+            // Something went wrong if this is somehow not the case anymore
+            if (!Objects.equals(vanillaJson.assets, vanillaJson.assetIndex.id))
+                Tools.showErrorRemote(new RuntimeException(getString(R.string.error_vanilla_json_corrupt)));
+            assetVersion = vanillaJson.assets;
+        } else {
+            // Else assume we are vanilla
+            if (!Objects.equals(version.assets, version.assetIndex.id))
+                Tools.showErrorRemote(new RuntimeException(getString(R.string.error_vanilla_json_corrupt)));
+            assetVersion = version.assets;
+        }
         // Autoselect renderer
         if (Tools.LOCAL_RENDERER == null) {
-            String assetVersion;
-            if (version.inheritsFrom != null) { // We are almost definitely modded if this runs
-                File vanillaJsonFile = new File(Tools.DIR_HOME_VERSION + "/" + version.inheritsFrom + "/" + version.inheritsFrom + ".json");
-                JMinecraftVersionList.Version vanillaJson;
-                try { // Get the vanilla json from modded instance
-                    vanillaJson = Tools.GLOBAL_GSON.fromJson(Tools.read(vanillaJsonFile.getAbsolutePath()), JMinecraftVersionList.Version.class);
-                } catch (IOException ignored) { // Should never happen, we check for this in MinecraftDownloader().start()
-                    throw new RuntimeException(getString(R.string.error_vanilla_json_corrupt));
-                }
-                // Something went wrong if this is somehow not the case anymore
-                if (!Objects.equals(vanillaJson.assets, vanillaJson.assetIndex.id))
-                    Tools.showErrorRemote(new RuntimeException(getString(R.string.error_vanilla_json_corrupt)));
-                assetVersion = vanillaJson.assets;
-            } else {
-                // Else assume we are vanilla
-                if (!Objects.equals(version.assets, version.assetIndex.id))
-                    Tools.showErrorRemote(new RuntimeException(getString(R.string.error_vanilla_json_corrupt)));
-                assetVersion = version.assets;
-            }
             // 25w09a is when HolyGL4ES starts showing a black screen upon world load.
             // There is no way to consistently check for that without breaking mod loaders
             // for old versions like legacy fabric so we start from 25w07a instead
@@ -444,6 +444,16 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
             Tools.LOCAL_RENDERER = firstCompatibleRenderer;
             Tools.releaseRenderersCache();
         }
+
+        // MCL-3732 Mitigation
+        // I don't trust the bug tracker. 'server-resource-pack" was removed in 1.20.3-pre3
+        // so we use 12 to detect that. We still generate till 1.20.5 else we don't cover
+        // 1.20.3-pre2 and such. Better to over than to under.
+        File folder = new File(Tools.getGameDirPath(minecraftProfile), "server-resource-pack");
+        try {
+            if (Integer.parseInt(assetVersion) <= 12) folder.mkdir();
+        } catch (NumberFormatException e) { folder.mkdir(); }
+
         MinecraftAccount minecraftAccount = PojavProfile.getCurrentProfileContent(this, null);
         Logger.appendToLog("--------- Starting game with Launcher Debug!");
         Tools.printLauncherInfo(versionId, Tools.isValidString(minecraftProfile.javaArgs) ? minecraftProfile.javaArgs : LauncherPreferences.PREF_CUSTOM_JAVA_ARGS);
