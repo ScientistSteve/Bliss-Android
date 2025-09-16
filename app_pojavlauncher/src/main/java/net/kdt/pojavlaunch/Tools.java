@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.FileObserver;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.DocumentsContract;
@@ -313,6 +314,7 @@ public final class Tools {
         }
         LauncherProfiles.load();
         File gamedir = Tools.getGameDirPath(minecraftProfile);
+        startControllableMitigation(gamedir);
         if(checkRenderDistance(gamedir)) {
             LifecycleAwareAlertDialog.DialogCreator dialogCreator = ((alertDialog, dialogBuilder) ->
                     dialogBuilder.setMessage(activity.getString(R.string.ltw_render_distance_warning_msg))
@@ -376,6 +378,30 @@ public final class Tools {
         JREUtils.launchJavaVM(activity, runtime, gamedir, javaArgList, args);
         // If we returned, this means that the JVM exit dialog has been shown and we don't need to be active anymore.
         // We never return otherwise. The process will be killed anyway, and thus we will become inactive
+    }
+
+    private static void startControllableMitigation(File gamedir) {
+        File deleted = new File(gamedir + "/" + "controllable_natives");
+        try {
+            org.apache.commons.io.FileUtils.deleteDirectory(deleted);
+        } catch (IOException e) {
+            Log.i("ModMitigation", "Failed to execute Controllable mitigation");
+        }
+        FileObserver controllableMitigation = new FileObserver(gamedir) {
+            @Override
+            public void onEvent(int event, @Nullable String path) {
+                Log.i("ModMitigation", "onEvent: " + Integer.toHexString(event) + ", " + path);
+                if (path != null && path.equals("controllable_natives")){
+                    Log.i("ModMitigation", "Attempting MrCrayfish's Controllable forced incorrect native extraction mitigation");
+                    try {
+                        org.apache.commons.io.FileUtils.deleteDirectory(deleted);
+                    } catch (IOException e) {
+                        Log.i("ModMitigation", "Failed to execute Controllable mitigation");
+                    }
+                }
+            }
+        };
+        controllableMitigation.startWatching();
     }
 
     public static File getGameDirPath(@NonNull MinecraftProfile minecraftProfile){
