@@ -1,10 +1,12 @@
 /*
  * This file is part of SDL3 android-project java code.
+ * This file has been modified for this project's needs.
  * Licensed under the zlib license: https://www.libsdl.org/license.php
  */
 
 package org.libsdl.app;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,10 +17,16 @@ import android.os.Build;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.os.VibratorManager;
+import android.system.Os;
+import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+
+import net.kdt.pojavlaunch.MinecraftGLSurface;
+import net.kdt.pojavlaunch.customcontrols.gamepad.direct.DirectGamepadEnableHandler;
+import net.kdt.pojavlaunch.prefs.LauncherPreferences;
 
 
 public class SDLControllerManager
@@ -135,6 +143,9 @@ public class SDLControllerManager
         );
     }
 
+    public static void setDirectGamepadEnableHandler(DirectGamepadEnableHandler h) {
+        SDLJoystickHandler_API16.sDirectGamepadEnableHandler = h;
+    }
 }
 
 class SDLJoystickHandler {
@@ -219,8 +230,20 @@ class SDLJoystickHandler_API16 extends SDLJoystickHandler {
         mJoysticks = new ArrayList<SDLJoystick>();
     }
 
+    protected static DirectGamepadEnableHandler sDirectGamepadEnableHandler;
+    private static boolean firstPollDone = false;
     @Override
     public void pollInputDevices() {
+        if (!firstPollDone) {
+            MinecraftGLSurface.sdlEnabled = true;
+            if (sDirectGamepadEnableHandler != null){
+                sDirectGamepadEnableHandler.onDirectGamepadEnabled();
+            }
+            Log.i("SDL", "SDL detected! Enabling..");
+            sDirectGamepadEnableHandler = null;
+            firstPollDone = true;
+        }
+
         int[] deviceIds = InputDevice.getDeviceIds();
 
         for (int device_id : deviceIds) {

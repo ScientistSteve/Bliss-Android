@@ -1,6 +1,5 @@
 package net.kdt.pojavlaunch;
 
-import static net.kdt.pojavlaunch.Tools.NATIVE_LIB_DIR;
 import static net.kdt.pojavlaunch.Tools.currentDisplayMetrics;
 import static net.kdt.pojavlaunch.Tools.dialogForceClose;
 import static net.kdt.pojavlaunch.Tools.runMethodbyReflection;
@@ -27,9 +26,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.system.ErrnoException;
-import android.system.Os;
-import android.telecom.Call;
 import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
@@ -72,7 +68,6 @@ import net.kdt.pojavlaunch.value.launcherprofiles.LauncherProfiles;
 import net.kdt.pojavlaunch.value.launcherprofiles.MinecraftProfile;
 
 import org.libsdl.app.SDL;
-import org.libsdl.app.SDLActivity;
 import org.libsdl.app.SDLSurface;
 import org.lwjgl.glfw.CallbackBridge;
 
@@ -120,9 +115,13 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
 
             // TODO: Use a hook to load SDL logic depending on whether libSDL3.so is loaded.
             try {
+                // Note: This doesn't dlopen it for the mod, they still have to do it themselves
+                // Why? https://github.com/android/ndk/issues/201#issuecomment-248060092
+                // Just in case that gets deleted off the internet:
+                // "On Android only the main executable and LD_PRELOADs are considered to be
+                // RTLD_GLOBAL, all the dependencies of the main executable remain RTLD_LOCAL." - dimitry
                 SDL.loadLibrary("SDL3", this);
-//                Os.setenv("SDL3_DYNAMIC_API", NATIVE_LIB_DIR + "/libSDL3.so", true);
-//                SDL.loadLibrary("SDL2", this);
+                SDL.loadLibrary("SDL2", this);
                 SDL.initialize();
                 SDL.setupJNI();
                 SDL.setContext(this);
@@ -130,13 +129,10 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
                 motionListener = (View.OnGenericMotionListener)
                         runMethodbyReflection("org.libsdl.app.SDLActivity",
                                 "getMotionListener");
-                Tools.SDL.initializeControllerSubsystems();
             } catch (UnsatisfiedLinkError ignored) {
                 // Ignore because if SDL.setupJNI(); fails, SDL wasn't loaded.
             } catch (ReflectiveOperationException e) {
                 Tools.showErrorRemote("SDL did not load properly.", e);
-//            } catch (ErrnoException e) {
-//                throw new RuntimeException(e);
             }
         }
 
