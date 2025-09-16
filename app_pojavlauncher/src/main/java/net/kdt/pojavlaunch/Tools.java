@@ -79,6 +79,7 @@ import net.kdt.pojavlaunch.value.launcherprofiles.MinecraftProfile;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
+import org.libsdl.app.SDLControllerManager;
 import org.lwjgl.glfw.CallbackBridge;
 
 import java.io.BufferedInputStream;
@@ -380,6 +381,11 @@ public final class Tools {
         // We never return otherwise. The process will be killed anyway, and thus we will become inactive
     }
 
+    /*
+     * This is does not work when debugging. This is not reliable.
+     * This is a monstrosity that races the mod, trying to ensure that when the folder is checked
+     * after extraction but before dlopen, it is empty, so it loads the bundled SDL2 we have instead
+     */
     private static void startControllableMitigation(File gamedir) {
         File deleted = new File(gamedir + "/" + "controllable_natives");
         try {
@@ -1612,6 +1618,11 @@ public final class Tools {
     }
 
     static class SDL {
+        /**
+         * Initializes gamepad, joystick, and event subsystems.
+         * This triggers {@link SDLControllerManager#pollInputDevices()} and subsequently disables
+         * the emulated gamepad implementation.
+         */
         public static native void initializeControllerSubsystems();
     }
 }
