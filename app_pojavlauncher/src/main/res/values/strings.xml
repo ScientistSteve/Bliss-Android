@@ -479,4 +479,6 @@
     <string name="mcl_gamepad_forcedSDL_subtitle">Can allow old versions of Legacy4J to use SDL backend</string>
     <string name="mcl_gamepad_forcedSDL">Forcibly start SDL controller handling</string>
     <string name="preference_category_SDL_settings">SDL Settings</string>
+    <string name="oldL4JFound">You are using a version of Legacy4J without the android fixes! You will need to manually enable SDL in the controller settings to get the best experience!</string>
+    <string name="global_warning">Warning!</string>
 </resources>

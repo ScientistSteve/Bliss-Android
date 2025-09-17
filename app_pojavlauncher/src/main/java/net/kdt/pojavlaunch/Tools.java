@@ -93,7 +93,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
@@ -316,6 +315,7 @@ public final class Tools {
         LauncherProfiles.load();
         File gamedir = Tools.getGameDirPath(minecraftProfile);
         startControllableMitigation(gamedir);
+        startOldLegacy4JMitigation(activity, gamedir);
         if(checkRenderDistance(gamedir)) {
             LifecycleAwareAlertDialog.DialogCreator dialogCreator = ((alertDialog, dialogBuilder) ->
                     dialogBuilder.setMessage(activity.getString(R.string.ltw_render_distance_warning_msg))
@@ -408,6 +408,50 @@ public final class Tools {
             }
         };
         controllableMitigation.startWatching();
+    }
+
+    private static Logger.eventLogListener eventLogListener;
+    /// TODO: Remove when the time is right
+    /**
+     * Legacy4J for a long time had broken SDL detection for android, we need to check and
+     * accommodate this for now. At least until the broken logic are on versions considered
+     * obsolete.
+     * <p>
+     * This is of course, very jank, it does not work for anything below 1.7.5 but why is anyone
+     * on that version anyway? Legacy4J has LTS for like all the versions.
+     */
+    private static void startOldLegacy4JMitigation(Activity activity, File gamedir) {
+        boolean hasLegacy4J = false;
+        File modsDir = new File(gamedir, "mods");
+        File[] mods = modsDir.listFiles(file -> file.isFile() && file.getName().endsWith(".jar"));
+        if(mods != null) {
+            for (File file : mods) {
+                String name = file.getName();
+                if (name.contains("Legacy4J")) {
+                    hasLegacy4J = true;
+                    break;
+                }
+            }
+        }
+        if (hasLegacy4J) {
+            String TAG = "OldLegacy4JMitigation";
+            Log.i(TAG, "Legacy4J detected!");
+            eventLogListener = loggedLine -> {
+                Log.i(TAG, loggedLine);
+                if (LauncherPreferences.PREF_GAMEPAD_SDL_PASSTHRU && loggedLine.contains("literal{SDL3 (isXander's libsdl4j)} isn't supported in this system. GLFW will be used instead.")) {
+                    Log.i(TAG, "Old version of Legacy4J detected! Force enabling SDL");
+                    Tools.SDL.initializeControllerSubsystems();
+                    Tools.runOnUiThread(() -> {
+                        Tools.dialog(activity, activity.getString(R.string.global_warning), activity.getString(R.string.oldL4JFound));
+                    });
+                    Logger.removeLogListener(eventLogListener);
+                } else if (LauncherPreferences.PREF_GAMEPAD_SDL_PASSTHRU && loggedLine.contains("Added SDL Controller Mappings")) {
+                    Log.i(TAG, "Fixed version of Legacy4J detected! Have fun!");
+                    Logger.removeLogListener(eventLogListener);
+                }
+            };
+            Logger.addLogListener(eventLogListener);
+        }
     }
 
     public static File getGameDirPath(@NonNull MinecraftProfile minecraftProfile){
