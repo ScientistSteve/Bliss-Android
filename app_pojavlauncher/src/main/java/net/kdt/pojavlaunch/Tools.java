@@ -363,7 +363,11 @@ public final class Tools {
 
         javaArgList.addAll(Arrays.asList(getMinecraftJVMArgs(versionId, gamedir)));
         javaArgList.add("-cp");
-        javaArgList.add(launchClassPath + ":" + getLWJGL3ClassPath());
+        if (launchClassPath.contains("bta-client-")){ // BTADownloadTask.BASE_JSON sets this. Jank.
+            // BTA for some reason needs this to be last or else it uses the wrong lwjgl
+            javaArgList.add(launchClassPath + ":" + getLWJGL3ClassPath());
+        // Legacy Fabric needs this to be first or else it uses the wrong lwjgl
+        } else javaArgList.add(getLWJGL3ClassPath() + ":" + launchClassPath);
 
         javaArgList.add(versionInfo.mainClass);
         javaArgList.addAll(Arrays.asList(launchArgs));
