@@ -236,7 +236,7 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
     @SuppressLint("NewApi")
     @Override
     public boolean dispatchGenericMotionEvent(MotionEvent event) {
-        MainActivity.motionListener.onGenericMotion(this, event);
+        if (MainActivity.motionListener.onGenericMotion(this, event)) return true;
         super.dispatchGenericMotionEvent(event);
         int mouseCursorIndex = -1;
 
@@ -313,22 +313,21 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
         }
         // Android bundles in garbage KeyEvents for compatibility with old apps
         // that don't have controller code so we are, checking for em.
-        if (sdlEnabled &&
-            eventKeycode >= KeyEvent.KEYCODE_BUTTON_A &&
-            eventKeycode <= KeyEvent.KEYCODE_BUTTON_MODE) {
+        boolean isGamepadEvent = Gamepad.isGamepadEvent(event);
+        if (sdlEnabled && isGamepadEvent) {
                 try {
                     SDLActivity.handleKeyEvent(this, eventKeycode, event, null);
+                    if (isGamepadEvent) return true;
                 } catch (Throwable ignored){
                     Log.e(TAG, "SDL failed to send keyevent!");
                 }
             }
-        if(!sdlEnabled && Gamepad.isGamepadEvent(event)){
+        if(!sdlEnabled && isGamepadEvent){
             if(mGamepadHandler == null) createGamepad(this, event.getDevice());
 
             mInputManager.handleKeyEventInput(getContext(), event, mGamepadHandler);
             return true;
         }
-        if (sdlEnabled) return true;
 
         int index = EfficientAndroidLWJGLKeycode.getIndexByKey(eventKeycode);
         if(EfficientAndroidLWJGLKeycode.containsIndex(index)) {
