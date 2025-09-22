@@ -28,6 +28,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.FileObserver;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.DocumentsContract;
@@ -78,6 +79,7 @@ import net.kdt.pojavlaunch.value.launcherprofiles.MinecraftProfile;
 
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
+import org.libsdl.app.SDLControllerManager;
 import org.lwjgl.glfw.CallbackBridge;
 
 import java.io.BufferedInputStream;
@@ -91,6 +93,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
@@ -311,6 +314,8 @@ public final class Tools {
         }
         LauncherProfiles.load();
         File gamedir = Tools.getGameDirPath(minecraftProfile);
+        startControllableMitigation(activity, gamedir);
+        startOldLegacy4JMitigation(activity, gamedir);
         if(checkRenderDistance(gamedir)) {
             LifecycleAwareAlertDialog.DialogCreator dialogCreator = ((alertDialog, dialogBuilder) ->
                     dialogBuilder.setMessage(activity.getString(R.string.ltw_render_distance_warning_msg))
@@ -378,6 +383,109 @@ public final class Tools {
         JREUtils.launchJavaVM(activity, runtime, gamedir, javaArgList, args);
         // If we returned, this means that the JVM exit dialog has been shown and we don't need to be active anymore.
         // We never return otherwise. The process will be killed anyway, and thus we will become inactive
+    }
+    private static Logger.eventLogListener controllableMitigationLogListener;
+    /*
+     * This is does not work when debugging. This is not reliable.
+     * This is a monstrosity that races the mod, trying to ensure that when the folder is checked
+     * after extraction but before dlopen, it is empty, so it loads the bundled SDL2 we have instead
+     */
+    private static void startControllableMitigation(Activity activity ,File gamedir) {
+        String TAG = "ControllableMitigation";
+        File deleted = new File(gamedir + "/controllable_natives/SDL");
+        boolean hasControllable = false;
+        File modsDir = new File(gamedir, "mods");
+        File[] mods = modsDir.listFiles(file -> file.isFile() && file.getName().endsWith(".jar"));
+        if (mods != null) {
+            for (File file : mods) {
+                String name = file.getName();
+                if (name.contains("controllable")) {
+                    hasControllable = true;
+                    break;
+                }
+            }
+        }
+        if (hasControllable) {
+            Tools.runOnUiThread(() -> {
+                Tools.dialog(activity, activity.getString(R.string.global_warning), activity.getString(R.string.controllableFound));
+            });
+            Thread mitigationThread = new Thread(() -> {
+                // This is total garbage but it seems to be the best jank for the job
+                Log.i(TAG, "Controllable detected! Starting mitigation thread");
+                try {org.apache.commons.io.FileUtils.deleteDirectory(deleted);} catch (IOException ignored) {}
+                while (!Thread.currentThread().isInterrupted()) {
+                    // Looks for controllable_natives/SDL/<sdl_version_number>/libSDL2.so and
+                    // deletes it. We can assume array index 0 because this dir gets fully deleted
+                    // before the loop is started.
+                    if (deleted.isDirectory()) {
+                        if (deleted.listFiles().length > 0) {
+                            if (deleted.listFiles()[0].listFiles().length > 0) {
+                                if (deleted.listFiles()[0].listFiles()[0].exists()) {
+                                    deleted.listFiles()[0].listFiles()[0].delete();
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+                // We can end here because SdlNativeLibraryLoader only extracts libSDL2.so once
+                // If NativeLibrary can't find it in the folder to load() it uses java.library.path
+                Log.i(TAG, "Success! Ending Controllable crash mitigation..");
+            });
+            mitigationThread.start();
+            controllableMitigationLogListener = loggedLine -> {
+                // Hard off switch if it somehow didn't delete anything, just in case.
+                if (loggedLine.contains("Sound engine started") && mitigationThread.isAlive()) {
+                    Log.i(TAG, "Nothing happened. Ending Controllable crash mitigation..");
+                    Logger.removeLogListener(controllableMitigationLogListener);
+                    mitigationThread.interrupt();
+                }
+            };
+            Logger.addLogListener(controllableMitigationLogListener);
+        }
+    }
+
+    private static Logger.eventLogListener oldL4JMitigationLogListener;
+    /// TODO: Remove when the time is right
+    /**
+     * Legacy4J for a long time had broken SDL detection for android, we need to check and
+     * accommodate this for now. At least until the broken logic are on versions considered
+     * obsolete.
+     * <p>
+     * This is of course, very jank, it does not work for anything below 1.7.5 but why is anyone
+     * on that version anyway? Legacy4J has LTS for like all the versions.
+     */
+    private static void startOldLegacy4JMitigation(Activity activity, File gamedir) {
+        boolean hasLegacy4J = false;
+        File modsDir = new File(gamedir, "mods");
+        File[] mods = modsDir.listFiles(file -> file.isFile() && file.getName().endsWith(".jar"));
+        if(mods != null) {
+            for (File file : mods) {
+                String name = file.getName();
+                if (name.contains("Legacy4J")) {
+                    hasLegacy4J = true;
+                    break;
+                }
+            }
+        }
+        if (hasLegacy4J) {
+            String TAG = "OldLegacy4JMitigation";
+            Log.i(TAG, "Legacy4J detected!");
+            oldL4JMitigationLogListener = loggedLine -> {
+                if (LauncherPreferences.PREF_GAMEPAD_SDL_PASSTHRU && loggedLine.contains("literal{SDL3 (isXander's libsdl4j)} isn't supported in this system. GLFW will be used instead.")) {
+                    Log.i(TAG, "Old version of Legacy4J detected! Force enabling SDL");
+                    Tools.SDL.initializeControllerSubsystems();
+                    Tools.runOnUiThread(() -> {
+                        Tools.dialog(activity, activity.getString(R.string.global_warning), activity.getString(R.string.oldL4JFound));
+                    });
+                    Logger.removeLogListener(oldL4JMitigationLogListener);
+                } else if (LauncherPreferences.PREF_GAMEPAD_SDL_PASSTHRU && loggedLine.contains("Added SDL Controller Mappings")) {
+                    Log.i(TAG, "Fixed version of Legacy4J detected! Have fun!");
+                    Logger.removeLogListener(oldL4JMitigationLogListener);
+                }
+            };
+            Logger.addLogListener(oldL4JMitigationLogListener);
+        }
     }
 
     public static File getGameDirPath(@NonNull MinecraftProfile minecraftProfile){
@@ -1576,5 +1684,23 @@ public final class Tools {
             }
         }
         return false;
+    }
+
+    public static Object runMethodbyReflection(String className, String methodName) throws ReflectiveOperationException{
+        Class<?> clazz = Class.forName(className);
+        Method method = clazz.getDeclaredMethod(methodName);
+        method.setAccessible(true);
+        Object motionListener = method.invoke(null);
+        assert motionListener != null;
+        return motionListener;
+    }
+
+    static class SDL {
+        /**
+         * Initializes gamepad, joystick, and event subsystems.
+         * This triggers {@link SDLControllerManager#pollInputDevices()} and subsequently disables
+         * the emulated gamepad implementation.
+         */
+        public static native void initializeControllerSubsystems();
     }
 }

@@ -554,3 +554,16 @@ JNIEXPORT jobject JNICALL
 Java_org_lwjgl_glfw_CallbackBridge_nativeCreateGamepadAxisBuffer(JNIEnv *env, jclass clazz) {
     return (*env)->NewDirectByteBuffer(env, &pojav_environ->gamepadState.axes, sizeof(pojav_environ->gamepadState.axes));
 }
+
+// HACK: Legacy4J has faulty detection that hardwires us to GLFW unless we init SDL ourselves.
+// This is a horribly made function that should really have more checks around it but meh.
+#include <SDL3/SDL.h>
+
+static inline void initSubsystem(void) {
+    SDL_Init(SDL_INIT_GAMEPAD | SDL_INIT_JOYSTICK | SDL_INIT_EVENTS);
+}
+JNIEXPORT void JNICALL
+Java_net_kdt_pojavlaunch_Tools_00024SDL_initializeControllerSubsystems(JNIEnv *env, jclass clazz){
+    // Please ensure that you have already dlopen'ed SDL3 before calling this.
+    initSubsystem();
+}

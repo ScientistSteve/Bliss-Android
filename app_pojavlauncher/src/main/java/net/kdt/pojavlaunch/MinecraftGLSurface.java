@@ -42,7 +42,10 @@ import net.kdt.pojavlaunch.utils.JREUtils;
 import net.kdt.pojavlaunch.utils.MCOptionUtils;
 import net.kdt.pojavlaunch.utils.TouchControllerUtils;
 
+import org.libsdl.app.SDLActivity;
+import org.libsdl.app.SDLControllerManager;
 import org.lwjgl.glfw.CallbackBridge;
+
 
 import fr.spse.gamepad_remapper.GamepadHandler;
 import fr.spse.gamepad_remapper.RemapperManager;
@@ -79,12 +82,14 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
     final Object mSurfaceReadyListenerLock = new Object();
     /* View holding the surface, either a SurfaceView or a TextureView */
     View mSurface;
+    String TAG = "MinecraftGLSurface";
 
     private final InGameEventProcessor mIngameProcessor = new InGameEventProcessor(mSensitivityFactor);
     private final InGUIEventProcessor mInGUIProcessor = new InGUIEventProcessor();
     private TouchEventProcessor mCurrentTouchProcessor = mInGUIProcessor;
     private AndroidPointerCapture mPointerCapture;
     private boolean mLastGrabState = false;
+    public static boolean sdlEnabled = false;
 
     public MinecraftGLSurface(Context context) {
         this(context, null);
@@ -94,6 +99,7 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
         super(context, attributeSet);
         setFocusable(true);
         CallbackBridge.setDirectGamepadEnableHandler(this);
+        SDLControllerManager.setDirectGamepadEnableHandler(this);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -217,11 +223,11 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
     }
 
     private void createGamepad(View contextView, InputDevice inputDevice) {
-        if(CallbackBridge.sGamepadDirectInput) {
+        if(CallbackBridge.sGamepadDirectInput && !sdlEnabled) {
             mGamepadHandler = new DirectGamepad();
-        }else {
+        }else if(!sdlEnabled) {
             mGamepadHandler = new Gamepad(contextView, inputDevice, DefaultDataProvider.INSTANCE, true);
-        }
+        }else mGamepadHandler = (code, value) -> {}; // Ensure it isn't null while also not processing the events.
     }
 
     /**
@@ -230,9 +236,11 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
     @SuppressLint("NewApi")
     @Override
     public boolean dispatchGenericMotionEvent(MotionEvent event) {
+        if (MainActivity.motionListener.onGenericMotion(this, event)) return true;
+        super.dispatchGenericMotionEvent(event);
         int mouseCursorIndex = -1;
 
-        if(Gamepad.isGamepadEvent(event)){
+        if(!sdlEnabled && Gamepad.isGamepadEvent(event)){
             if(mGamepadHandler == null) createGamepad(this, event.getDevice());
 
             mInputManager.handleMotionEventInput(getContext(), event, mGamepadHandler);
@@ -303,8 +311,18 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
                 return true;
             }
         }
-
-        if(Gamepad.isGamepadEvent(event)){
+        // Android bundles in garbage KeyEvents for compatibility with old apps
+        // that don't have controller code so we are, checking for em.
+        boolean isGamepadEvent = Gamepad.isGamepadEvent(event);
+        if (sdlEnabled && isGamepadEvent) {
+                try {
+                    SDLActivity.handleKeyEvent(this, eventKeycode, event, null);
+                    if (isGamepadEvent) return true;
+                } catch (Throwable ignored){
+                    Log.e(TAG, "SDL failed to send keyevent!");
+                }
+            }
+        if(!sdlEnabled && isGamepadEvent){
             if(mGamepadHandler == null) createGamepad(this, event.getDevice());
 
             mInputManager.handleKeyEventInput(getContext(), event, mGamepadHandler);

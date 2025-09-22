@@ -165,6 +165,8 @@
     <string name="dl_library_sha_fail">Library %s is damaged and will be redownloaded</string>
     <string name="dl_library_sha_unknown">Library %s can\'t be checked, have to assume it\'s good</string>
     <string name="dl_library_sha_pass">Library %s is fine and usable</string>
+    <string name="mcl_gamepad_SDL">Enable SDL controller backend</string>
+    <string name="mcl_gamepad_SDL_subtitle">Enables SDL controller backend. Has better mod support. Falls back to GLFW if not used.</string>
     <string name="mcl_disable_gestures">Disable gestures</string>
     <string name="mcl_disable_gestures_subtitle">Disables gestures, such as hold to break block, and tap to place a block.</string>
     <string name="mcl_disable_swap_hand">Disable double tap to swap hands</string>
@@ -474,4 +476,10 @@
     <string name="error_vanilla_json_corrupt">Vanilla json seems to be corrupt. Please send a bug report on github or discord.</string>
     <string name="preference_ask_for_microphone_title">Allow microphone</string>
     <string name="preference_ask_for_microphone_description">Click to re-request the notification permission, required for voice chat mods like Simple Voice Chat.</string>
+    <string name="mcl_gamepad_forcedSDL_subtitle">Can allow old versions of Legacy4J to use SDL backend</string>
+    <string name="mcl_gamepad_forcedSDL">Forcibly start SDL controller handling</string>
+    <string name="preference_category_SDL_settings">SDL Settings</string>
+    <string name="oldL4JFound">You are using a version of Legacy4J without the android fixes! You will need to manually enable SDL in the controller settings to get the best experience!</string>
+    <string name="global_warning">Warning!</string>
+    <string name="controllableFound">Controllable currently has a random chance of crashing on launch. Either keep trying again and hope it launches or use another mod like Controlify.</string>
 </resources>

@@ -2,6 +2,7 @@ package net.kdt.pojavlaunch;
 
 import static net.kdt.pojavlaunch.Tools.currentDisplayMetrics;
 import static net.kdt.pojavlaunch.Tools.dialogForceClose;
+import static net.kdt.pojavlaunch.Tools.runMethodbyReflection;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_ENABLE_GYRO;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_SUSTAINED_PERFORMANCE;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_USE_ALTERNATE_SURFACE;
@@ -25,13 +26,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -68,18 +67,21 @@ import net.kdt.pojavlaunch.value.MinecraftAccount;
 import net.kdt.pojavlaunch.value.launcherprofiles.LauncherProfiles;
 import net.kdt.pojavlaunch.value.launcherprofiles.MinecraftProfile;
 
+import org.libsdl.app.SDL;
+import org.libsdl.app.SDLSurface;
 import org.lwjgl.glfw.CallbackBridge;
 
 import java.io.File;
 import java.io.IOException;
-
 import java.util.Objects;
 
 public class MainActivity extends BaseActivity implements ControlButtonMenuListener, EditorExitable, ServiceConnection {
     public static volatile ClipboardManager GLOBAL_CLIPBOARD;
+    public static final String TAG = "MainActivity";
     public static final String INTENT_MINECRAFT_VERSION = "intent_version";
 
     volatile public static boolean isInputStackCall;
+    protected static View.OnGenericMotionListener motionListener = (v, event) -> false;
 
     public static TouchCharInput touchCharInput;
     private MinecraftGLSurface minecraftGLView;
@@ -105,6 +107,35 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (LauncherPreferences.PREF_GAMEPAD_SDL_PASSTHRU) {
+            // TODO: Use lower level HID capture that needs a dialogue box from the user for the
+            // app to fully take focus of the input devices. Might cause issues with older android
+            // versions so we don't use that right now. Needs testing.
+            // Currently tried but only identification works OOTB, inputs aren't being sent.
+
+            // TODO: Use a hook to load SDL logic depending on whether libSDL3.so is loaded.
+            try {
+                // Note: This doesn't dlopen it for the mod, they still have to do it themselves
+                // Why? https://github.com/android/ndk/issues/201#issuecomment-248060092
+                // Just in case that gets deleted off the internet:
+                // "On Android only the main executable and LD_PRELOADs are considered to be
+                // RTLD_GLOBAL, all the dependencies of the main executable remain RTLD_LOCAL." - dimitry
+                SDL.loadLibrary("SDL3", this);
+                SDL.loadLibrary("SDL2", this);
+                SDL.initialize();
+                SDL.setupJNI();
+                SDL.setContext(this);
+                new SDLSurface(this);
+                motionListener = (View.OnGenericMotionListener)
+                        runMethodbyReflection("org.libsdl.app.SDLActivity",
+                                "getMotionListener");
+                if (LauncherPreferences.PREF_GAMEPAD_FORCEDSDL_PASSTHRU) Tools.SDL.initializeControllerSubsystems();
+            } catch (UnsatisfiedLinkError ignored) {
+                // Ignore because if SDL.setupJNI(); fails, SDL wasn't loaded.
+            } catch (ReflectiveOperationException e) {
+                Tools.showErrorRemote("SDL did not load properly.", e);
+            }
+        }
 
         minecraftProfile = LauncherProfiles.getCurrentProfile();
 
@@ -292,6 +323,7 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
             mQuickSettingSideDialog.cancel();
         }
         CallbackBridge.nativeSetWindowAttrib(LwjglGlfwKeycode.GLFW_HOVERED, 0);
+
         super.onPause();
     }
 
@@ -318,7 +350,6 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-
         if(mGyroControl != null) mGyroControl.updateOrientation();
         // Layout resize is practically guaranteed on a configuration change, and `onConfigurationChanged`
         // does not implicitly start a layout. So, request a layout and expect the screen dimensions to be valid after the]
@@ -638,5 +669,23 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
         if(Tools.isAndroid8OrHigher() && checkCaptureDispatchConditions(ev))
             return minecraftGLView.dispatchCapturedPointerEvent(ev);
         else return super.dispatchTrackballEvent(ev);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        if (hasFocus) {
+            Tools.setFullscreen(this, setFullscreen());
+        }
+        super.onWindowFocusChanged(hasFocus);
+    }
+
+    @Override
+    public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }
