@@ -236,7 +236,14 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
     @SuppressLint("NewApi")
     @Override
     public boolean dispatchGenericMotionEvent(MotionEvent event) {
-        if (MainActivity.motionListener.onGenericMotion(this, event)) return true;
+        if(sdlEnabled && Gamepad.isGamepadEvent(event)) {
+            try {
+                MainActivity.motionListener.onGenericMotion(this, event);
+                return true;
+            } catch (Throwable ignored){
+                Log.e(TAG, "SDL failed to send motionevent!");
+            }
+        }
         super.dispatchGenericMotionEvent(event);
         int mouseCursorIndex = -1;
 
@@ -317,7 +324,7 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
         if (sdlEnabled && isGamepadEvent) {
                 try {
                     SDLActivity.handleKeyEvent(this, eventKeycode, event, null);
-                    if (isGamepadEvent) return true;
+                    return true;
                 } catch (Throwable ignored){
                     Log.e(TAG, "SDL failed to send keyevent!");
                 }
