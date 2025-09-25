@@ -309,7 +309,7 @@
     <string name="dl_tampered_manifest_title">Dosya doğrulama hatası</string>
     <string name="dl_tampered_manifest"><![CDATA[Aynadaki oyun sürümü bildirimi resmi Mojang sürüm bildirimi ile eşleşmiyor, bu da üzerinde oynanmış olabileceği anlamına geliyor.<br/>
         <b>Bu güvenli değil. Devam ederseniz kişisel bilgileriniz risk altında olabilir.</b><br/>
-        Mirror'ı kullanmaya devam etmek istiyorsanız, \"Manifest kontrollerini kapat\" düğmesine basın ve indirmeyi yeniden başlatın.<br/>
+        Mirror\'ı kullanmaya devam etmek istiyorsanız, \"Manifest kontrollerini kapat\" düğmesine basın ve indirmeyi yeniden başlatın.<br/>
         Resmi indirme kaynağını kullanmak istiyorsanız, \"Resmi siteye geç\" düğmesine basın ve indirmeyi yeniden başlatın.<br/>]]></string>
     <string name="dl_turn_off_manifest_checks">Manifest kontrollerini kapatın</string>
     <string name="dl_switch_to_official_site">Resmi siteye geçiş yapın</string>
