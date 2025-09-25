@@ -4,7 +4,6 @@
     <!-- Action bar part -->
     <!-- Languages list part -->
     <!-- Login strings -->
-    <string name="login_online_username_hint">İstifadəçi adı</string>
     <string name="login_online_login_label">Daxil ol</string>
     <!-- Hint -->
     <!-- Warnings -->
@@ -31,7 +30,6 @@
     <string name="mcl_launch_downloading_progress">"Endirilir %s (%.2f MB / %.2f MB)"</string>
     <string name="mcl_launch_download_assets">Resursları endirməyə hazırlanır</string>
     <string name="mcl_options">Seçimlər</string>
-    <string name="mcl_option_customcontrol">Fərdi idarəetmələr</string>
     <string name="mcl_setting_title_use_surface_view">Alternativ səth renderindən istifadə edin</string>
     <string name="mcl_setting_subtitle_use_surface_view">GPU ilə əlaqəli ssenarilərdə performansa kömək edə bilər.</string>
     <string name="mcl_setting_title_ignore_notch">Çərçivəyə məhəl qoyma</string>
@@ -44,31 +42,19 @@
     <string name="mcl_setting_subtitle_buttonscale">Düymələr çox kiçikdirsə, onları böyüdün.</string>
     <string name="mcl_setting_title_mousescale">Siçan miqyası</string>
     <string name="mcl_setting_subtitle_mousescale">Virtual siçanın ölçüsünü dəyişdirin.</string>
-    <string name="mcl_setting_title_javaargs">JVM Launch arqumentləri</string>
     <string name="mcl_setting_subtitle_javaargs">Ehtiyatlı olun, məlumat olmadan dəyişdirilərsə, bu, oyunun çökməsinə səbəb ola bilər.</string>
-    <string name="mcl_setting_category_renderer">Renderer</string>
-    <string name="mcl_setting_renderer_gles2_4">Holy GL4ES - (bütün versiyalar, sürətli)</string>
     <string name="mcl_setting_renderer_vulkan_zink">Zink (Vulkan) - (bütün versiyalar, orta)</string>
     <string name="mcl_setting_veroption_release">Buraxın</string>
-    <string name="mcl_setting_veroption_snapshot">Snapshot</string>
-    <string name="mcl_setting_veroption_oldalpha">Köhnə-alfa</string>
-    <string name="mcl_setting_veroption_oldbeta">Köhnə-beta</string>
     <string name="mcl_setting_java_sandbox">Sandbox .jar icrası</string>
     <string name="mcl_setting_java_sandbox_subtitle">.jar faylını icra edərkən sandbox təhlükəsizlik menecerinin mövcudluğuna nəzarət edin.</string>
     <string name="mcl_version_clone">Klon</string>
     <!-- Global strings -->
-    <string name="global_edit">Düzəliş et</string>
     <string name="global_error">Xəta</string>
-    <string name="global_load">Yüklə</string>
-    <string name="global_name">Ad</string>
-    <string name="global_remove">Sil</string>
     <string name="global_clone">Klon</string>
     <string name="global_restart">Yenidən başlat</string>
-    <string name="global_save">Saxla</string>
     <string name="global_unpacking">Açılır %s</string>
     <string name="global_error_field_empty">Bu sahə boş ola bilməz</string>
     <string name="global_waiting">Gözləyin</string>
-    <string name="global_select">Seç</string>
     <string name="global_retry">Yenidən cəhd et</string>
     <string name="global_default">Defolt</string>
     <!-- MainActivity: strings -->
@@ -78,23 +64,11 @@
     <!-- MainActivity: Control buttons -->
     <string name="control_chat">Söhbət</string>
     <string name="control_debug">Sazlama</string>
-    <string name="control_primary">Pri</string>
-    <string name="control_secondary">Sec</string>
-    <string name="control_shift">◇</string>
-    <string name="control_inventory">Inv</string>
-    <string name="control_up">▲</string>
-    <string name="control_left">◀</string>
-    <string name="control_right">▶</string>
-    <string name="control_down">▼</string>
-    <string name="control_jump">⬛</string>
     <string name="control_thirdperson">3-cü</string>
-    <string name="control_listplayers">Tab</string>
     <string name="control_mouse">Siçan</string>
     <string name="control_mouseoff">Siçan: qeyri-aktiv</string>
     <string name="control_mouseon">Siçan: aktiv </string>
     <!-- MainActivity: Menu advanced controls -->
-    <string name="control_forceclose">Bağlamağa zorla</string>
-    <string name="control_viewout">Log çıxışı</string>
     <string name="control_adebug">Sazlama daxil et</string>
     <string name="control_customkey">Fərdi açar kodunu göndərin</string>
     <!-- ImportControlActivity Strings -->
@@ -108,24 +82,13 @@
     <string name="control_more3"></string>
     <string name="control_more4"></string>
 -->
-    <string name="customctrl_toggle">Dəyişdirilə bilən</string>
-    <string name="customctrl_size">Ölçü</string>
-    <string name="customctrl_mapping">Mapping</string>
-    <string name="customctrl_orientation">Oriyentasiya</string>
-    <string name="customctrl_background_color">Arxafon rəngi</string>
     <string name="customctrl_corner_radius">Künc radiusu</string>
     <string name="customctrl_stroke_width">Ştrix eni</string>
-    <string name="customctrl_stroke_color">Ştrix rəngi</string>
     <string name="customctrl_button_opacity">Düymənin qeyri-şəffaflığı</string>
-    <string name="customctrl_addbutton">Düymə əlavə et</string>
     <string name="customctrl_addbutton_drawer">Düymə çəkməcəsi əlavə edin</string>
-    <string name="customctrl_addbutton_joystick">Joystik əlavə edin</string>
-    <string name="customctrl_addsubbutton">Alt düymə əlavə et</string>
     <string name="customctrl_selectdefault">Defolt controlmap-i seçin</string>
-    <string name="customctrl_export">Export controlmap</string>
     <string name="main_share_logs">Log faylını paylaşın</string>
     <string name="main_install_jar_file">.jar icra edin</string>
-    <string name="main_play">Oyna</string>
     <string name="autoram_info_msg">Yaddaş %d MB olaraq təyin edildi</string>
     <string name="mcl_setting_check_libraries">Yüklədikdən sonra kitabxanaları yoxlayın</string>
     <string name="mcl_setting_check_libraries_subtitle">Bu seçim başlatma qurğusunu kitabxana hashının mövcud olub-olmadığını yoxlamağa məcbur edir. Zədələnmiş endirmələrin qarşısını alır.</string>
@@ -139,15 +102,12 @@
     <string name="mcl_setting_title_mousespeed">Siçan sürəti</string>
     <string name="mcl_setting_subtitle_mousespeed">Virtual siçanın sürətini dəyişir.</string>
     <string name="customctrl_passthru">Siçan keçidi</string>
-    <string name="customctrl_swipeable">Sürüşdürülə bilər</string>
-    <string name="customctrl_forward_lock">İrəli kilid</string>
     <string name="customctrl_absolute_tracking">Mütləq barmaq izləmə</string>
     <string name="memory_warning_msg">Boş RAM-ın cari miqdarı (%d) ayrılmış RAM-dan (%d) azdır və bu, çökmələrə səbəb ola bilər. Oyun qəzaya uğrayarsa, yeri dəyişdirin.</string>
     <string name="mcl_memory_allocation">Yaddaşın ayrılması</string>
     <string name="mcl_memory_allocation_subtitle">Minecraft-a nə qədər yaddaş verildiyinə nəzarət edir.</string>
     <string name="multirt_runtime_corrupt">Zədələnmiş Java Runtime</string>
     <string name="multirt_runtime_incompatiblearch">Uyğun olmayan arxitektura: %s</string>
-    <string name="multirt_config_title">Java Runtimes</string>
     <string name="multirt_config_add">Yeni əlavə et</string>
     <string name="multirt_title">Runtime Meneceri</string>
     <string name="multirt_subtitle">Quraşdırılmış Java Runtimes-ı idarə edin.</string>
@@ -157,19 +117,15 @@
     <string name="multirt_config_removeerror_last">Ən azı bir Java Runtime quraşdırılmış olmalıdır.</string>
     <string name="multirt_nojava8rt">Java 8-i tapmaq mümkün deyil. Bu seçimdən istifadə etmək üçün Java 8-i quraşdırmalısınız.</string>
     <string name="multirt_delete_runtime">Runtime-ı silin</string>
-    <string name="pvc_gameDirectory">Oyun kataloqu</string>
     <string name="pvc_jvmArgs">JVM arqumentləri</string>
     <string name="preference_mouse_start_title">Virtual siçan ilə başlayın</string>
     <string name="preference_mouse_start_description">Bu seçim aktiv olduqda virtual siçan başlanğıcda görünür.</string>
     <string name="preference_video_title">Video və renderer</string>
     <string name="preference_video_description">Rezulyasiya, render və performans</string>
-    <string name="preference_control_title">İdarəetmə fərdiləşdirməsi</string>
     <string name="preference_control_description">Jestlər, düymələr və miqyas</string>
-    <string name="preference_java_title">Java Ayarları</string>
     <string name="preference_java_description">Java Runtimes, JVM Arqumentləri, RAM miqdarı və sandbox</string>
     <string name="preference_misc_title">Müxtəlif parametrlər</string>
     <string name="preference_misc_description">Versiya siyahısı və kitabxanaların yoxlanılması</string>
-    <string name="preference_experimental_title">Eksperimental əşyalar</string>
     <string name="preference_experimental_description">Oradakı şeyləri nəzərə alaraq istifadə edin, dəstək yoxdur</string>
     <string name="preference_sustained_performance_title">Davamlı performans rejimini aktivləşdirin</string>
     <string name="preference_sustained_performance_description">Pik performansı məhdudlaşdırmaqla termal qızmanı məhdudlaşdırın.</string>
@@ -180,7 +136,6 @@
     <string name="preference_edit_controls_title">Fərdi idarəetmələri redaktə edin</string>
     <string name="preference_edit_controls_summary">İdarəetmə sxemini ehtiyaclarınıza uyğunlaşdırın.</string>
     <string name="preference_category_gyro_controls">Giroskop kontrolları</string>
-    <string name="preference_category_virtual_mouse">Virtual siçan</string>
     <string name="preference_gyro_invert_x_axis">X oxunu çevirin</string>
     <string name="preference_gyro_invert_y_axis">Y oxunu çevirin</string>
     <string name="preference_gyro_invert_x_axis_description">Üfüqi oxu tərsinə çevirin.</string>
@@ -191,16 +146,10 @@
     <string name="unnamed">Adsız</string>
     <string name="profiles_latest_snapshot">Ən son snapshot</string>
     <string name="profiles_latest_release">Ən son buraxılış</string>
-    <string name="profiles_profile_name">Ad</string>
-    <string name="profiles_profile_version">Versiya</string>
     <string name="global_delete">Sil</string>
-    <string name="pedit_java_runtime">Java Runtime</string>
-    <string name="pedit_renderer">Renderer</string>
-    <string name="arc_capes_title">Cosmetica Capes</string>
     <string name="arc_capes_desc">Cosmetica-dan (əvvəllər Arc) qapaqları işə salır. Əlavə məlumat üçün https://cosmetica.cc saytına daxil olun. OptiFine tələb edir.</string>
     <string name="notif_channel_name">Ümumi</string>
     <string name="lazy_service_default_title">Amethyst Önplan Xidməti</string>
-    <string name="mcl_setting_veroption_installed">Quraşdırıldı</string>
     <string name="use_global_default">(Qlobal defoltdan istifadə edin)</string>
     <string name="default_control">Defolt controlmap</string>
     <string name="progresslayout_tasks_in_progress">%d tapşırıq davam edir</string>
@@ -211,7 +160,6 @@
     <string name="folder_fragment_create">Qovluq yaradın</string>
     <string name="folder_fragment_select">Qovluq seç</string>
     <string name="main_login_done">Giriş tamamlandı</string>
-    <string name="main_add_account">Hesab əlavə edin</string>
     <string name="tasks_ongoing">Tapşırıqlar icra olunur, lütfən gözləyin</string>
     <string name="no_saved_accounts">Saxlanmış hesab yoxdur</string>
     <string name="mc_download_failed">Minecraftı yükləmək alınmadı! Buna, pis şəbəkə bağlantısı, səhv yerləşdirilmiş fayllar və s. səbəb ola bilər..</string>
@@ -221,9 +169,7 @@
     <string name="xerr_child">Hesabınız uşaq hesabıdır və daxil olmaq üçün Ailəyə əlavə edilməlidir.</string>
     <string name="minecraft_not_owned">Deyəsən bu hesabda Minecraft profili yoxdur. Əgər sizdə Xbox Game Pass varsa, lütfən, https://minecraft.net/ saytında daxil olun və onu quraşdırın.</string>
     <string name="xerr_not_available">Xbox Live ölkənizdə mövcud deyil</string>
-    <string name="preference_enable_gyro_title">Gyroskop nəzarətlərini aktivləşdirin</string>
     <string name="preference_enable_gyro_description">Bunu aktivləşdirmək sizə telefonunuzu çevirərək oyundaxili dönmə eməyə imkan verəcək.</string>
-    <string name="preference_gyro_sensitivity_title">Gyroskop həssaslığını idarə edin</string>
     <string name="preference_gyro_sensitivity_description">Giroskop nəzarətlərinin həssaslığını tənzimləyin.</string>
     <string name="toast_turn_on_gyro">Bunu istifadə etmək üçün əvvəlcə giroskop nəzarətlərini aktiv edin!</string>
     <string name="preference_gyro_sample_rate_title">Gyroskopdan nümunə götürmə dərəcəsi</string>
@@ -232,10 +178,8 @@
     <string name="storage_required">PojavLauncher xarici yaddaşın əlavə edilməsini tələb edir. Lütfən, onu yenidən qoşun və proqramı yenidən başladın.</string>
     <string name="mcl_setting_title_buttonallcaps">Düymə etiketlərində yalnız böyük hərflərdən istifadə edin</string>
     <string name="mcl_setting_subtitle_buttonallcaps">İdarəetmə elementlərində kiçik hərflərdən istifadə etmək istəyirsinizsə, bunu söndürün.</string>
-    <string name="create_profile">Yeni profil yaradın</string>
     <string name="preference_shader_dump_title">Kölgələndirici boşaltmanı aktivləşdir</string>
     <string name="preference_shader_dump_description">Çevrilmiş kölgələndiriciləri log faylına daxil edin.</string>
-    <string name="percent_format">%d%%</string>
     <string name="customctrl_editor_exit_title">Çıxılsın?</string>
     <string name="customctrl_editor_exit_msg">Çıxmaq istədiyinizdən əminsinizmi?</string>
     <string name="customctrl_editor_exit">Redaktoru tərk edin</string>
@@ -244,7 +188,6 @@
     <string name="global_no">Xeyr</string>
     <string name="preference_controller_map_wiped">Kontrollerin konfiqurasiyası silindi.</string>
     <string name="preference_category_controller_settings">Kontroller parametrləri</string>
-    <string name="preference_wipe_controller_title">Reset controller mapping</string>
     <string name="preference_wipe_controller_description">Nəzarətçinin düymələrini yenidən yerləşdirməyə imkan verir.</string>
     <string name="preference_deadzone_scale_title">Joystick deadzone şkalası</string>
     <string name="preference_deadzone_scale_description">Joystik sürüşürsə, onu artırın.</string>
@@ -309,8 +252,6 @@
     <string name="notif_download_finished_desc">Başlamaq üçün bura klikləyin!</string>
     <string name="preference_category_gestures">Jestlər</string>
     <string name="preference_category_buttons">Düymәlәr</string>
-    <string name="preference_category_experimental_settings">Experimental fuckury</string>
-    <string name="preference_category_java_tweaks">Java Ayarları</string>
     <string name="preference_category_main_categories">Kateqoriyalar</string>
     <string name="preference_category_miscellaneous">Müxtəlif parametrlər</string>
     <string name="preference_category_video">Video parametrləri</string>
@@ -324,11 +265,5 @@
     <string name="exception_failed_to_unpack_jre17">JRE 17 quraşdırmaq alınmadı</string>
     <string name="newdl_starting">Oyun metadatası oxunur…</string>
     <string name="newdl_downloading_metadata">Oyun metadatası endirilir (%s)</string>
-    <string name="controller_button_a">A</string>
-    <string name="controller_button_b">B</string>
-    <string name="controller_button_x">X</string>
-    <string name="controller_button_y">Y</string>
-    <string name="controller_button_start">Başlat</string>
-    <string name="controller_button_select">Seç</string>
-    <string name="customctrl_visibility_title">Görünüş</string>
+    <string name="preference_experimental_title">Eksperimental əşyalar</string>
 </resources>

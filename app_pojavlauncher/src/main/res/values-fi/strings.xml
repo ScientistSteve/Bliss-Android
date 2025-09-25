@@ -34,6 +34,5 @@
     <string name="unnamed">Nimetön</string>
     <string name="profiles_latest_snapshot">VIimeisin snapshot</string>
     <string name="profiles_latest_release">Viimeisin julkaisu</string>
-    <string name="profiles_profile_version">Versio</string>
     <string name="global_delete">Poista</string>
 </resources>
