@@ -27,7 +27,6 @@ public class LauncherPreferences {
     public static final String PREF_KEY_SKIP_NOTIFICATION_CHECK = "skipNotificationPermissionCheck";
 
     public static SharedPreferences DEFAULT_PREF;
-    public static String PREF_RENDERER = "opengles2";
 
 	public static boolean PREF_IGNORE_NOTCH = false;
 	public static int PREF_NOTCH_SIZE = 0;
@@ -40,6 +39,8 @@ public class LauncherPreferences {
     public static final String PREF_VERSION_REPOS = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
     public static boolean PREF_CHECK_LIBRARY_SHA = true;
     public static boolean PREF_DISABLE_GESTURES = false;
+    public static boolean PREF_GAMEPAD_SDL_PASSTHRU = false;
+    public static boolean PREF_GAMEPAD_FORCEDSDL_PASSTHRU = false;
     public static boolean PREF_DISABLE_SWAP_HAND = false;
     public static float PREF_MOUSESPEED = 1f;
     public static int PREF_RAM_ALLOCATION;
@@ -70,6 +71,10 @@ public class LauncherPreferences {
     public static String PREF_DOWNLOAD_SOURCE = "default";
     public static boolean PREF_SKIP_NOTIFICATION_PERMISSION_CHECK = false;
     public static boolean PREF_VSYNC_IN_ZINK = true;
+    public static boolean PREF_FORCE_ENABLE_TOUCHCONTROLLER = false;
+    public static int PREF_TOUCHCONTROLLER_VIBRATE_LENGTH = 100;
+
+    public static boolean PREF_MOUSE_GRAB_FORCE = false;
 
 
     public static void loadPreferences(Context ctx) {
@@ -77,7 +82,6 @@ public class LauncherPreferences {
         Tools.initStorageConstants(ctx);
         boolean isDevicePowerful = isDevicePowerful(ctx);
 
-        PREF_RENDERER = DEFAULT_PREF.getString("renderer", "opengles2");
         PREF_BUTTONSIZE = DEFAULT_PREF.getInt("buttonscale", 100);
         PREF_MOUSESCALE = DEFAULT_PREF.getInt("mousescale", 100)/100f;
         PREF_MOUSESPEED = ((float)DEFAULT_PREF.getInt("mousespeed",100))/100f;
@@ -87,6 +91,8 @@ public class LauncherPreferences {
         PREF_FORCE_ENGLISH = DEFAULT_PREF.getBoolean("force_english", false);
         PREF_CHECK_LIBRARY_SHA = DEFAULT_PREF.getBoolean("checkLibraries",true);
         PREF_DISABLE_GESTURES = DEFAULT_PREF.getBoolean("disableGestures",false);
+        PREF_GAMEPAD_SDL_PASSTHRU = DEFAULT_PREF.getBoolean("gamepadPassthru",false);
+        PREF_GAMEPAD_FORCEDSDL_PASSTHRU = DEFAULT_PREF.getBoolean("gamepadPassthruForced",false);
         PREF_DISABLE_SWAP_HAND = DEFAULT_PREF.getBoolean("disableDoubleTap", false);
         PREF_RAM_ALLOCATION = DEFAULT_PREF.getInt("allocation", findBestRAMAllocation(ctx));
         PREF_CUSTOM_JAVA_ARGS = DEFAULT_PREF.getString("javaArgs", "");
@@ -112,6 +118,9 @@ public class LauncherPreferences {
         PREF_VERIFY_MANIFEST = DEFAULT_PREF.getBoolean("verifyManifest", true);
         PREF_SKIP_NOTIFICATION_PERMISSION_CHECK = DEFAULT_PREF.getBoolean(PREF_KEY_SKIP_NOTIFICATION_CHECK, false);
         PREF_VSYNC_IN_ZINK = DEFAULT_PREF.getBoolean("vsync_in_zink", true);
+        PREF_FORCE_ENABLE_TOUCHCONTROLLER = DEFAULT_PREF.getBoolean("forceEnableTouchController", false);
+        PREF_TOUCHCONTROLLER_VIBRATE_LENGTH = DEFAULT_PREF.getInt("touchControllerVibrateLength", 100);
+        PREF_MOUSE_GRAB_FORCE = DEFAULT_PREF.getBoolean("always_grab_mouse", false);
 
         String argLwjglLibname = "-Dorg.lwjgl.opengl.libname=";
         for (String arg : JREUtils.parseJavaArguments(PREF_CUSTOM_JAVA_ARGS)) {
@@ -231,12 +240,16 @@ public class LauncherPreferences {
         // These guys are SwitchPreferences so they get special treatment, they need to be converted to ints
         int gl43exts = DEFAULT_PREF.getBoolean("mg_renderer_setting_gl43ext", false) ? 1 : 0;
         int computeShaderext = DEFAULT_PREF.getBoolean("mg_renderer_computeShaderext", false) ? 1 : 0;
+        int angleDepthClearFixMode = DEFAULT_PREF.getBoolean("mg_renderer_setting_angleDepthClearFixMode", false) ? 1 : 0;
+        int timerQueryExt = DEFAULT_PREF.getBoolean("mg_renderer_setting_timerQueryExt", false) ? 1 : 0;
         MGConfigJson.put("enableExtGL43", gl43exts);
         MGConfigJson.put("enableExtComputeShader", computeShaderext);
-
-        MGConfigJson.put("enableCompatibleMode", Integer.parseInt(DEFAULT_PREF.getString("", "0"))); // Placeholder, doesn't do anything on current MG
-        MGConfigJson.put("multidrawMode", Integer.parseInt(DEFAULT_PREF.getString("mg_renderer_setting_multidraw", "0")));
-        MGConfigJson.put("maxGlslCacheSize", Integer.parseInt(DEFAULT_PREF.getString("mg_renderer_setting_glsl_cache_size", "2048")));
+        MGConfigJson.put("angleDepthClearFixMode", angleDepthClearFixMode);
+        MGConfigJson.put("enableExtTimerQuery", timerQueryExt);
+        if (DEFAULT_PREF.getBoolean("mg_renderer_multidrawCompute", false)) {
+            MGConfigJson.put("multidrawMode", 5); // Special handling for the (special mayhaps) compute emulation
+        } else MGConfigJson.put("multidrawMode", Integer.parseInt(DEFAULT_PREF.getString("mg_renderer_setting_multidraw", "0")));
+        MGConfigJson.put("maxGlslCacheSize", Integer.parseInt(DEFAULT_PREF.getString("mg_renderer_setting_glsl_cache_size", "128")));
         File configFile = new File(Tools.DIR_DATA + "/MobileGlues", "config.json");
         FileUtils.ensureParentDirectory(configFile);
         try {

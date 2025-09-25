@@ -61,6 +61,12 @@ public class DownloadUtils {
         FileUtils.ensureParentDirectory(out);
         try (FileOutputStream fileOutputStream = new FileOutputStream(out)) {
             download(url, fileOutputStream);
+        } catch (IOException e) {
+            if (out.length() < 1) { // Only delete it if file is 0 bytes cause this file might already be downloaded and something else went wrong.
+                Log.i("DownloadUtils", "Cleaning up failed download: " + out.getAbsolutePath());
+                out.delete();
+                throw e;
+            }
         }
     }
 

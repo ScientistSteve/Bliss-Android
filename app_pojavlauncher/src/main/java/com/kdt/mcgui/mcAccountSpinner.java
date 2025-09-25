@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -47,6 +48,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import fr.spse.extended_view.ExtendedTextView;
 
@@ -276,6 +278,10 @@ public class mcAccountSpinner extends AppCompatSpinner implements AdapterView.On
     }
 
     private void performLogin(MinecraftAccount minecraftAccount){
+        // Logging in when there's no internet is useless. This should really be turned into a network callback though.
+        if(!Tools.isOnline(getContext())){
+            return;
+        }
         if(minecraftAccount.isLocal()) return;
 
         mLoginBarPaint.setColor(getResources().getColor(R.color.minebutton_color));
@@ -296,14 +302,23 @@ public class mcAccountSpinner extends AppCompatSpinner implements AdapterView.On
             PojavProfile.setCurrentProfile(getContext(), mAccountList.get(position));
             selectedAccount = PojavProfile.getCurrentProfileContent(getContext(), mAccountList.get(position));
 
-
             // WORKAROUND
             // Account file corrupted due to previous versions having improper encoding
             if (selectedAccount == null){
-                removeCurrentAccount();
-                pickAccount(-1);
-                setSelection(0);
-                return;
+                Context ctx = Objects.requireNonNull(getContext());
+
+                new AlertDialog.Builder(ctx)
+                        .setCancelable(false)
+                        .setTitle(R.string.account_corrupted)
+                        .setMessage(R.string.login_again)
+                        .setPositiveButton(R.string.delete_account_and_login, (dialog, which) -> {
+                            removeCurrentAccount();
+                            pickAccount(-1);
+                            setSelection(0);
+                        })
+                        .show();
+
+
             }
             setSelection(position);
         }else {

@@ -56,16 +56,33 @@ public class CallbackBridge {
         nativeSendCursorPos(mouseX, mouseY);
     }
 
+    /**
+     * Sends keycodes if keycode is populated. Used for in-game controls.
+     * Sends character if keychar is populated. Used for chat and text input.
+     * You can refer to glfwSetKeyCallback for the arguments.
+     * @param keycode LwjglGlfwKeycode
+     * @param keychar Literal char. Modifier keys does not affect this.
+     * @param scancode
+     * @param modifiers The action is one of The action is one of GLFW_PRESS, or GLFW_RELEASE.
+     *                  We don't have GLFW_REPEAT working.
+     * @param isDown If its being pressed down or not. 1 is true.
+     */
     public static void sendKeycode(int keycode, char keychar, int scancode, int modifiers, boolean isDown) {
         // TODO CHECK: This may cause input issue, not receive input!
         if(keycode != 0)  nativeSendKey(keycode,scancode,isDown ? 1 : 0, modifiers);
-        if(isDown && keychar != '\u0000') {
+        // Only controlmaps goes through here, that means we need to block ISOControl or else
+        // Minecraft tries to type :TAB: as a character in chat, fails, and then ignores the key,
+        // breaking the tab autofill function in old versions. (like 1.12.2, 1.8.9).
+        if(isDown && !Character.isISOControl(keychar)) {
             nativeSendCharMods(keychar,modifiers);
             nativeSendChar(keychar);
         }
     }
 
     public static void sendChar(char keychar, int modifiers){
+        // Only an EditText goes through here, that means emojis are allowed, so no isISOControl
+        // cause we might break emoji mods then.
+        // See net/kdt/pojavlaunch/customcontrols/keyboard/TouchCharInput.java#L147 (onTextChanged)
         nativeSendCharMods(keychar,modifiers);
         nativeSendChar(keychar);
     }
@@ -80,6 +97,10 @@ public class CallbackBridge {
 
     public static void sendKeyPress(int keyCode, char keyChar, int scancode, int modifiers, boolean status) {
         CallbackBridge.sendKeycode(keyCode, keyChar, scancode, modifiers, status);
+    }
+
+    public static void sendKeyPress(int keyCode, char keyChar, int modifiers, boolean status) {
+        sendKeyPress(keyCode, keyChar, 0, modifiers, status);
     }
 
     public static void sendKeyPress(int keyCode) {

@@ -76,14 +76,18 @@ public class DownloadMirror {
      * @param urlInput The original (Mojang) URL for the download
      * @return the length of the file denoted by the URL in bytes, or -1 if not available
      */
-    public static long getContentLengthMirrored(int downloadClass, String urlInput) throws IOException {
-        long length = DownloadUtils.getContentLength(getMirrorMapping(downloadClass, urlInput));
-        if(length < 1) {
-            Log.w("DownloadMirror", "Unable to get content length from mirror");
-            Log.i("DownloadMirror", "Falling back to default source");
-            return DownloadUtils.getContentLength(urlInput);
-        }else {
-            return length;
+    public static long getContentLengthMirrored(int downloadClass, String urlInput){
+        try {
+            long length = DownloadUtils.getContentLength(getMirrorMapping(downloadClass, urlInput));
+            if (length < 1) {
+                Log.w("DownloadMirror", "Unable to get content length from mirror");
+                Log.i("DownloadMirror", "Falling back to default source");
+                return DownloadUtils.getContentLength(urlInput);
+            } else {
+                return length;
+            }
+        } catch (IOException ignored) { // If error happens, fallback to old file counter instead of size. This shouldn't really happen unless offline though.
+            return -1L;
         }
     }
 

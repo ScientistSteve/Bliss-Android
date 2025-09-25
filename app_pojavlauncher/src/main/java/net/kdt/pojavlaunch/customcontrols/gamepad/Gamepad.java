@@ -90,6 +90,7 @@ public class Gamepad implements GrabListener, GamepadHandler {
     private boolean mRemoved = false;
 
     public Gamepad(View contextView, InputDevice inputDevice, GamepadDataProvider mapProvider, boolean showCursor){
+
         Settings.setDeadzoneScale(PREF_DEADZONE_SCALE);
 
         mScreenChoreographer = Choreographer.getInstance();
