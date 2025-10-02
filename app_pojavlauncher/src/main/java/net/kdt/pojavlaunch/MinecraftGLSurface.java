@@ -1,6 +1,7 @@
 package net.kdt.pojavlaunch;
 
 import static net.kdt.pojavlaunch.MainActivity.touchCharInput;
+import static net.kdt.pojavlaunch.Tools.LOCAL_RENDERER;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_MOUSE_GRAB_FORCE;
 import static net.kdt.pojavlaunch.utils.MCOptionUtils.getMcScale;
 import static org.lwjgl.glfw.CallbackBridge.sendMouseButton;
@@ -118,7 +119,8 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
     public void start(boolean isAlreadyRunning, AbstractTouchpad touchpad){
         if(Tools.isAndroid8OrHigher()) setUpPointerCapture(touchpad);
         mInGUIProcessor.setAbstractTouchpad(touchpad);
-        if(LauncherPreferences.PREF_USE_ALTERNATE_SURFACE){
+        // Kopper Zink has orientation issues on SurfaceView
+        if(LauncherPreferences.PREF_USE_ALTERNATE_SURFACE && !LOCAL_RENDERER.equals("opengles3_desktopgl_zink_kopper")){
             SurfaceView surfaceView = new SurfaceView(getContext());
             mSurface = surfaceView;
 
