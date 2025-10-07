@@ -390,24 +390,29 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
 
     private void runCraft(String versionId, JMinecraftVersionList.Version version) throws Throwable {
         String assetVersion;
-        if (version.inheritsFrom != null) { // We are almost definitely modded if this runs
-            File vanillaJsonFile = new File(Tools.DIR_HOME_VERSION + "/" + version.inheritsFrom + "/" + version.inheritsFrom + ".json");
-            JMinecraftVersionList.Version vanillaJson;
-            try { // Get the vanilla json from modded instance
-                vanillaJson = Tools.GLOBAL_GSON.fromJson(Tools.read(vanillaJsonFile.getAbsolutePath()), JMinecraftVersionList.Version.class);
-            } catch (IOException ignored) { // Should never happen, we check for this in MinecraftDownloader().start()
-                throw new RuntimeException(getString(R.string.error_vanilla_json_corrupt));
+        try {
+            if (version.inheritsFrom != null) { // We are almost definitely modded if this runs
+                File vanillaJsonFile = new File(Tools.DIR_HOME_VERSION + "/" + version.inheritsFrom + "/" + version.inheritsFrom + ".json");
+                JMinecraftVersionList.Version vanillaJson;
+                try { // Get the vanilla json from modded instance
+                    vanillaJson = Tools.GLOBAL_GSON.fromJson(Tools.read(vanillaJsonFile.getAbsolutePath()), JMinecraftVersionList.Version.class);
+                } catch (IOException ignored) { // Should never happen, we check for this in MinecraftDownloader().start()
+                    throw new RuntimeException(getString(R.string.error_vanilla_json_corrupt));
+                }
+                // Something went wrong if this is somehow not the case anymore
+                if (!Objects.equals(vanillaJson.assets, vanillaJson.assetIndex.id))
+                    Tools.showErrorRemote(new RuntimeException(getString(R.string.error_vanilla_json_corrupt)));
+                assetVersion = vanillaJson.assets;
+            } else {
+                // Else assume we are vanilla
+                if (!Objects.equals(version.assets, version.assetIndex.id))
+                    Tools.showErrorRemote(new RuntimeException(getString(R.string.error_vanilla_json_corrupt)));
+                assetVersion = version.assets;
             }
-            // Something went wrong if this is somehow not the case anymore
-            if (!Objects.equals(vanillaJson.assets, vanillaJson.assetIndex.id))
-                Tools.showErrorRemote(new RuntimeException(getString(R.string.error_vanilla_json_corrupt)));
-            assetVersion = vanillaJson.assets;
-        } else {
-            // Else assume we are vanilla
-            if (!Objects.equals(version.assets, version.assetIndex.id))
-                Tools.showErrorRemote(new RuntimeException(getString(R.string.error_vanilla_json_corrupt)));
-            assetVersion = version.assets;
-        }
+       } catch (RuntimeException ignored){
+            runOnUiThread(() -> Toast.makeText(this, R.string.autorendererselectfailed, Toast.LENGTH_LONG).show());
+            assetVersion = "legacy";
+       } // If this fails.. oh well.
         // Autoselect renderer
         if (Tools.LOCAL_RENDERER == null) {
             // 25w09a is when HolyGL4ES starts showing a black screen upon world load.

@@ -482,4 +482,5 @@
     <string name="oldL4JFound">You are using a version of Legacy4J without the android fixes! You will need to manually enable SDL in the controller settings to get the best experience!</string>
     <string name="global_warning">Warning!</string>
     <string name="controllableFound">Controllable currently has a random chance of crashing on launch. Either keep trying again and hope it launches or use another mod like Controlify.</string>
+    <string name="autorendererselectfailed">Auto-renderer select failed, defaulting to HolyGL4ES</string>
 </resources>

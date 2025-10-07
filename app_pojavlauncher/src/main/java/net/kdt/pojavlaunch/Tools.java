@@ -374,6 +374,12 @@ public final class Tools {
         // Legacy Fabric needs this to be first or else it uses the wrong lwjgl
         } else javaArgList.add(getLWJGL3ClassPath() + ":" + launchClassPath);
 
+        // Forge 1.6.4 crash mitigation
+        // https://github.com/MinecraftForge/FML/blob/f1b3381e61fac1a0ae90f521223c6bc613eb4888/common/cpw/mods/fml/common/asm/FMLSanityChecker.java#L192-L208
+        // It for some reason fails certification and crashes because it thinks Minecraft is corrupted.
+        // This also has no loading screen as a result.
+        javaArgList.add("-Dfml.ignoreInvalidMinecraftCertificates=true");
+
         javaArgList.add(versionInfo.mainClass);
         javaArgList.addAll(Arrays.asList(launchArgs));
         // ctx.appendlnToLog("full args: "+javaArgList.toString());
