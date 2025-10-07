@@ -90,4 +90,18 @@
         <item>3</item>
         <item>4</item>
     </string-array>
+    <string-array name="mg_renderer_names_fsr">
+        <item>Disabled</item>
+        <item>Performance</item>
+        <item>Balanced</item>
+        <item>Quality</item>
+        <item>Ultra Quality</item>
+    </string-array>
+    <string-array name="mg_renderer_values_fsr">
+        <item>0</item>
+        <item>4</item>
+        <item>3</item>
+        <item>2</item>
+        <item>1</item>
+    </string-array>
 </resources>
