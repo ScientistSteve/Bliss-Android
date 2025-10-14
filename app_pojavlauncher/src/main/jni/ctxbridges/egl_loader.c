@@ -36,7 +36,7 @@ bool dlsym_EGL() {
     char* gles = getenv("LIBGL_GLES");
     char* eglName = (strncmp(gles ? gles : "", "libGLESv2_angle.so", 18) == 0) ? "libEGL_angle.so" : getenv("POJAVEXEC_EGL");
     // Kopper needs this
-    if (strncmp(eglName, "libEGL_mesa.so", 14) == 0) {
+    if (eglName != NULL && strncmp(eglName, "libEGL_mesa.so", 14) == 0) {
         void* cutils_handle = loader_dlopen("libcutils.so", "libcutils.so", RTLD_GLOBAL|RTLD_NOW);
         if(cutils_handle == NULL) return false;
     }
