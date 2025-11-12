@@ -238,12 +238,16 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
     @Override
     public boolean dispatchGenericMotionEvent(MotionEvent event) {
         if(sdlEnabled && Gamepad.isGamepadEvent(event)) {
-            try {
-                MainActivity.motionListener.onGenericMotion(this, event);
-                return true;
-            } catch (Throwable ignored){
-                Log.e(TAG, "SDL failed to send motionevent!");
-            }
+            final MotionEvent copy = MotionEvent.obtain(event);
+            PojavApplication.sExecutorService.execute(()->{
+                try {
+                    MainActivity.motionListener.onGenericMotion(this, copy);
+                    copy.recycle();
+                } catch (Throwable ignored) {
+                    Log.e(TAG, "SDL failed to send motionevent!");
+                }
+            });
+            return true;
         }
         super.dispatchGenericMotionEvent(event);
         int mouseCursorIndex = -1;
@@ -323,13 +327,16 @@ public class MinecraftGLSurface extends View implements GrabListener, DirectGame
         // that don't have controller code so we are, checking for em.
         boolean isGamepadEvent = Gamepad.isGamepadEvent(event);
         if (sdlEnabled && isGamepadEvent) {
+            final KeyEvent copy = new KeyEvent(event);
+            PojavApplication.sExecutorService.execute(() -> {
                 try {
-                    SDLActivity.handleKeyEvent(this, eventKeycode, event, null);
-                    return true;
-                } catch (Throwable ignored){
+                    SDLActivity.handleKeyEvent(this, eventKeycode, copy, null);
+                } catch (Throwable ignored) {
                     Log.e(TAG, "SDL failed to send keyevent!");
                 }
-            }
+            });
+            return true;
+        }
         if(!sdlEnabled && isGamepadEvent){
             if(mGamepadHandler == null) createGamepad(this, event.getDevice());
 
