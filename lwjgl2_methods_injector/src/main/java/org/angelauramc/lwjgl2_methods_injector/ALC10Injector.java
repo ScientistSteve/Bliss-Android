@@ -11,6 +11,12 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 
+/**
+ * Adds a variant of alcGetCurrentContext() that returns type ALCcontext as expected by LWJGL2
+ * Should not run when ASM is missing.
+ */
+// The lwjgl classes jar isn't bytecode patched because that increases complexity in the LWJGL repo
+// and makes it harder to debug if something breaks. Also this is more portable.
 public class ALC10Injector extends ClassVisitor implements ClassFileTransformer {
     protected ALC10Injector(int api) {
         super(api);
@@ -23,7 +29,10 @@ public class ALC10Injector extends ClassVisitor implements ClassFileTransformer 
                 if (!"org/lwjgl/openal/ALC10".equals(name)) {
                     return null;
                 }
-                System.out.println("Modifying ALC10 for LWJGL2 compatibility...");
+                try { // Minecraft makes it ugly if we use println
+                    System.out.write("Amethyst-Android: Adding missing LWJGL2 methods for better sound mod compatibility...\n".getBytes());
+                    System.out.flush();
+                } catch (Exception ignored) {}
                 ClassReader cr = new ClassReader(b);
                 ClassWriter cw = new ClassWriter(cr, 0);
                 ClassVisitor cv = new AddMethodAdapter(cw);

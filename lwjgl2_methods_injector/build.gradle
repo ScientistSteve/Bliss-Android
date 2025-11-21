@@ -23,5 +23,5 @@ jar {
 }
 
 dependencies {
-    implementation group: 'org.ow2.asm', name: 'asm', version: '9.9'
+    compileOnly 'org.ow2.asm:asm:9.9'
 }
