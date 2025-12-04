@@ -11,7 +11,7 @@
 
 Amethyst is a launcher that allows you to play Minecraft: Java Edition on your Android and [iOS](https://github.com/AngelAuraMC/Amethyst-iOS) devices.
 
-For more details, check out our [wiki](https://angelauramc.dev/wiki)!
+For more details, check out our [wiki](https://wiki.angelauramc.dev)!
 
 ## Table of Contents
 
@@ -110,7 +110,7 @@ Any code change should be submitted as a pull request. The description should ex
 
 ## Support
 
-For support, please join our [Discord server](https://discord.com/invite/98pZ8YY3Cq).
+For support, please join our [Discord server](https://discord.gg/5ptqkyZxEy).
 
 ## License
 
