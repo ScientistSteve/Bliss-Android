@@ -2,7 +2,6 @@ package net.kdt.pojavlaunch.modloaders.modpacks.api;
 
 import android.app.Activity;
 import android.net.Uri;
-import android.util.Log;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -17,7 +16,6 @@ import net.kdt.pojavlaunch.utils.DownloadUtils;
 import net.kdt.pojavlaunch.value.launcherprofiles.LauncherProfiles;
 import net.kdt.pojavlaunch.value.launcherprofiles.MinecraftProfile;
 
-import org.apache.commons.codec.binary.Hex;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -115,7 +113,12 @@ public class ModpackInstaller {
             while (hashingStream.read(buffer) != -1) {} // just read to update the digest
             hashingStream.close();
             byte[] digest = algorithm.digest();
-            String hash = Hex.encodeHexString(digest);
+            StringBuilder sb = new StringBuilder(digest.length * 2);
+            for (byte b : digest) {
+                sb.append(String.format("%02x", b));
+            }
+            String hash = sb.toString();
+
             // Parse the JSON to prepare for instance creation
             JsonObject packInfoJson = JsonParser.parseString(jsonString.toString()).getAsJsonObject();
             String modpackName;
