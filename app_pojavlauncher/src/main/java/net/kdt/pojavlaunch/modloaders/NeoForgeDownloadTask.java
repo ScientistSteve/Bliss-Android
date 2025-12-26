@@ -4,6 +4,7 @@ import com.kdt.mcgui.ProgressLayout;
 
 import net.kdt.pojavlaunch.R;
 import net.kdt.pojavlaunch.Tools;
+import net.kdt.pojavlaunch.fragments.NeoForgeInstallFragment;
 import net.kdt.pojavlaunch.progresskeeper.ProgressKeeper;
 import net.kdt.pojavlaunch.utils.DownloadUtils;
 
@@ -18,10 +19,10 @@ public class NeoForgeDownloadTask implements Runnable, Tools.DownloaderFeedback 
     private String mLoaderVersion;
     private String mGameVersion;
     private final ModloaderDownloadListener mListener;
-    public NeoForgeDownloadTask(ModloaderDownloadListener listener, String forgeVersion) {
+    public NeoForgeDownloadTask(ModloaderDownloadListener listener, String neoforgeVersion) {
         this.mListener = listener;
-        this.mDownloadUrl = "https://maven.neoforged.net/releases/net/neoforged/neoforge/"+ forgeVersion +"/neoforge-"+forgeVersion+"-installer.jar";
-        this.mFullVersion = forgeVersion;
+        this.mDownloadUrl = String.format(NEOFORGE_INSTALLER_URL, neoforgeVersion);
+        this.mFullVersion = neoforgeVersion;
     }
 
     public NeoForgeDownloadTask(ModloaderDownloadListener listener, String gameVersion, String loaderVersion) {
@@ -29,6 +30,9 @@ public class NeoForgeDownloadTask implements Runnable, Tools.DownloaderFeedback 
         this.mLoaderVersion = loaderVersion;
         this.mGameVersion = gameVersion;
     }
+
+    private static final String NEOFORGE_INSTALLER_URL = "https://maven.neoforged.net/releases/net/neoforged/neoforge/%1$s/neoforge-%1$s-installer.jar";
+
     @Override
     public void run() {
         if(determineDownloadUrl()) {
@@ -73,13 +77,12 @@ public class NeoForgeDownloadTask implements Runnable, Tools.DownloaderFeedback 
     }
 
     public boolean findVersion() throws IOException {
-        List<String> forgeVersions = ForgeUtils.downloadForgeVersions();
-        if(forgeVersions == null) return false;
-        String versionStart = mGameVersion+"-"+mLoaderVersion;
-        for(String versionName : forgeVersions) {
-            if(!versionName.startsWith(versionStart)) continue;
+        List<String> neoforgeVersions = NeoForgeInstallFragment.downloadNeoForgeVersions();
+        if(neoforgeVersions == null) return false;
+        for(String versionName : neoforgeVersions) {
+            if(!versionName.startsWith(mLoaderVersion)) continue;
             mFullVersion = versionName;
-            mDownloadUrl = ForgeUtils.getInstallerUrl(mFullVersion);
+            mDownloadUrl = String.format(NEOFORGE_INSTALLER_URL, mLoaderVersion);
             return true;
         }
         return false;
