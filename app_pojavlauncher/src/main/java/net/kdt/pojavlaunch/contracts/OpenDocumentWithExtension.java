@@ -36,10 +36,24 @@ public class OpenDocumentWithExtension extends ActivityResultContract<Object, Ur
         int count = 0;
         for (String extension: extensions) {
             String extensionMimetype = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-            // This somehow works despite finding no code showing where modrinth was defined.
-            // Guessing that just DocumentsUI supports this, if someone files a bug report saying
-            // they can't select mrpacks with DocumentsUI, remove this and just don't filter at all.
-            if (Objects.equals(extension, "mrpack")) extensionMimetype = "application/x-modrinth-modpack+zip";
+            if (Objects.equals(extension, "mrpack")) {
+                // Special handling here because depending on whether the ROM has
+                // `x-modrinth-modpack+zip` in their mimetypes or not because if it does,
+                // `octet-stream` will no longer match mrpack files.
+
+                // Checking this with MimeTypeMap.hasExtension() and .hasMimeType() always returns
+                // false so we do both instead.
+
+                // `octet-stream` highlights a lot of unrelated files but it's the best
+                // we can do. Mimetypes are built into the ROM after all.
+                // See https://android.googlesource.com/platform/external/mime-support/+/refs/heads/main
+                // or https://android.googlesource.com/platform/frameworks/base/+/refs/heads/main/mime/java-res/android.mime.types
+                extensionsMimeType.add("application/octet-stream");
+                extensionsMimeType.add("application/x-modrinth-modpack+zip");
+                count++;
+                continue;
+            }
+
             if(extensionMimetype == null) continue; // If null is passed, it matches all files
             extensionsMimeType.add(extensionMimetype);
             count++;
