@@ -37,7 +37,7 @@ public class MathQuestionPreference extends SwitchPreferenceCompat {
         final int answer = (a * b) + c - d;
 
         final EditText input = new EditText(getContext());
-        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED | InputType.TYPE_CLASS_NUMBER);
 
         new AlertDialog.Builder(getContext())
                 .setTitle(R.string.sodium_math_warning_title)
