@@ -118,7 +118,7 @@ public class ModpackInstaller {
             String hash = Hex.encodeHexString(digest);
             // Parse the JSON to prepare for instance creation
             JsonObject packInfoJson = JsonParser.parseString(jsonString.toString()).getAsJsonObject();
-            String modpackName = null;
+            String modpackName;
             if(isModrinth){
                 // Added a for because there is an awkward __ that I can't be bothered to fix
                 // FO only deduplication be like:
@@ -165,7 +165,7 @@ public class ModpackInstaller {
 
             return modLoaderInfo;
         }
-        throw new IOException("Can't read" + zipEntry.getName() + "in modpack provided");
+        throw new IOException("Can't find manifest file in modpack provided");
 }
 
 interface InstallFunction {

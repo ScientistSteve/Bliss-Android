@@ -77,6 +77,8 @@ public class LauncherActivity extends BaseActivity {
                             loaderInfo.getDownloadTask(new NotificationDownloadListener(this, loaderInfo)).run();
                         } catch (IOException e) {
                             Tools.showErrorRemote(this, R.string.modpack_install_download_failed, e);
+                        } catch (IllegalArgumentException e) {
+                            Tools.showError(this, R.string.not_modpack_file, e);
                         } catch (NoSuchAlgorithmException e) {
                             // Should literally never happen because SHA-1 is required Java spec
                             throw new RuntimeException(e);

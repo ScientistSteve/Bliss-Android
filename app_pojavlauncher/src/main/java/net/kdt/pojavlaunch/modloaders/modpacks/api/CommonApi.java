@@ -7,11 +7,15 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import net.kdt.pojavlaunch.PojavApplication;
+import net.kdt.pojavlaunch.R;
+import net.kdt.pojavlaunch.Tools;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.Constants;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.ModDetail;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.ModItem;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.SearchFilters;
 import net.kdt.pojavlaunch.modloaders.modpacks.models.SearchResult;
+
+import org.jdom2.IllegalDataException;
 
 import java.io.File;
 import java.io.IOException;
@@ -157,7 +161,7 @@ public class CommonApi implements ModpackApi {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        throw new RuntimeException("Not a modpack file!");
+        throw new IllegalArgumentException("Zip provided does not contain a manifest file");
     }
 
     /** Fuse the arrays in a way that's fair for every endpoint */
