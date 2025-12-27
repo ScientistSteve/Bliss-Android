@@ -62,7 +62,7 @@ public class ModLoader {
             case MOD_LOADER_QUILT:
                 return createFabriclikeTask(listener, FabriclikeUtils.QUILT_UTILS);
             case MOD_LOADER_NEOFORGE:
-                return new NeoForgeDownloadTask(listener, minecraftVersion, modLoaderVersion);
+                return new NeoForgeDownloadTask(listener, modLoaderVersion);
             default:
                 return null;
         }

@@ -1,5 +1,7 @@
 package net.kdt.pojavlaunch.modloaders;
 
+import androidx.annotation.NonNull;
+
 import com.kdt.mcgui.ProgressLayout;
 
 import net.kdt.pojavlaunch.R;
@@ -14,21 +16,15 @@ import java.io.IOException;
 import java.util.List;
 
 public class NeoForgeDownloadTask implements Runnable, Tools.DownloaderFeedback {
-    private String mDownloadUrl;
-    private String mFullVersion;
-    private String mLoaderVersion;
-    private String mGameVersion;
-    private final ModloaderDownloadListener mListener;
-    public NeoForgeDownloadTask(ModloaderDownloadListener listener, String neoforgeVersion) {
-        this.mListener = listener;
-        this.mDownloadUrl = String.format(NEOFORGE_INSTALLER_URL, neoforgeVersion);
-        this.mFullVersion = neoforgeVersion;
-    }
+    private final String mDownloadUrl;
+    private final String mLoaderVersion;
 
-    public NeoForgeDownloadTask(ModloaderDownloadListener listener, String gameVersion, String loaderVersion) {
+    private final ModloaderDownloadListener mListener;
+
+    public NeoForgeDownloadTask(ModloaderDownloadListener listener, @NonNull String loaderVersion) {
         this.mListener = listener;
+        this.mDownloadUrl = String.format(NEOFORGE_INSTALLER_URL, loaderVersion);
         this.mLoaderVersion = loaderVersion;
-        this.mGameVersion = gameVersion;
     }
 
     private static final String NEOFORGE_INSTALLER_URL = "https://maven.neoforged.net/releases/net/neoforged/neoforge/%1$s/neoforge-%1$s-installer.jar";
@@ -36,7 +32,7 @@ public class NeoForgeDownloadTask implements Runnable, Tools.DownloaderFeedback 
     @Override
     public void run() {
         if(determineDownloadUrl()) {
-            downloadForge();
+            downloadNeoForge();
         }
         ProgressLayout.clearProgress(ProgressLayout.INSTALL_MODPACK);
     }
@@ -44,11 +40,11 @@ public class NeoForgeDownloadTask implements Runnable, Tools.DownloaderFeedback 
     @Override
     public void updateProgress(int curr, int max) {
         int progress100 = (int)(((float)curr / (float)max)*100f);
-        ProgressKeeper.submitProgress(ProgressLayout.INSTALL_MODPACK, progress100, R.string.forge_dl_progress, mFullVersion);
+        ProgressKeeper.submitProgress(ProgressLayout.INSTALL_MODPACK, progress100, R.string.forge_dl_progress, mLoaderVersion);
     }
 
-    private void downloadForge() {
-        ProgressKeeper.submitProgress(ProgressLayout.INSTALL_MODPACK, 0, R.string.forge_dl_progress, mFullVersion);
+    private void downloadNeoForge() {
+        ProgressKeeper.submitProgress(ProgressLayout.INSTALL_MODPACK, 0, R.string.forge_dl_progress, mLoaderVersion);
         try {
             File destinationFile = new File(Tools.DIR_CACHE, "neoforge-installer.jar");
             byte[] buffer = new byte[8192];
@@ -62,8 +58,7 @@ public class NeoForgeDownloadTask implements Runnable, Tools.DownloaderFeedback 
     }
 
     public boolean determineDownloadUrl() {
-        if(mDownloadUrl != null && mFullVersion != null) return true;
-        ProgressKeeper.submitProgress(ProgressLayout.INSTALL_MODPACK, 0, R.string.forge_dl_searching);
+        ProgressKeeper.submitProgress(ProgressLayout.INSTALL_MODPACK, 0, R.string.neoforge_dl_searching);
         try {
             if(!findVersion()) {
                 mListener.onDataNotAvailable();
@@ -81,8 +76,6 @@ public class NeoForgeDownloadTask implements Runnable, Tools.DownloaderFeedback 
         if(neoforgeVersions == null) return false;
         for(String versionName : neoforgeVersions) {
             if(!versionName.startsWith(mLoaderVersion)) continue;
-            mFullVersion = versionName;
-            mDownloadUrl = String.format(NEOFORGE_INSTALLER_URL, mLoaderVersion);
             return true;
         }
         return false;
