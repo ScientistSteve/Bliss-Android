@@ -28,7 +28,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.FileObserver;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.DocumentsContract;
@@ -214,22 +213,64 @@ public final class Tools {
     }
 
     /**
-     * Optimization mods based on Sodium can mitigate the render distance issue. Check if Sodium
-     * or its derivative is currently installed to skip the render distance check.
-     * @param gameDir current game directory
-     * @return whether sodium or a sodium-based mod is installed
+     * @return The selected "Custom path" of the current profile
      */
-    public static boolean hasSodium(File gameDir) {
+    @NonNull
+    private static File getGameDir() {
+        return getGameDirPath(LauncherProfiles.getCurrentProfile());
+    }
+
+    /**
+     * Searches for mod in mods directory of current selected profile
+     * @param filenames Filename(s) of the .jar mod(s)
+     * @return Whether or not the .jar is found
+     */
+    public static boolean hasMods(String... filenames) {
+        File gameDir = getGameDir();
         File modsDir = new File(gameDir, "mods");
-        File[] mods = modsDir.listFiles(file -> file.isFile() && file.getName().endsWith(".jar"));
-        if(mods == null) return false;
-        for(File file : mods) {
-            String name = file.getName();
-            if(name.contains("sodium") ||
-                    name.contains("embeddium") ||
-                    name.contains("rubidium")) return true;
+        File[] modFiles = modsDir.listFiles(file -> file.isFile() && file.getName().endsWith(".jar"));
+        if (modFiles == null) return false;
+        for (File file : modFiles) {
+            for (String filename : filenames)
+                if (file.getName().contains(filename)) return true;
         }
         return false;
+    }
+
+    /**
+     * Tries to delete any sodium related mods of the currently selected profile via string matching
+     * the files in the mods folder.
+     */
+    public static void deleteSodiumMods() {
+        File modsDir = new File(getGameDir(), "mods");
+        File[] mods = modsDir.listFiles(file -> file.isFile() && file.getName().endsWith(".jar"));
+        if(mods == null) ;
+        for(File file : mods) {
+            String name = file.getName().toLowerCase();
+            if(name.contains("sodium") ||
+                    name.contains("beddium")    || // Also covers embeddium
+                    name.contains("rubidium")   ||
+                    name.contains("xenon")      || // Name conflicts with another mod
+                    name.contains("celeritas")  ||
+                    name.contains("relictium")  ||
+                    name.contains("vintagium")  ||
+                    name.contains("podium")     ||
+                    name.contains("indium")     ||
+                    name.contains("lazurite")   ||
+                    name.contains("iris")       ||
+                    name.contains("monocle")    ||
+                    name.contains("voxy")       ||
+                    name.contains("nvidium")    ||
+                    name.contains("chloride")   ||
+                    name.contains("bedrodium")  ||
+                    name.contains("substrate")  || // Name conflicts with another mod
+                    name.contains("blendium")   ||
+                    name.contains("ryoamium")
+                // The name conflicts are for pretty dead mods so we ignore them.
+                // I doubt they're using some mod with less than 5k downloads with sodium.
+            ) if(!file.delete())
+                throw new RuntimeException("Failed to delete Sodium and related mods!");
+        }
     }
 
     /**
@@ -269,10 +310,10 @@ public final class Tools {
         return info.isAdreno() && info.glesMajorVersion >= 3;
     }
 
-    private static boolean checkRenderDistance(File gamedir) {
+    private static boolean affectedByLTWRenderDistanceIssue() {
         if(!"opengles3_ltw".equals(Tools.LOCAL_RENDERER)) return false;
         if(!affectedByRenderDistanceIssue()) return false;
-        if(hasSodium(gamedir)) return false;
+        if(hasMods("sodium", "embeddium", "rubidium")) return false;
 
         int renderDistance;
         try {
@@ -317,7 +358,7 @@ public final class Tools {
         File gamedir = Tools.getGameDirPath(minecraftProfile);
         startControllableMitigation(activity, gamedir);
         startOldLegacy4JMitigation(activity, gamedir);
-        if(checkRenderDistance(gamedir)) {
+        if(affectedByLTWRenderDistanceIssue()) {
             LifecycleAwareAlertDialog.DialogCreator dialogCreator = ((alertDialog, dialogBuilder) ->
                     dialogBuilder.setMessage(activity.getString(R.string.ltw_render_distance_warning_msg))
                             .setPositiveButton(android.R.string.ok, (d, w)->{}));
