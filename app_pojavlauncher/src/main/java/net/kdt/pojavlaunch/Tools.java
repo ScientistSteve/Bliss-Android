@@ -7,6 +7,7 @@ import static net.kdt.pojavlaunch.PojavProfile.getAllProfiles;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_IGNORE_NOTCH;
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_NOTCH_SIZE;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.NotificationChannel;
@@ -83,9 +84,11 @@ import org.libsdl.app.SDLControllerManager;
 import org.lwjgl.glfw.CallbackBridge;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -93,6 +96,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
@@ -211,6 +215,50 @@ public final class Tools {
         GAME_PROFILES_FILE = Tools.DIR_GAME_NEW + "/launcher_profiles.json";
         switchDemo(isDemoProfile(ctx));
     }
+
+    @SuppressLint("PrivateApi")
+    private static String systemPropertiesGet(String systemProperty) throws NoSuchMethodException, ClassNotFoundException, InvocationTargetException, IllegalAccessException {
+        Class<?> cSystemProperties = Class.forName("android.os.SystemProperties");
+        Method get = cSystemProperties.getMethod("get", String.class);
+        return (String) get.invoke(null, systemProperty);
+    }
+
+    private static boolean isAdreno740(){
+        try {
+            BufferedReader br = new BufferedReader(
+                    new FileReader("/sys/class/kgsl/kgsl-3d0/gpu_model")
+            );
+            String gpuRenderer = br.readLine();
+            return gpuRenderer != null &&
+                    gpuRenderer.toLowerCase().contains("adreno") &&
+                    gpuRenderer.contains("740");
+        } catch (IOException e) {
+            // If it doesn't exist, we definitely aren't on 740
+            return false;
+        }
+    }
+
+    /**
+     * Detects whether or not you are on OneUI and using Adreno 740
+     * <a href="https://gitlab.freedesktop.org/mesa/mesa/-/blob/main/src/freedreno/common/freedreno_devices.py?ref_type=heads#L1007-L1009">
+     *     Mesa sets it to 0 by default due to vendor quirks
+     * </a>
+     * It is possible that OneUI simply deviates from this commonality, hence why
+     * <a href="https://github.com/K11MCH1/AdrenoToolsDrivers/releases/tag/v26.0.0-rc07">
+     *     this is a common fix
+     * </a>
+     * @return Whether or not to export FD_DEV_FEATURES=enable_ubwc_flag_hint=1
+     */
+    public static boolean shouldUseUBWC() {
+        try {
+            boolean isSamsung = Build.MANUFACTURER.equalsIgnoreCase("samsung");
+            boolean isOneUI = !systemPropertiesGet("ro.build.version.oneui").isBlank();
+            return isOneUI && isSamsung && isAdreno740();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 
     /**
      * @return The selected "Custom path" of the current profile
