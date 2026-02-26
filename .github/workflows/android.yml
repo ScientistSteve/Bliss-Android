@@ -73,18 +73,16 @@ jobs:
           validate-wrappers: false
           gradle-version: "8.11"
 
-      - name: Build JRE JAR files
+      - name: Run scripts
         run: |
           ./scripts/languagelist_updater.sh
-
           mkdir out
-          # Build JRE JAR files (security manager, etc...)
-          gradle :jre_lwjgl3glfw:build --no-daemon
+
       - name: Build Release .apk
         run: |
           # Build the launcher
           gradle :app_pojavlauncher:assembleRelease
-          mv app_pojavlauncher/build/outputs/apk/release/app_pojavlauncher-release.apk out/app-release.apk
+          mv app_pojavlauncher/build/outputs/apk/release/app_pojavlauncher-release-unsigned.apk out/app-release.apk
 
       - name: Gen md5sums
         run: |
