@@ -16,6 +16,7 @@ import org.lwjgl.system.*;
 import org.lwjgl.system.MemoryUtil;
 
 import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.system.APIUtil.*;
 import static org.lwjgl.system.Checks.*;
 import static org.lwjgl.system.JNI.*;
@@ -1029,26 +1030,52 @@ public class GLFW
         win.title = title;
 
         // Set the Open GL version for context because Forge and derivatives ask for it
-        // If we give them 0.0, some mods don't like it, so we base our assumptions on a per renderer basis
+        // Default on 3.3 because mod compat
         int glMajor = 3;
         int glMinor = 3;
+        // Custom defaults for specific renderers
         boolean turnipLoad = System.getenv("POJAV_LOAD_TURNIP") != null &&
                 System.getenv("POJAV_LOAD_TURNIP").equals("1");
         // These values can be found at headings_array.xml
         if (turnipLoad && System.getenv("AMETHYST_RENDERER").equals("vulkan_zink")) {
-            System.out.println("GLFW: Turnip+Zink detected, setting GL context to 4.6");
             glMajor = 4;
             glMinor = 6;
         } else if (System.getenv("AMETHYST_RENDERER").equals("opengles3_virgl")) {
-            System.out.println("GLFW: virglrenderer detected, setting GL context to 4.3");
             glMajor = 4;
             glMinor = 3;
         } else if (System.getenv("AMETHYST_RENDERER").equals("opengles_mobileglues")) {
-            System.out.println("GLFW: MobileGlues detected, setting GL context to 4.0");
             glMajor = 4;
             glMinor = 0;
-        } else {
-            System.out.println("GLFW: " + System.getenv("AMETHYST_RENDERER") + " detected, defaulting GL context to 3.3");
+        }
+        // Get the real values properly
+        FunctionProvider functionProvider = org.lwjgl.opengl.GL.getFunctionProvider();
+        if (functionProvider != null) {
+            // We don't assume createCapabilities has been called nor do we call it
+            // This was based from LWJGL GL.createCapabilities()
+            long GetError    = functionProvider.getFunctionAddress("glGetError");
+            long GetString   = functionProvider.getFunctionAddress("glGetString");
+            long GetIntegerv = functionProvider.getFunctionAddress("glGetIntegerv");
+
+            // Change the default to whatever GL_VERSION can be extracted to, only if higher ver
+            String versionString = memUTF8Safe(callP(GL_VERSION, GetString));
+            if (versionString != null) {
+                try {
+                    APIVersion apiVersion = apiParseVersion(versionString);
+                    if (3 <= apiVersion.major && apiVersion.major <= 4) glMajor = apiVersion.major;
+                    if (3 <= apiVersion.minor && apiVersion.minor <= 6) glMinor = apiVersion.minor;
+                } catch (Throwable ignored){} // In case the string is invalid/garbage
+            }
+
+            // Try to get values from GL30+ driver directly, only use if higher ver
+            try (MemoryStack stack = stackPush()) {
+                IntBuffer version = stack.ints(0);
+                callPV(GL_MAJOR_VERSION, memAddress(version), GetIntegerv);
+                if (callI(GetError) == GL_NO_ERROR &&
+                        3 <= version.get(0) && version.get(0) <= 4) glMajor = version.get(0);
+                callPV(GL_MINOR_VERSION, memAddress(version), GetIntegerv);
+                if (callI(GetError) == GL_NO_ERROR &&
+                        3 <= version.get(0) && version.get(0) <= 4) glMinor = version.get(0);
+            }
         }
         win.windowAttribs.put(GLFW_CONTEXT_VERSION_MAJOR, glMajor);
         win.windowAttribs.put(GLFW_CONTEXT_VERSION_MINOR, glMinor);
