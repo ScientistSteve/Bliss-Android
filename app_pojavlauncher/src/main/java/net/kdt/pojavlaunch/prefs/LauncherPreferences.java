@@ -239,12 +239,10 @@ public class LauncherPreferences {
         MGConfigJson.put("fsr1Setting", Integer.parseInt(DEFAULT_PREF.getString("mg_renderer_setting_fsr", "0")));
 
         // These guys are SwitchPreferences so they get special treatment, they need to be converted to ints
-        int gl43exts = DEFAULT_PREF.getBoolean("mg_renderer_setting_gl43ext", false) ? 1 : 0;
         int computeShaderext = DEFAULT_PREF.getBoolean("mg_renderer_computeShaderext", false) ? 1 : 0;
         int angleDepthClearFixMode = DEFAULT_PREF.getBoolean("mg_renderer_setting_angleDepthClearFixMode", false) ? 1 : 0;
         int timerQueryExt = DEFAULT_PREF.getBoolean("mg_renderer_setting_timerQueryExt", false) ? 1 : 0;
         int dsaExt = DEFAULT_PREF.getBoolean("mg_renderer_dsaExt", false) ? 1 : 0;
-        MGConfigJson.put("enableExtGL43", gl43exts);
         MGConfigJson.put("enableExtComputeShader", computeShaderext);
         MGConfigJson.put("angleDepthClearFixMode", angleDepthClearFixMode);
         MGConfigJson.put("enableExtTimerQuery", timerQueryExt);
