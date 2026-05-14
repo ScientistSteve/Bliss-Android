@@ -1,35 +1,39 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="@dimen/_52sdp"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/_58sdp"
-    android:background="@color/copper_surface"
-    android:gravity="center_vertical"
-    android:orientation="horizontal"
-    android:paddingStart="@dimen/_10sdp">
+    android:orientation="horizontal">
 
     <fr.spse.extended_view.ExtendedTextView
         android:id="@+id/account_item"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
-        android:drawablePadding="@dimen/_10sdp"
-        android:fontFamily="@font/outfit"
-        android:gravity="center_vertical"
-        android:textColor="@color/copper_text"
-        android:textSize="@dimen/_15ssp"
-        android:textStyle="bold"
-        app:drawableStartSize="@dimen/_34sdp"
-        tools:drawableStart="@mipmap/ic_launcher"
-        tools:ignore="RtlSymmetry"
-        tools:text="HELLO THERE" />
 
+        android:textSize="@dimen/_16ssp"
+        android:gravity="center_vertical"
+        android:drawablePadding="@dimen/_6sdp"
+        android:paddingStart="@dimen/_8sdp"
+        app:drawableStartSize="@dimen/_30sdp"
+
+        tools:text="HELLO THERE"
+        tools:drawableStart="@mipmap/ic_launcher"
+
+
+        tools:ignore="RtlSymmetry" />
+
+    <!-- Fun fact, if I put an Image button, the spinner fails to put an onclick listener on the extended view -->
     <ImageView
         android:id="@+id/delete_account_button"
         android:layout_width="@dimen/_52sdp"
         android:layout_height="match_parent"
         android:background="?attr/selectableItemBackground"
-        android:padding="@dimen/padding_moderate"
         android:src="@drawable/ic_menu_delete_forever"
-        android:tint="@color/copper_highlight" />
+
+        android:padding="@dimen/padding_moderate"
+        />
+
 </LinearLayout>
+
