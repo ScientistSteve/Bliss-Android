@@ -5,7 +5,7 @@
     android:id="@+id/fragment_menu_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_bliss_background"
+    android:background="@color/background_app"
     android:fillViewport="true"
     android:scrollbars="vertical">
 
@@ -14,28 +14,8 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingStart="@dimen/_17sdp"
-        android:paddingTop="@dimen/_18sdp"
         android:paddingEnd="@dimen/_17sdp"
         android:paddingBottom="@dimen/_18sdp">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/outfit"
-            android:text="Bliss Launcher"
-            android:textColor="@color/copper_text"
-            android:textSize="@dimen/_24ssp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_4sdp"
-            android:layout_marginBottom="@dimen/_14sdp"
-            android:fontFamily="@font/outfit"
-            android:text="Play, manage profiles, and switch accounts from one clean home screen."
-            android:textColor="@color/copper_text_muted"
-            android:textSize="@dimen/_12ssp" />
 
         <LinearLayout
             android:id="@+id/account_card"

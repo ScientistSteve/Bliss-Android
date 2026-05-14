@@ -1,75 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_bliss_background"
-    android:fillViewport="true">
+    android:background="@color/background_app"
+    android:paddingHorizontal="@dimen/fragment_padding_medium"
+    >
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <View
+        android:id="@+id/login_menu"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingHorizontal="@dimen/_20sdp"
-        android:paddingVertical="@dimen/_24sdp">
+        android:layout_height="@dimen/_200sdp"
 
-        <LinearLayout
-            android:id="@+id/login_menu"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_bliss_card"
-            android:elevation="8dp"
-            android:orientation="vertical"
-            android:padding="@dimen/_22sdp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+        android:background="@drawable/background_card"
+        android:translationZ="-1dp"
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/outfit"
-                android:text="Local account"
-                android:textColor="@color/copper_text"
-                android:textSize="@dimen/_24ssp"
-                android:textStyle="bold" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_8sdp"
-                android:fontFamily="@font/outfit"
-                android:text="Create an offline profile name for this device."
-                android:textColor="@color/copper_text_muted"
-                android:textSize="@dimen/_12ssp" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_22sdp"
-                android:fontFamily="@font/outfit"
-                android:text="@string/login_online_username_hint"
-                android:textColor="@color/copper_text"
-                android:textSize="@dimen/_12ssp"
-                android:textStyle="bold" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/login_online_username_hint"
 
-            <com.kdt.mcgui.MineEditText
-                android:id="@+id/login_edit_email"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/_52sdp"
-                android:layout_marginTop="@dimen/_8sdp"
-                android:hint="Steve"
-                android:imeOptions="flagNoExtractUi"
-                android:inputType="textEmailAddress"
-                android:textSize="@dimen/_14ssp" />
+        app:layout_constraintBottom_toTopOf="@+id/login_edit_email"
+        app:layout_constraintStart_toStartOf="@+id/login_edit_email" />
 
-            <com.kdt.mcgui.MineButton
-                android:id="@+id/login_button"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/_54sdp"
-                android:layout_marginTop="@dimen/_22sdp"
-                android:onClick="loginMC"
-                android:text="@string/login_online_login_label" />
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+
+    <com.kdt.mcgui.MineEditText
+        android:id="@+id/login_edit_email"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/_37sdp"
+
+        android:layout_marginHorizontal="@dimen/_25sdp"
+
+        android:layout_marginTop="@dimen/_60sdp"
+        android:imeOptions="flagNoExtractUi"
+        android:inputType="textEmailAddress"
+        android:textSize="@dimen/_16ssp"
+
+        app:layout_constraintEnd_toEndOf="@+id/login_menu"
+        app:layout_constraintStart_toStartOf="@+id/login_menu"
+        app:layout_constraintTop_toTopOf="@+id/login_menu"
+        app:layout_constraintVertical_bias="0.251" />
+
+    <com.kdt.mcgui.MineButton
+        android:id="@+id/login_button"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/_42sdp"
+        android:layout_marginHorizontal="@dimen/_25sdp"
+        android:layout_marginTop="@dimen/padding_heavy"
+        android:onClick="loginMC"
+        android:text="@string/login_online_login_label"
+
+        android:textColor="@android:color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/login_edit_email" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
