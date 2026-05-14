@@ -45,6 +45,7 @@ import net.kdt.pojavlaunch.extra.ExtraConstants;
 import net.kdt.pojavlaunch.extra.ExtraCore;
 import net.kdt.pojavlaunch.extra.ExtraListener;
 import net.kdt.pojavlaunch.value.MinecraftAccount;
+import net.kdt.pojavlaunch.utils.AccentColorHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -128,14 +129,14 @@ public class mcAccountSpinner extends AppCompatSpinner implements AdapterView.On
 
     /* Triggered when we need to do microsoft login */
     private final ExtraListener<Uri> mMicrosoftLoginListener = (key, value) -> {
-        mLoginBarPaint.setColor(getResources().getColor(R.color.minebutton_color));
+        mLoginBarPaint.setColor(AccentColorHelper.getAccentColor(getContext()));
         new MicrosoftBackgroundLogin(false, value.getQueryParameter("code")).performLogin(
                 mProgressListener, mDoneListener, mErrorListener);
         return false;
     };
 
     private final ExtraListener<String[]> mElyByLoginListener = (key, value) -> {
-        mLoginBarPaint.setColor(getResources().getColor(R.color.minebutton_color));
+        mLoginBarPaint.setColor(AccentColorHelper.getAccentColor(getContext()));
         new ElyByBackgroundLogin(value[0], value[1], value[2]).performLogin(
                 mProgressListener, mDoneListener, mErrorListener);
         return false;
@@ -162,7 +163,7 @@ public class mcAccountSpinner extends AppCompatSpinner implements AdapterView.On
     private void init(){
         // Set visual properties
         setBackgroundColor(getResources().getColor(R.color.background_status_bar));
-        mLoginBarPaint.setColor(getResources().getColor(R.color.minebutton_color));
+        mLoginBarPaint.setColor(AccentColorHelper.getAccentColor(getContext()));
         mLoginBarPaint.setStrokeWidth(getResources().getDimensionPixelOffset(R.dimen._2sdp));
 
         // Set behavior
@@ -295,7 +296,7 @@ public class mcAccountSpinner extends AppCompatSpinner implements AdapterView.On
         }
         if(minecraftAccount.isLocal()) return;
 
-        mLoginBarPaint.setColor(getResources().getColor(R.color.minebutton_color));
+        mLoginBarPaint.setColor(AccentColorHelper.getAccentColor(getContext()));
         if(minecraftAccount.isElyBy){
             sExecutorService.execute(() -> {
                 minecraftAccount.updateSkinFace();

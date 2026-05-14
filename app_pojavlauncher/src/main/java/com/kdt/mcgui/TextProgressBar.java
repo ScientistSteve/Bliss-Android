@@ -14,6 +14,7 @@ import androidx.annotation.StringRes;
 import androidx.core.content.res.ResourcesCompat;
 
 import net.kdt.pojavlaunch.R;
+import net.kdt.pojavlaunch.utils.AccentColorHelper;
 
 public class TextProgressBar extends ProgressBar {
 
@@ -35,6 +36,7 @@ public class TextProgressBar extends ProgressBar {
 
     private void init(){
         setProgressDrawable(ResourcesCompat.getDrawable(getResources(), R.drawable.view_text_progressbar, null));
+        AccentColorHelper.tintProgressBar(this, AccentColorHelper.getAccentColor(getContext()));
         setProgress(35);
         mTextPaint = new Paint();
         mTextPaint.setColor(Color.WHITE);
