@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.Preference;
@@ -25,6 +27,11 @@ public class LauncherPreferenceFragment extends PreferenceFragmentCompat impleme
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         view.setBackgroundColor(getResources().getColor(R.color.background_app));
         super.onViewCreated(view, savedInstanceState);
+        RecyclerView listView = getListView();
+        listView.setBackgroundColor(getResources().getColor(R.color.background_app));
+        listView.setClipToPadding(false);
+        int padding = getResources().getDimensionPixelOffset(R.dimen._12sdp);
+        listView.setPadding(padding, padding, padding, padding);
     }
 
     @Override
