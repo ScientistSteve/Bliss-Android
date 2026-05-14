@@ -7,7 +7,16 @@
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:statusBarColor">@color/background_status_bar</item>
         <item name="android:navigationBarColor">@color/background_app</item>
-        <item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+        <item name="android:fontFamily">@font/outfit</item>
+        <item name="fontFamily">@font/outfit</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="colorAccent">@color/copper_highlight</item>
+        <item name="colorControlActivated">@color/copper_primary</item>
+        <item name="colorControlNormal">@color/copper_text_muted</item>
+        <item name="android:textColorPrimary">@color/copper_text</item>
+        <item name="android:textColorSecondary">@color/copper_text_muted</item>
+        <item name="preferenceTheme">@style/CopperPreferenceTheme</item>
 
         <item name="android:textSize">@dimen/_12ssp</item>
 
@@ -38,5 +47,13 @@
         <item name="android:id">@id/dimension_tracker</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">match_parent</item>
+    </style>
+
+
+    <style name="CopperPreferenceTheme" parent="PreferenceThemeOverlay.v14.Material">
+        <item name="android:fontFamily">@font/outfit</item>
+        <item name="fontFamily">@font/outfit</item>
+        <item name="android:colorAccent">@color/copper_highlight</item>
+        <item name="colorAccent">@color/copper_highlight</item>
     </style>
 </resources>
