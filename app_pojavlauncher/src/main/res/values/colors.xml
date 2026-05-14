@@ -3,21 +3,21 @@
     <color name="control_button_color">#4CC4C4C4</color>
     <color name="control_button_pressed_color">#4D000000</color>
 
-    <color name="minebutton_color">#7C3AED</color>
-    <color name="background_app">#101827</color>
-    <color name="divider">#243447</color>
-    <color name="background_overlay">#243447</color>
-    <color name="background_status_bar">#0B1220</color>
-    <color name="background_bottom_bar">#111827</color>
+    <color name="minebutton_color">#B87333</color>
+    <color name="background_app">#1A1210</color>
+    <color name="divider">@color/background_overlay</color>
+    <color name="background_overlay">#39241D</color>
+    <color name="background_status_bar">#1A1210</color>
+    <color name="background_bottom_bar">#241815</color>
 
-    <color name="primary_text">#F8FAFC</color>
-    <color name="secondary_text">#9FB3D9</color>
+    <color name="primary_text">#F0EAE4</color>
+    <color name="secondary_text">#D4956A</color>
 
-    <color name="copper_primary">#7C3AED</color>
-    <color name="copper_highlight">#38BDF8</color>
-    <color name="copper_surface">#1E293B</color>
-    <color name="copper_surface_elevated">#EE172033</color>
-    <color name="copper_stroke">#3B82F6</color>
-    <color name="copper_text">#F8FAFC</color>
-    <color name="copper_text_muted">#CBD5E1</color>
+    <color name="copper_primary">#B87333</color>
+    <color name="copper_highlight">#D4956A</color>
+    <color name="copper_surface">#241815</color>
+    <color name="copper_surface_elevated">#2D1D18</color>
+    <color name="copper_stroke">#5C3929</color>
+    <color name="copper_text">#F0EAE4</color>
+    <color name="copper_text_muted">#C9B8AA</color>
 </resources>

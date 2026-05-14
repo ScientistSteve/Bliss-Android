@@ -1,70 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_bliss_background"
-    android:fillViewport="true">
+    android:layout_gravity="center"
+    android:background="@color/background_app"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/fragment_padding_medium">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <View
+        android:id="@+id/login_menu"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingHorizontal="@dimen/_20sdp"
-        android:paddingVertical="@dimen/_24sdp">
+        android:layout_height="@dimen/_240sdp"
 
-        <LinearLayout
-            android:id="@+id/login_menu"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_bliss_card"
-            android:elevation="8dp"
-            android:orientation="vertical"
-            android:padding="@dimen/_22sdp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+        android:background="@drawable/background_card"
+        android:translationZ="-1dp"
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/outfit"
-                android:text="Add an account"
-                android:textColor="@color/copper_text"
-                android:textSize="@dimen/_24ssp"
-                android:textStyle="bold" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_8sdp"
-                android:fontFamily="@font/outfit"
-                android:lineSpacingExtra="2dp"
-                android:text="Choose how you want to sign in. All options are now large enough to tap comfortably."
-                android:textColor="@color/copper_text_muted"
-                android:textSize="@dimen/_12ssp" />
 
-            <com.kdt.mcgui.MineButton
-                android:id="@+id/button_microsoft_authentication"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/_54sdp"
-                android:layout_marginTop="@dimen/_22sdp"
-                android:text="Microsoft account" />
+    <com.kdt.mcgui.MineButton
+        android:id="@+id/button_microsoft_authentication"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Microsoft Account"
+        android:textSize="@dimen/_12ssp"
+        android:layout_marginHorizontal="@dimen/_25sdp"
+        android:layout_marginBottom="@dimen/_12sdp"
+        app:layout_constraintBottom_toTopOf="@+id/button_elyby_authentication"
+        app:layout_constraintEnd_toEndOf="@+id/login_menu"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/login_menu"
+        app:layout_constraintTop_toTopOf="@id/login_menu"
+        app:layout_constraintVertical_chainStyle="packed"
+        />
 
-            <com.kdt.mcgui.MineButton
-                android:id="@+id/button_elyby_authentication"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/_54sdp"
-                android:layout_marginTop="@dimen/_12sdp"
-                android:text="@string/login_elyby_account" />
+    <com.kdt.mcgui.MineButton
+        android:id="@+id/button_elyby_authentication"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/login_elyby_account"
+        android:textSize="@dimen/_12ssp"
+        android:layout_marginHorizontal="@dimen/_25sdp"
+        android:layout_marginBottom="@dimen/_12sdp"
+        app:layout_constraintBottom_toTopOf="@+id/button_local_authentication"
+        app:layout_constraintEnd_toEndOf="@+id/login_menu"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/login_menu"
+        app:layout_constraintTop_toBottomOf="@id/button_microsoft_authentication" />
 
-            <com.kdt.mcgui.MineButton
-                android:id="@+id/button_local_authentication"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/_54sdp"
-                android:layout_marginTop="@dimen/_12sdp"
-                android:background="@drawable/bg_bliss_secondary_button"
-                android:text="Local account" />
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+    <com.kdt.mcgui.MineButton
+        android:id="@+id/button_local_authentication"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Local account"
+        android:textSize="@dimen/_12ssp"
+        android:layout_marginHorizontal="@dimen/_25sdp"
+        app:layout_constraintBottom_toBottomOf="@id/login_menu"
+        app:layout_constraintEnd_toEndOf="@+id/login_menu"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/login_menu"
+        app:layout_constraintTop_toBottomOf="@+id/button_elyby_authentication" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
