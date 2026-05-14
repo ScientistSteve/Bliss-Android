@@ -1,7 +1,6 @@
 package com.kdt.mcgui;
 
 import android.content.*;
-import android.graphics.*;
 import android.util.*;
 
 import androidx.core.content.res.ResourcesCompat;
@@ -20,11 +19,13 @@ public class MineButton extends androidx.appcompat.widget.AppCompatButton {
 	}
 
 	public void init() {
-		setTypeface(ResourcesCompat.getFont(getContext(), R.font.minecraft_ten));
+		setTypeface(ResourcesCompat.getFont(getContext(), R.font.outfit));
 		setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.bg_copper_button, null));
 		setTextColor(getResources().getColor(R.color.copper_text));
-		setLetterSpacing(0.08f);
-		setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimensionPixelSize(R.dimen._22ssp));
+		setLetterSpacing(0.02f);
+		setAllCaps(false);
+		setMinHeight(getResources().getDimensionPixelSize(R.dimen._48sdp));
+		setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimensionPixelSize(R.dimen._14ssp));
 	}
 
 }

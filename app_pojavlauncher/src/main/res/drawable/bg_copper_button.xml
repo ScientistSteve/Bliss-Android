@@ -1,9 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true">
-        <shape><solid android:color="@color/copper_highlight"/><corners android:radius="22dp"/></shape>
+        <shape>
+            <gradient
+                android:angle="0"
+                android:startColor="#38BDF8"
+                android:endColor="#A78BFA" />
+            <corners android:radius="24dp" />
+        </shape>
+    </item>
+    <item android:state_enabled="false">
+        <shape>
+            <solid android:color="#475569" />
+            <corners android:radius="24dp" />
+        </shape>
     </item>
     <item>
-        <shape><solid android:color="@color/copper_primary"/><corners android:radius="22dp"/></shape>
+        <shape>
+            <gradient
+                android:angle="0"
+                android:startColor="#7C3AED"
+                android:endColor="#2563EB" />
+            <corners android:radius="24dp" />
+        </shape>
     </item>
 </selector>
