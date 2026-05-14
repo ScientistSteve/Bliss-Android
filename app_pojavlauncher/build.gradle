@@ -93,9 +93,11 @@ android {
         abortOnError false
     }
 
+    def customDebugKeystore = file("debug.keystore")
+
     signingConfigs {
         customDebug {
-            storeFile file("debug.keystore")
+            storeFile customDebugKeystore
             storePassword "android"
             keyAlias "androiddebugkey"
             keyPassword "android"
@@ -139,7 +141,7 @@ android {
             minifyEnabled false
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.customDebug
+            signingConfig customDebugKeystore.isFile() ? signingConfigs.customDebug : signingConfigs.debug
             resValue "string", "app_name", "XDAetherium (Debug)"
             resValue "string", "app_short_name", "XDAetherium (Debug)"
             resValue 'string', 'application_package', 'org.angelauramc.amethyst.debug'
