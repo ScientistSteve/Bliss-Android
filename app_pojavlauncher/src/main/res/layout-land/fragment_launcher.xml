@@ -76,8 +76,18 @@
         app:drawableStartIntegerScaling="true"
         app:drawableStartSize="@dimen/_36sdp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/edit_profile_button"
+        app:layout_constraintEnd_toStartOf="@+id/accent_color_button"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/accent_color_button"
+        android:layout_width="@dimen/_32sdp"
+        android:layout_height="0dp"
+        android:background="?android:attr/selectableItemBackground"
+        android:src="@android:drawable/ic_menu_manage"
+        app:layout_constraintBottom_toBottomOf="@+id/mc_version_spinner"
+        app:layout_constraintEnd_toStartOf="@+id/edit_profile_button"
+        app:layout_constraintTop_toTopOf="@+id/mc_version_spinner" />
 
     <ImageButton
         android:id="@+id/edit_profile_button"

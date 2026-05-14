@@ -5,7 +5,6 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -59,7 +58,6 @@ public class ProgressLayout extends ConstraintLayout implements View.OnClickList
     private final ArrayList<LayoutProgressListener> mMap = new ArrayList<>();
     private LinearLayout mLinearLayout;
     private TextView mTaskNumberDisplayer;
-    private ImageView mFlipArrow;
 
 
 
@@ -82,7 +80,6 @@ public class ProgressLayout extends ConstraintLayout implements View.OnClickList
         inflate(getContext(), R.layout.view_progress, this);
         mLinearLayout = findViewById(R.id.progress_linear_layout);
         mTaskNumberDisplayer = findViewById(R.id.progress_textview);
-        mFlipArrow = findViewById(R.id.progress_flip_arrow);
         setBackgroundColor(getResources().getColor(R.color.background_bottom_bar));
         setOnClickListener(this);
     }
@@ -111,7 +108,6 @@ public class ProgressLayout extends ConstraintLayout implements View.OnClickList
     @Override
     public void onClick(View v) {
         mLinearLayout.setVisibility(mLinearLayout.getVisibility() == GONE ? VISIBLE : GONE);
-        mFlipArrow.setRotation(mLinearLayout.getVisibility() == GONE? 0 : 180);
     }
 
     @Override
