@@ -1,13 +1,13 @@
-<ListView xmlns:android="http://schemas.android.com/apk/res/android"
+<ListView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/list_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_app"
-    android:clipToPadding="false"
-    android:divider="@null"
+    android:scrollbars="vertical"
     android:fadeScrollbars="false"
-    android:paddingTop="@dimen/_8sdp"
-    android:paddingBottom="@dimen/_14sdp"
+    android:scrollbarThumbVertical="@color/minebutton_color"
+    android:paddingVertical="@dimen/_14sdp"
     android:scrollbarSize="@dimen/padding_medium"
-    android:scrollbarThumbVertical="@color/copper_primary"
-    android:scrollbars="vertical" />
+    android:background="@color/background_bottom_bar"
+    android:divider="@null" />

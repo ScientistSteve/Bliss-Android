@@ -1,72 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<PreferenceScreen
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:key="">
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app2="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    app:key=""
+    >
 
-    <net.kdt.pojavlaunch.prefs.BackButtonPreference />
+    <net.kdt.pojavlaunch.prefs.BackButtonPreference/>
 
-    <PreferenceCategory android:title="Account">
-        <Preference
-            android:key="account_home_hint"
-            android:title="Account switcher"
-            android:summary="Manage Microsoft, Ely.by, and offline accounts from the Home profile card." />
-        <Preference
-            android:key="notification_permission_request"
-            android:title="@string/preference_ask_for_notification_title"
-            android:summary="@string/preference_ask_for_notification_description" />
-        <Preference
-            android:key="microphone_permission_request"
-            android:title="@string/preference_ask_for_microphone_title"
-            android:summary="@string/preference_ask_for_microphone_description" />
-    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/preference_category_main_categories"
+        >
 
-    <PreferenceCategory android:title="Java Runtime">
-        <Preference
-            android:key="java_screen_setting"
-            android:title="@string/preference_java_title"
-            android:summary="@string/preference_java_description"
-            android:fragment="net.kdt.pojavlaunch.prefs.screens.LauncherPreferenceJavaFragment"
-            android:icon="@drawable/ic_setting_java_runtime" />
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="Controls">
-        <Preference
-            android:key="control_screen_setting"
-            android:title="@string/preference_control_title"
-            android:summary="@string/preference_control_description"
-            android:fragment="net.kdt.pojavlaunch.prefs.screens.LauncherPreferenceControlFragment"
-            android:icon="@drawable/ic_menu_custom_controls" />
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="Language">
-        <SwitchPreference
-            android:key="force_english"
-            android:title="@string/preference_force_english_title"
-            android:summary="@string/preference_force_english_description" />
-        <SwitchPreference
-            android:key="force_russian"
-            android:title="@string/preference_force_russian_title"
-            android:summary="@string/preference_force_russian_description" />
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="About">
         <Preference
             android:key="video_screen_setting"
             android:title="@string/preference_video_title"
             android:summary="@string/preference_video_description"
             android:fragment="net.kdt.pojavlaunch.prefs.screens.LauncherPreferenceVideoFragment"
-            android:icon="@drawable/ic_setting_video" />
+            android:icon="@drawable/ic_setting_video"
+            />
+
+
+        <Preference
+            android:key="control_screen_setting"
+            android:title="@string/preference_control_title"
+            android:summary="@string/preference_control_description"
+            android:fragment="net.kdt.pojavlaunch.prefs.screens.LauncherPreferenceControlFragment"
+            android:icon="@drawable/ic_menu_custom_controls"
+            />
+
+        <Preference
+            android:key="java_screen_setting"
+            android:title="@string/preference_java_title"
+            android:summary="@string/preference_java_description"
+            android:fragment="net.kdt.pojavlaunch.prefs.screens.LauncherPreferenceJavaFragment"
+            android:icon="@drawable/ic_setting_java_runtime"
+            />
+
         <Preference
             android:key="misc_screen_setting"
             android:title="@string/preference_misc_title"
             android:summary="@string/preference_misc_description"
             android:fragment="net.kdt.pojavlaunch.prefs.screens.LauncherPreferenceMiscellaneousFragment"
-            android:icon="@drawable/ic_setting_misc" />
+            android:icon="@drawable/ic_setting_misc"
+            />
+
+
         <Preference
             android:key="experimental_screen_setting"
             android:title="@string/preference_experimental_title"
             android:summary="@string/preference_experimental_description"
-            android:fragment="net.kdt.pojavlaunch.prefs.screens.LauncherPreferenceExperimentalFragment" />
+            android:fragment="net.kdt.pojavlaunch.prefs.screens.LauncherPreferenceExperimentalFragment"
+            />
     </PreferenceCategory>
+
+    <SwitchPreference
+        android:title="@string/preference_force_english_title"
+        android:key="force_english"
+        android:summary="@string/preference_force_english_description"
+        />
+
+    <SwitchPreference
+        android:title="@string/preference_force_russian_title"
+        android:key="force_russian"
+        android:summary="@string/preference_force_russian_description"
+        />
+
+    <Preference
+        android:title="@string/preference_ask_for_notification_title"
+        android:summary="@string/preference_ask_for_notification_description"
+        android:key="notification_permission_request"
+        />
+    <Preference
+        android:title="@string/preference_ask_for_microphone_title"
+        android:summary="@string/preference_ask_for_microphone_description"
+        android:key="microphone_permission_request"
+        />
+
+
+
+
 
 </PreferenceScreen>

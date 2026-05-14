@@ -119,19 +119,21 @@ public class mcVersionSpinner extends ExtendedTextView {
         setProfileSelection(Math.max(0,profileIndex));
 
         // Popup window behavior
-        setOnClickListener(v -> performVersionListClick());
-    }
+        setOnClickListener(new OnClickListener() {
+            final int offset = -getContext().getResources().getDimensionPixelOffset(R.dimen._4sdp);
+            @Override
+            public void onClick(View v) {
+                if(mPopupWindow == null) getPopupWindow();
 
-    public void performVersionListClick() {
-        if(mPopupWindow == null) getPopupWindow();
-
-        if(mPopupWindow.isShowing()){
-            mPopupWindow.dismiss();
-            return;
-        }
-        final int offset = -getContext().getResources().getDimensionPixelOffset(R.dimen._4sdp);
-        mPopupWindow.showAsDropDown(mcVersionSpinner.this, 0, offset);
-        post(() -> mListView.setSelection(mSelectedIndex));
+                if(mPopupWindow.isShowing()){
+                    mPopupWindow.dismiss();
+                    return;
+                }
+                mPopupWindow.showAsDropDown(mcVersionSpinner.this, 0, offset);
+                // Post() is required for the layout inflation phase
+                post(() -> mListView.setSelection(mSelectedIndex));
+            }
+        });
     }
 
     private void performExtraAction(ProfileAdapterExtra extra) {
