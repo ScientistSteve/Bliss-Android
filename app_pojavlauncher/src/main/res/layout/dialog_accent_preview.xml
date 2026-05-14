@@ -1,8 +1,0 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
-    <View android:id="@+id/accent_preview_swatch" android:layout_width="match_parent" android:layout_height="40dp" />
-    <com.kdt.mcgui.MineButton android:id="@+id/accent_sample_button" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="12dp" android:text="Sample"/>
-</LinearLayout>
