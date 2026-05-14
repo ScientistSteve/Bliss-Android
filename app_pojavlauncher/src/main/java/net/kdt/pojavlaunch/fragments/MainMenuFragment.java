@@ -6,8 +6,11 @@ import static net.kdt.pojavlaunch.Tools.shareLog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -33,6 +36,7 @@ public class MainMenuFragment extends Fragment {
     public static final String TAG = "MainMenuFragment";
 
     private mcVersionSpinner mVersionSpinner;
+    private boolean isQuickActionsListMode = false;
 
     public MainMenuFragment(){
         super(R.layout.fragment_launcher);
@@ -47,7 +51,20 @@ public class MainMenuFragment extends Fragment {
 
         ImageButton mEditProfileButton = view.findViewById(R.id.edit_profile_button);
         View mPlayButton = view.findViewById(R.id.play_button);
+        LinearLayout quickActionsContainer = view.findViewById(R.id.quick_actions_container);
+        ImageButton quickActionsToggleButton = view.findViewById(R.id.quick_actions_toggle_button);
         mVersionSpinner = view.findViewById(R.id.mc_version_spinner);
+
+        if (quickActionsContainer != null) {
+            updateQuickActionsLayout(quickActionsContainer);
+        }
+
+        if (quickActionsToggleButton != null && quickActionsContainer != null) {
+            quickActionsToggleButton.setOnClickListener(v -> {
+                isQuickActionsListMode = !isQuickActionsListMode;
+                updateQuickActionsLayout(quickActionsContainer);
+            });
+        }
 
         mCustomControlButton.setOnClickListener(v -> startActivity(new Intent(requireContext(), CustomControlsActivity.class)));
         mInstallJarButton.setOnClickListener(v -> runInstallerWithConfirmation(false));
@@ -76,6 +93,43 @@ public class MainMenuFragment extends Fragment {
         mShareLogsButton.setOnClickListener((v) -> shareLog(requireContext()));
 
         mOpenDirectoryButton.setOnClickListener((v)-> openPath(v.getContext(), getCurrentProfileDirectory(), false));
+
+        applyPressAnimation(mCustomControlButton);
+        applyPressAnimation(mInstallJarButton);
+        applyPressAnimation(mShareLogsButton);
+        applyPressAnimation(mOpenDirectoryButton);
+        applyPressAnimation(mEditProfileButton);
+        applyPressAnimation(mPlayButton);
+        applyPressAnimation(quickActionsToggleButton);
+    }
+
+    private void updateQuickActionsLayout(LinearLayout quickActionsContainer) {
+        quickActionsContainer.setOrientation(isQuickActionsListMode ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
+        for (int i = 0; i < quickActionsContainer.getChildCount(); i++) {
+            View child = quickActionsContainer.getChildAt(i);
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) child.getLayoutParams();
+            params.width = isQuickActionsListMode ? LinearLayout.LayoutParams.MATCH_PARENT : 0;
+            params.height = LinearLayout.LayoutParams.WRAP_CONTENT;
+            params.weight = isQuickActionsListMode ? 0f : 1f;
+            child.setLayoutParams(params);
+
+            TextView label = child.findViewById(R.id.quick_action_label);
+            if (label != null) {
+                label.setVisibility(isQuickActionsListMode ? View.VISIBLE : View.GONE);
+            }
+        }
+    }
+
+    private void applyPressAnimation(View view) {
+        if (view == null) return;
+        view.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                v.animate().scaleX(0.95f).scaleY(0.95f).setDuration(100).start();
+            } else if (event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL) {
+                v.animate().scaleX(1f).scaleY(1f).setDuration(100).start();
+            }
+            return false;
+        });
     }
 
     private File getCurrentProfileDirectory() {
