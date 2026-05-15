@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -68,7 +69,7 @@ public final class MinecraftServerPinger {
             int max = players == null ? -1 : players.optInt("max", -1);
             String favicon = root.optString("favicon", null);
             return new PingResult(true, latency, online, max, favicon == null || favicon.isEmpty() ? null : favicon);
-        } catch (RuntimeException e) {
+        } catch (JSONException | RuntimeException e) {
             return new PingResult(true, latency, -1, -1, null);
         }
     }
