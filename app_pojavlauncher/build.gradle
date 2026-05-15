@@ -142,8 +142,8 @@ android {
             shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig customDebugKeystore.isFile() ? signingConfigs.customDebug : signingConfigs.debug
-            resValue "string", "app_name", "XDAetherium (Debug)"
-            resValue "string", "app_short_name", "XDAetherium (Debug)"
+            resValue "string", "app_name", "BlissLauncher (Debug)"
+            resValue "string", "app_short_name", "BlissLauncher (Debug)"
             resValue 'string', 'application_package', 'com.launcher.bliss.debug'
             resValue 'string', 'storageProviderAuthorities', 'com.launcher.bliss.scoped.gamefolder.debug'
             resValue 'string', 'shareProviderAuthority', 'com.launcher.bliss.scoped.controlfolder.debug'
@@ -166,8 +166,8 @@ android {
             // defaultConfig already set
             // multiDexEnabled = true
             // debuggable = true
-            resValue "string", "app_name", "XDAetherium"
-            resValue "string", "app_short_name", "XDAetherium"
+            resValue "string", "app_name", "BlissLauncher"
+            resValue "string", "app_short_name", "BlissLauncher"
             resValue 'string', 'storageProviderAuthorities', 'com.launcher.bliss.scoped.gamefolder'
             resValue 'string', 'application_package', 'com.launcher.bliss'
         }
