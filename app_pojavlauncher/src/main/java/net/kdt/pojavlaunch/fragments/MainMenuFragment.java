@@ -45,6 +45,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class MainMenuFragment extends Fragment {
+    public static final String TAG = "MAIN_MENU_FRAGMENT";
     private mcVersionSpinner mVersionSpinner;
     private boolean isQuickActionsListMode = false;
     private boolean isServersCompactMode = false;
