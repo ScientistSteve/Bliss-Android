@@ -33,7 +33,6 @@ import androidx.annotation.ColorInt;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import com.kdt.mcgui.mcVersionSpinner;
@@ -52,7 +51,9 @@ import net.kdt.pojavlaunch.value.launcherprofiles.MinecraftProfile;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -66,15 +67,27 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
     private TextView mServersEmptyText;
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
     private final ExecutorService mServerExecutor = Executors.newSingleThreadExecutor();
-    private java.util.Map<ServerListManager.ServerEntry, MinecraftServerPinger.PingResult> serverPingState = new java.util.WeakHashMap<>();
+    private Map<ServerListManager.ServerEntry, MinecraftServerPinger.PingResult> serverPingState = new HashMap<>();
     private ServerListManager.ServerList mServerList;
     private File mLoadedProfileDirectory;
     private volatile int mServersLoadGeneration = 0;
+    private volatile boolean mServerRefreshInFlight = false;
+    private final Map<ServerListManager.ServerEntry, ServerStatusViews> mServerStatusViews = new HashMap<>();
+    private final Runnable mServerRefreshRunnable = new Runnable() {
+        @Override
+        public void run() {
+            refreshServerStatuses();
+            mMainHandler.postDelayed(this, SERVER_REFRESH_INTERVAL_MS);
+        }
+    };
 
+    private static final int QUICK_ACTION_ITEM_HEIGHT_DP = 72;
     private static final int QUICK_ACTION_ICON_BUTTON_DP = 60;
     private static final int QUICK_ACTION_ICON_SIZE_DP = 32;
     private static final int QUICK_ACTION_ITEM_VERTICAL_PADDING_DP = 6;
+    private static final int QUICK_ACTION_LABEL_MARGIN_START_DP = 16;
     private static final int SERVER_EDIT_BUTTON_DP = 40;
+    private static final int SERVER_REFRESH_INTERVAL_MS = 300;
     private static final int DIALOG_CORNER_RADIUS_DP = 12;
 
     public MainMenuFragment(){
@@ -126,21 +139,7 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
         });
         mEditProfileButton.setOnClickListener(v -> mVersionSpinner.openProfileEditor(requireActivity()));
 
-        mPlayButton.setOnClickListener(v -> {
-            if (Tools.hasMods("sodium") && !(LauncherPreferences.DEFAULT_PREF.getBoolean("sodium_override", false))) {
-                AlertDialog sodiumWarningDialog = new AlertDialog.Builder(requireContext())
-                        .setTitle(R.string.sodium_warning_title)
-                        .setMessage(R.string.sodium_warning_message)
-                        .setNeutralButton(R.string.delete_sodium, (d,w)-> {
-                            Tools.deleteSodiumMods();
-                            ExtraCore.setValue(ExtraConstants.LAUNCH_GAME, true);
-                        })
-                        .create();
-                sodiumWarningDialog.show();
-            } else ExtraCore.setValue(ExtraConstants.LAUNCH_GAME, true);
-
-
-        });
+        mPlayButton.setOnClickListener(v -> ExtraCore.setValue(ExtraConstants.LAUNCH_GAME, true));
 
         mShareLogsButton.setOnClickListener((v) -> shareLog(requireContext()));
 
@@ -200,6 +199,7 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
         super.onResume();
         mVersionSpinner.reloadProfiles();
         loadServersForCurrentProfile();
+        startServerRefreshCycle();
     }
 
     @Override
@@ -211,11 +211,13 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
     @Override
     public void onStop() {
         LauncherPreferences.DEFAULT_PREF.unregisterOnSharedPreferenceChangeListener(this);
+        stopServerRefreshCycle();
         super.onStop();
     }
 
     @Override
     public void onDestroy() {
+        stopServerRefreshCycle();
         mServerExecutor.shutdownNow();
         super.onDestroy();
     }
@@ -235,21 +237,50 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
             mServersEmptyText.setText(R.string.main_servers_loading);
         }
         if (mServersContainer != null) mServersContainer.removeAllViews();
+        mServerStatusViews.clear();
+        serverPingState = new HashMap<>();
         mServerExecutor.execute(() -> {
             ServerListManager.ServerList loaded = ServerListManager.load(profileDirectory);
-            java.util.Map<ServerListManager.ServerEntry, MinecraftServerPinger.PingResult> pingState = new java.util.WeakHashMap<>();
-            for (ServerListManager.ServerEntry server : loaded.servers) {
-                if (generation != mServersLoadGeneration) return;
+            mMainHandler.post(() -> {
+                if (!isAdded() || generation != mServersLoadGeneration) return;
+                mServerList = loaded;
+                renderServers();
+                startServerRefreshCycle();
+            });
+        });
+    }
+
+    private void startServerRefreshCycle() {
+        stopServerRefreshCycle();
+        mMainHandler.post(mServerRefreshRunnable);
+    }
+
+    private void stopServerRefreshCycle() {
+        mMainHandler.removeCallbacks(mServerRefreshRunnable);
+    }
+
+    private void refreshServerStatuses() {
+        if (!isAdded() || mServerRefreshInFlight || mServerList == null || mServerList.servers.isEmpty()) return;
+        int generation = mServersLoadGeneration;
+        List<ServerListManager.ServerEntry> snapshot = new ArrayList<>(mServerList.servers);
+        mServerRefreshInFlight = true;
+        mServerExecutor.execute(() -> {
+            Map<ServerListManager.ServerEntry, MinecraftServerPinger.PingResult> pingState = new HashMap<>();
+            for (ServerListManager.ServerEntry server : snapshot) {
+                if (generation != mServersLoadGeneration || Thread.currentThread().isInterrupted()) {
+                    mServerRefreshInFlight = false;
+                    return;
+                }
                 if (server == null) continue;
                 MinecraftServerPinger.PingResult ping = MinecraftServerPinger.ping(server.address);
                 if (ping != null && ping.favicon != null) server.icon = ping.favicon;
                 pingState.put(server, ping);
             }
             mMainHandler.post(() -> {
+                mServerRefreshInFlight = false;
                 if (!isAdded() || generation != mServersLoadGeneration) return;
                 serverPingState = pingState;
-                mServerList = loaded;
-                renderServers();
+                updateServerStatusViews();
             });
         });
     }
@@ -257,6 +288,7 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
     private void renderServers() {
         if (mServersContainer == null || mServersEmptyText == null) return;
         mServersContainer.removeAllViews();
+        mServerStatusViews.clear();
         List<ServerListManager.ServerEntry> servers = mServerList == null ? new ArrayList<>() : mServerList.servers;
         if (servers.isEmpty()) {
             mServersEmptyText.setVisibility(View.VISIBLE);
@@ -280,14 +312,14 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
                 row = new LinearLayout(requireContext());
                 row.setOrientation(LinearLayout.HORIZONTAL);
                 row.setGravity(Gravity.START);
-                mServersContainer.addView(row, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(QUICK_ACTION_ICON_BUTTON_DP + (QUICK_ACTION_ITEM_VERTICAL_PADDING_DP * 2))));
+                mServersContainer.addView(row, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(QUICK_ACTION_ITEM_HEIGHT_DP)));
             }
             FrameLayout cell = new FrameLayout(requireContext());
             cell.setPadding(0, dp(QUICK_ACTION_ITEM_VERTICAL_PADDING_DP), 0, dp(QUICK_ACTION_ITEM_VERTICAL_PADDING_DP));
             cell.addView(createServerIconButton(server), new FrameLayout.LayoutParams(dp(QUICK_ACTION_ICON_BUTTON_DP), dp(QUICK_ACTION_ICON_BUTTON_DP), Gravity.CENTER));
             final ServerListManager.ServerEntry selectedServer = server;
             cell.setOnClickListener(v -> showServerDialog(selectedServer));
-            row.addView(cell, new LinearLayout.LayoutParams(dp(QUICK_ACTION_ICON_BUTTON_DP), LinearLayout.LayoutParams.MATCH_PARENT));
+            row.addView(cell, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f));
         }
     }
 
@@ -295,13 +327,14 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
         LinearLayout item = new LinearLayout(requireContext());
         item.setOrientation(LinearLayout.HORIZONTAL);
         item.setGravity(Gravity.CENTER_VERTICAL);
+        item.setMinimumHeight(dp(QUICK_ACTION_ITEM_HEIGHT_DP));
         item.setPadding(0, dp(QUICK_ACTION_ITEM_VERTICAL_PADDING_DP), 0, dp(QUICK_ACTION_ITEM_VERTICAL_PADDING_DP));
 
         item.addView(createServerIconButton(server), new LinearLayout.LayoutParams(dp(QUICK_ACTION_ICON_BUTTON_DP), dp(QUICK_ACTION_ICON_BUTTON_DP)));
 
         LinearLayout textColumn = new LinearLayout(requireContext());
         textColumn.setOrientation(LinearLayout.VERTICAL);
-        textColumn.setPadding(dp(12), 0, dp(8), 0);
+        textColumn.setPadding(dp(QUICK_ACTION_LABEL_MARGIN_START_DP), 0, dp(8), 0);
         TextView name = new TextView(requireContext());
         String serverName = server == null ? "" : server.name;
         String serverAddress = server == null ? "" : server.address;
@@ -311,10 +344,13 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
         TextView details = new TextView(requireContext());
         MinecraftServerPinger.PingResult ping = server == null ? null : serverPingState.get(server);
         details.setText(getServerDetails(ping));
-        details.setTextColor(ping != null && ping.online ? 0xff8ee88e : 0xffff8a80);
+        details.setTextColor(getServerDetailsColor(ping));
         details.setTextSize(13);
         textColumn.addView(name);
         textColumn.addView(details);
+        ServerStatusViews statusViews = mServerStatusViews.get(server);
+        if (statusViews == null) mServerStatusViews.put(server, new ServerStatusViews(details, null));
+        else statusViews.details = details;
         item.addView(textColumn, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 
         ImageButton edit = new ImageButton(requireContext());
@@ -336,6 +372,26 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
         return getString(R.string.main_servers_online) + " • " + players + " • " + ping.latencyMs + " ms";
     }
 
+    private int getServerDetailsColor(MinecraftServerPinger.PingResult ping) {
+        return ping != null && ping.online ? 0xff8ee88e : 0xffff8a80;
+    }
+
+    private void updateServerStatusViews() {
+        for (Map.Entry<ServerListManager.ServerEntry, ServerStatusViews> entry : mServerStatusViews.entrySet()) {
+            ServerListManager.ServerEntry server = entry.getKey();
+            ServerStatusViews views = entry.getValue();
+            MinecraftServerPinger.PingResult ping = serverPingState.get(server);
+            if (views.details != null) {
+                views.details.setText(getServerDetails(ping));
+                views.details.setTextColor(getServerDetailsColor(ping));
+            }
+            if (views.icon != null && ping != null && ping.favicon != null) {
+                Bitmap bitmap = decodeFavicon(ping.favicon);
+                if (bitmap != null) views.icon.setImageBitmap(bitmap);
+            }
+        }
+    }
+
     private FrameLayout createServerIconButton(ServerListManager.ServerEntry server) {
         FrameLayout iconButton = new FrameLayout(requireContext());
         iconButton.setBackgroundResource(R.drawable.bg_quick_action_icon_custom);
@@ -349,6 +405,9 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
         else icon.setImageResource(android.R.drawable.sym_def_app_icon);
         icon.setContentDescription(server == null ? null : server.name);
         iconButton.addView(icon, new FrameLayout.LayoutParams(dp(QUICK_ACTION_ICON_SIZE_DP), dp(QUICK_ACTION_ICON_SIZE_DP), Gravity.CENTER));
+        ServerStatusViews existingViews = mServerStatusViews.get(server);
+        if (existingViews == null) mServerStatusViews.put(server, new ServerStatusViews(null, icon));
+        else existingViews.icon = icon;
         return iconButton;
     }
 
@@ -433,7 +492,7 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
 
     private TextView createDialogActionButton(int textRes, @ColorInt int textColor) {
         TextView button = new TextView(requireContext());
-        button.setText(getString(textRes).toUpperCase(java.util.Locale.ROOT));
+        button.setText(getString(textRes));
         button.setTextColor(textColor);
         button.setTextSize(14);
         button.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
@@ -505,6 +564,16 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
 
     private int dp(int value) {
         return (int) (value * getResources().getDisplayMetrics().density + 0.5f);
+    }
+
+    private static class ServerStatusViews {
+        TextView details;
+        ImageView icon;
+
+        ServerStatusViews(TextView details, ImageView icon) {
+            this.details = details;
+            this.icon = icon;
+        }
     }
 
     private void runInstallerWithConfirmation(boolean isCustomArgs) {
