@@ -1,6 +1,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingTop="6dp" android:paddingBottom="6dp">
-    <ImageView android:id="@+id/server_icon" android:layout_width="36dp" android:layout_height="36dp" android:src="@drawable/ic_menu_play"/>
+    <ImageView android:id="@+id/server_icon" android:layout_width="36dp" android:layout_height="36dp" android:src="@android:drawable/ic_media_play"/>
     <LinearLayout android:id="@+id/server_text_holder" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:paddingStart="10dp">
         <TextView android:id="@+id/server_name" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#fff" android:textStyle="bold"/>
         <TextView android:id="@+id/server_status" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="#BDBDBD" android:textSize="12sp"/>
