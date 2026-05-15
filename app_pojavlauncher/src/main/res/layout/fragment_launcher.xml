@@ -6,28 +6,26 @@
     android:layout_height="match_parent"
     android:background="#161616">
 
-    <ScrollView android:layout_width="0dp" android:layout_height="0dp" android:padding="16dp" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toTopOf="@id/mc_version_container" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/bg_quick_actions_card" android:padding="16dp">
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingBottom="10dp">
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Quick Actions" android:textSize="18sp" android:textStyle="bold" android:textColor="#fff" android:fontFamily="@font/inter"/>
-                    <ImageButton android:id="@+id/quick_actions_toggle_button" android:layout_width="40dp" android:layout_height="40dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:src="@android:drawable/ic_menu_sort_by_size" android:contentDescription="Toggle Quick Actions layout"/>
-                </LinearLayout>
-                <LinearLayout android:id="@+id/quick_actions_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center">
-                    <include layout="@layout/item_quick_action" android:id="@+id/custom_control_button" android:layout_width="0dp" android:layout_weight="1"/>
-                    <include layout="@layout/item_quick_action_jar" android:id="@+id/install_jar_button" android:layout_width="0dp" android:layout_weight="1"/>
-                    <include layout="@layout/item_quick_action_share" android:id="@+id/share_logs_button" android:layout_width="0dp" android:layout_weight="1"/>
-                    <include layout="@layout/item_quick_action_folder" android:id="@+id/open_files_button" android:layout_width="0dp" android:layout_weight="1"/>
-                </LinearLayout>
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="16dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/mc_version_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/bg_quick_actions_card" android:padding="16dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal" android:paddingBottom="10dp">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Quick Actions" android:textSize="18sp" android:textStyle="bold" android:textColor="#fff" android:fontFamily="@font/inter"/>
+                <ImageButton android:id="@+id/quick_actions_toggle_button" android:layout_width="40dp" android:layout_height="40dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:src="@android:drawable/ic_menu_sort_by_size" android:contentDescription="Toggle Quick Actions layout"/>
             </LinearLayout>
 
-            <LinearLayout android:id="@+id/servers_panel" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:orientation="vertical" android:background="@drawable/bg_quick_actions_card" android:padding="16dp">
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
-                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Servers" android:textSize="18sp" android:textStyle="bold" android:textColor="#fff" android:fontFamily="@font/inter"/>
-                    <ImageButton android:id="@+id/servers_add_button" android:layout_width="40dp" android:layout_height="40dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:src="@android:drawable/ic_input_add" />
-                    <ImageButton android:id="@+id/servers_toggle_button" android:layout_width="40dp" android:layout_height="40dp" android:background="?android:attr/selectableItemBackgroundBorderless" android:src="@android:drawable/ic_menu_sort_by_size" />
-                </LinearLayout>
-                <LinearLayout android:id="@+id/servers_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:orientation="vertical"/>
+            <LinearLayout android:id="@+id/quick_actions_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center" >
+                <include layout="@layout/item_quick_action" android:id="@+id/custom_control_button" android:layout_width="0dp" android:layout_weight="1"/>
+                <include layout="@layout/item_quick_action_jar" android:id="@+id/install_jar_button" android:layout_width="0dp" android:layout_weight="1"/>
+                <include layout="@layout/item_quick_action_share" android:id="@+id/share_logs_button" android:layout_width="0dp" android:layout_weight="1"/>
+                <include layout="@layout/item_quick_action_folder" android:id="@+id/open_files_button" android:layout_width="0dp" android:layout_weight="1"/>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
