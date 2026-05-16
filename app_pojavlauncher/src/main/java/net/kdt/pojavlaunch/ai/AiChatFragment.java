@@ -199,10 +199,9 @@ public class AiChatFragment extends Fragment {
     private void fetchAiResponse(String provider, String key, String model, List<AiChatAdapter.Message> history, int responseIndex) {
         try {
             if (key.isEmpty()) throw new Exception("Set your API key in Settings → Miscellaneous");
-            String selectedModel = AiAssistantConfig.normalizeModel(provider, model);
             String response = AiAssistantConfig.PROVIDER_GEMINI.equals(provider)
-                    ? callGemini(key, selectedModel, history)
-                    : callOpenAiCompatible(provider, key, selectedModel, history);
+                    ? callGemini(key, model, history)
+                    : callOpenAiCompatible(provider, key, model, history);
             mainHandler.post(() -> replaceTyping(responseIndex, new AiChatAdapter.Message(AiChatAdapter.ROLE_AI, response)));
         } catch (Exception e) {
             String reason = e.getMessage() == null ? "Unable to reach AI provider." : e.getMessage();

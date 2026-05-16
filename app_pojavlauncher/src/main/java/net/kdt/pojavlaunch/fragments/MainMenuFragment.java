@@ -61,6 +61,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainMenuFragment extends Fragment implements SharedPreferences.OnSharedPreferenceChangeListener {
     public static final String TAG = "MainMenuFragment";
@@ -71,7 +72,7 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
     private LinearLayout mServersContainer;
     private TextView mServersEmptyText;
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
-    private final ExecutorService mServerExecutor = Executors.newSingleThreadExecutor();
+    private final ExecutorService mServerExecutor = Executors.newCachedThreadPool();
     private Map<ServerListManager.ServerEntry, MinecraftServerPinger.PingResult> serverPingState = new HashMap<>();
     private ServerListManager.ServerList mServerList;
     private File mLoadedProfileDirectory;
@@ -299,26 +300,25 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
         if (!isAdded() || mServerRefreshInFlight || mServerList == null || mServerList.servers.isEmpty()) return;
         int generation = mServersLoadGeneration;
         List<ServerListManager.ServerEntry> snapshot = new ArrayList<>(mServerList.servers);
+        if (snapshot.isEmpty()) return;
         mServerRefreshInFlight = true;
-        mServerExecutor.execute(() -> {
-            Map<ServerListManager.ServerEntry, MinecraftServerPinger.PingResult> pingState = new HashMap<>();
-            for (ServerListManager.ServerEntry server : snapshot) {
-                if (generation != mServersLoadGeneration || Thread.currentThread().isInterrupted()) {
-                    mServerRefreshInFlight = false;
-                    return;
+        AtomicInteger pendingPings = new AtomicInteger(snapshot.size());
+        for (ServerListManager.ServerEntry server : snapshot) {
+            mServerExecutor.execute(() -> {
+                try {
+                    if (server == null || generation != mServersLoadGeneration || Thread.currentThread().isInterrupted()) return;
+                    MinecraftServerPinger.PingResult ping = MinecraftServerPinger.ping(server.address);
+                    mMainHandler.post(() -> {
+                        if (!isAdded() || generation != mServersLoadGeneration) return;
+                        if (ping != null && ping.favicon != null) server.icon = ping.favicon;
+                        serverPingState.put(server, ping);
+                        updateServerStatusView(server);
+                    });
+                } finally {
+                    if (pendingPings.decrementAndGet() == 0) mServerRefreshInFlight = false;
                 }
-                if (server == null) continue;
-                MinecraftServerPinger.PingResult ping = MinecraftServerPinger.ping(server.address);
-                if (ping != null && ping.favicon != null) server.icon = ping.favicon;
-                pingState.put(server, ping);
-            }
-            mMainHandler.post(() -> {
-                mServerRefreshInFlight = false;
-                if (!isAdded() || generation != mServersLoadGeneration) return;
-                serverPingState = pingState;
-                updateServerStatusViews();
             });
-        });
+        }
     }
 
     private void renderServers() {
@@ -418,7 +418,8 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
     }
 
     private int getServerDetailsColor(MinecraftServerPinger.PingResult ping) {
-        return ping != null && ping.online ? 0xff8ee88e : 0xffff8a80;
+        if (ping == null) return 0xffbdbdbd;
+        return ping.online ? 0xff8ee88e : 0xffff8a80;
     }
 
     private void updateServerStatusViews() {
@@ -434,6 +435,20 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
                 Bitmap bitmap = decodeFavicon(ping.favicon);
                 if (bitmap != null) views.icon.setImageBitmap(bitmap);
             }
+        }
+    }
+
+    private void updateServerStatusView(@NonNull ServerListManager.ServerEntry server) {
+        ServerStatusViews views = mServerStatusViews.get(server);
+        if (views == null) return;
+        MinecraftServerPinger.PingResult ping = serverPingState.get(server);
+        if (views.details != null) {
+            views.details.setText(getServerDetails(ping));
+            views.details.setTextColor(getServerDetailsColor(ping));
+        }
+        if (views.icon != null && ping != null && ping.favicon != null) {
+            Bitmap bitmap = decodeFavicon(ping.favicon);
+            if (bitmap != null) views.icon.setImageBitmap(bitmap);
         }
     }
 
