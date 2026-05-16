@@ -23,6 +23,9 @@ public class BackButtonPreference extends Preference {
         if(getTitle() == null){
             setTitle(R.string.preference_back_title);
         }
+        if(getSummary() == null){
+            setSummary(R.string.preference_back_description);
+        }
         if(getIcon() == null){
             setIcon(R.drawable.ic_arrow_back_white);
         }

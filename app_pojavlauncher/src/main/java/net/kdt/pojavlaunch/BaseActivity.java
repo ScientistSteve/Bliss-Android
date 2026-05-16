@@ -2,7 +2,12 @@ package net.kdt.pojavlaunch;
 
 import android.content.*;
 import android.os.*;
+import android.view.View;
+import android.view.ViewGroup;
+
 import androidx.appcompat.app.*;
+
+import net.kdt.pojavlaunch.ui.UiAnimationUtils;
 import net.kdt.pojavlaunch.utils.*;
 
 import static net.kdt.pojavlaunch.prefs.LauncherPreferences.PREF_IGNORE_NOTCH;
@@ -22,6 +27,29 @@ public abstract class BaseActivity extends AppCompatActivity {
         Tools.updateWindowSize(this);
     }
 
+
+    @Override
+    public void setContentView(int layoutResID) {
+        super.setContentView(layoutResID);
+        installUiAnimations();
+    }
+
+    @Override
+    public void setContentView(View view) {
+        super.setContentView(view);
+        installUiAnimations();
+    }
+
+    @Override
+    public void setContentView(View view, ViewGroup.LayoutParams params) {
+        super.setContentView(view, params);
+        installUiAnimations();
+    }
+
+    private void installUiAnimations() {
+        UiAnimationUtils.installButtonPressAnimations(getWindow().getDecorView());
+    }
+
     /** @return Whether the activity should be set as a fullscreen one */
     public boolean setFullscreen(){
         return true;
@@ -31,7 +59,14 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     public void startActivity(Intent i) {
         super.startActivity(i);
+        overridePendingTransition(R.anim.fragment_fade_in, R.anim.fragment_fade_out);
         //new Throwable("StartActivity").printStackTrace();
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.fragment_fade_in, R.anim.fragment_fade_out);
     }
 
     @Override

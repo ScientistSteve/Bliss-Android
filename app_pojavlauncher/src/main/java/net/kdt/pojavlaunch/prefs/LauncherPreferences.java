@@ -43,10 +43,10 @@ public class LauncherPreferences {
     public static boolean PREF_GAMEPAD_SDL_PASSTHRU = false;
     public static boolean PREF_GAMEPAD_FORCEDSDL_PASSTHRU = false;
     public static boolean PREF_DISABLE_SWAP_HAND = false;
-    public static float PREF_MOUSESPEED = 1f;
+    public static float PREF_MOUSESPEED = 3f;
     public static int PREF_RAM_ALLOCATION;
     public static String PREF_DEFAULT_RUNTIME;
-    public static boolean PREF_SUSTAINED_PERFORMANCE = false;
+    public static boolean PREF_SUSTAINED_PERFORMANCE = true;
     public static boolean PREF_VIRTUAL_MOUSE_START = false;
     public static boolean PREF_ARC_CAPES = false;
     public static boolean PREF_USE_ALTERNATE_SURFACE = true;
@@ -85,7 +85,7 @@ public class LauncherPreferences {
 
         PREF_BUTTONSIZE = DEFAULT_PREF.getInt("buttonscale", 100);
         PREF_MOUSESCALE = DEFAULT_PREF.getInt("mousescale", 100)/100f;
-        PREF_MOUSESPEED = ((float)DEFAULT_PREF.getInt("mousespeed",100))/100f;
+        PREF_MOUSESPEED = ((float)DEFAULT_PREF.getInt("mousespeed",300))/100f;
         PREF_IGNORE_NOTCH = DEFAULT_PREF.getBoolean("ignoreNotch", false);
 		PREF_LONGPRESS_TRIGGER = DEFAULT_PREF.getInt("timeLongPressTrigger", 300);
 		PREF_DEFAULTCTRL_PATH = DEFAULT_PREF.getString("defaultCtrl", Tools.CTRLDEF_FILE);
@@ -96,12 +96,12 @@ public class LauncherPreferences {
         PREF_GAMEPAD_SDL_PASSTHRU = DEFAULT_PREF.getBoolean("gamepadPassthru",false);
         PREF_GAMEPAD_FORCEDSDL_PASSTHRU = DEFAULT_PREF.getBoolean("gamepadPassthruForced",false);
         PREF_DISABLE_SWAP_HAND = DEFAULT_PREF.getBoolean("disableDoubleTap", false);
-        PREF_RAM_ALLOCATION = DEFAULT_PREF.getInt("allocation", findBestRAMAllocation(ctx));
+        PREF_RAM_ALLOCATION = DEFAULT_PREF.getInt("allocation", 980);
         PREF_CUSTOM_JAVA_ARGS = DEFAULT_PREF.getString("javaArgs", "");
-        PREF_SUSTAINED_PERFORMANCE = DEFAULT_PREF.getBoolean("sustainedPerformance", isDevicePowerful);
+        PREF_SUSTAINED_PERFORMANCE = DEFAULT_PREF.getBoolean("sustainedPerformance", true);
         PREF_VIRTUAL_MOUSE_START = DEFAULT_PREF.getBoolean("mouse_start", false);
         PREF_ARC_CAPES = DEFAULT_PREF.getBoolean("arc_capes",false);
-        PREF_USE_ALTERNATE_SURFACE = DEFAULT_PREF.getBoolean("alternate_surface", isDevicePowerful);
+        PREF_USE_ALTERNATE_SURFACE = DEFAULT_PREF.getBoolean("alternate_surface", true);
         PREF_JAVA_SANDBOX = DEFAULT_PREF.getBoolean("java_sandbox", true);
         PREF_SCALE_FACTOR = DEFAULT_PREF.getInt("resolutionRatio", findBestResolution(ctx, isDevicePowerful))/100f;
         PREF_ENABLE_GYRO = DEFAULT_PREF.getBoolean("enableGyro", false);

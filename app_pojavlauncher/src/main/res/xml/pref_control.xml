@@ -83,6 +83,7 @@
 
         <net.kdt.pojavlaunch.prefs.CustomSeekBarPreference
             android:key="mousespeed"
+            android:defaultValue="300"
             android:summary="@string/mcl_setting_subtitle_mousespeed"
             android:title="@string/mcl_setting_title_mousespeed"
             android:icon="@drawable/ic_setting_mouse_speed"
@@ -101,6 +102,10 @@
             android:title="@string/mcl_setting_title_grab_mouse"
             android:summary="@string/mcl_setting_subtitle_grab_mouse"
             android:defaultValue="false"/>
+        <Preference
+            android:key="custom_virtual_cursor_texture"
+            android:title="@string/preference_custom_virtual_cursor_texture_title"
+            android:summary="@string/preference_custom_virtual_cursor_texture_description" />
     </PreferenceCategory>
 
     <PreferenceCategory

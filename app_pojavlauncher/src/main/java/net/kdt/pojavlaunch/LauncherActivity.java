@@ -23,6 +23,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentContainerView;
 import androidx.fragment.app.FragmentManager;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 
 import com.kdt.mcgui.ProgressLayout;
 import com.kdt.mcgui.mcAccountSpinner;
@@ -50,6 +52,7 @@ import net.kdt.pojavlaunch.services.ProgressServiceKeeper;
 import net.kdt.pojavlaunch.tasks.AsyncMinecraftDownloader;
 import net.kdt.pojavlaunch.tasks.AsyncVersionList;
 import net.kdt.pojavlaunch.tasks.MinecraftDownloader;
+import net.kdt.pojavlaunch.ui.UiAnimationUtils;
 import net.kdt.pojavlaunch.utils.DateUtils;
 import net.kdt.pojavlaunch.utils.NotificationUtils;
 import net.kdt.pojavlaunch.value.launcherprofiles.LauncherProfiles;
@@ -60,7 +63,7 @@ import java.lang.ref.WeakReference;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 
-public class LauncherActivity extends BaseActivity {
+public class LauncherActivity extends BaseActivity implements PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
     public static final String SETTING_FRAGMENT_TAG = "SETTINGS_FRAGMENT";
 
     public final ActivityResultLauncher<Object> modInstallerLauncher =
@@ -101,6 +104,7 @@ public class LauncherActivity extends BaseActivity {
         public void onFragmentResumed(@NonNull FragmentManager fm, @NonNull Fragment f) {
             mSettingsButton.setImageDrawable(ContextCompat.getDrawable(getBaseContext(), f instanceof MainMenuFragment
                     ? R.drawable.ic_menu_settings : R.drawable.ic_menu_home));
+            UiAnimationUtils.installButtonPressAnimations(f.getView());
         }
     };
 
@@ -202,6 +206,7 @@ public class LauncherActivity extends BaseActivity {
             // There must be a better way to handle the root though...
             // (artDev: No, there is not. I've spent days researching this for another unrelated project.)
             fragmentManager.beginTransaction()
+                    .setCustomAnimations(R.anim.fragment_fade_in, R.anim.fragment_fade_out)
                     .setReorderingAllowed(true)
                     .addToBackStack("ROOT")
                     .add(R.id.container_fragment, MainMenuFragment.class, null, "ROOT").commit();
@@ -304,6 +309,28 @@ public class LauncherActivity extends BaseActivity {
         }
 
         super.onBackPressed();
+    }
+
+
+    @Override
+    public boolean onPreferenceStartFragment(@NonNull PreferenceFragmentCompat caller, @NonNull Preference pref) {
+        Bundle args = pref.getExtras();
+        Fragment fragment = getSupportFragmentManager().getFragmentFactory().instantiate(
+                getClassLoader(),
+                pref.getFragment());
+        fragment.setArguments(args);
+        fragment.setTargetFragment(caller, 0);
+        getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(
+                        R.anim.fragment_slide_in_right,
+                        R.anim.fragment_fade_out,
+                        R.anim.fragment_fade_in,
+                        R.anim.fragment_slide_out_right)
+                .setReorderingAllowed(true)
+                .replace(R.id.container_fragment, fragment, pref.getFragment())
+                .addToBackStack(pref.getFragment())
+                .commit();
+        return true;
     }
 
     @Override
