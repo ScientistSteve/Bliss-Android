@@ -27,6 +27,15 @@
             android:dropDownWidth="250dp"
             android:dropDownVerticalOffset="52dp" />
 
+        <ProgressBar
+            android:id="@+id/header_task_indicator"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="10dp"
+            android:indeterminate="true"
+            android:visibility="gone" />
+
         <ImageButton
             android:id="@+id/setting_button"
             android:layout_width="52dp"
@@ -52,14 +61,6 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@id/header_divider"
-        app:layout_constraintBottom_toTopOf="@+id/progress_layout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
-
-    <com.kdt.mcgui.ProgressLayout
-        android:id="@+id/progress_layout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
