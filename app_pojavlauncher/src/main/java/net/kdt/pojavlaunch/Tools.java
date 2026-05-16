@@ -23,6 +23,10 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.Typeface;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.net.ConnectivityManager;
@@ -38,10 +42,13 @@ import android.provider.OpenableColumns;
 import android.util.ArrayMap;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.InputDevice;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -1736,16 +1743,84 @@ public final class Tools {
     }
 
     public static void dialogForceClose(Context ctx) {
-        new android.app.AlertDialog.Builder(ctx)
-                .setMessage(R.string.mcn_exit_confirm)
-                .setNegativeButton(android.R.string.cancel, null)
-                .setPositiveButton(android.R.string.ok, (p1, p2) -> {
-                    try {
-                        Tools.fullyExit();
-                    } catch (Throwable th) {
-                        Log.w(Tools.APP_NAME, "Could not enable System.exit() method!", th);
-                    }
-                }).show();
+        int padding = dp(ctx, 20);
+        LinearLayout content = new LinearLayout(ctx);
+        content.setOrientation(LinearLayout.VERTICAL);
+        content.setPadding(padding, padding, padding, padding);
+        content.setBackground(createForceCloseDialogBackground(ctx));
+
+        TextView title = new TextView(ctx);
+        title.setText(R.string.control_forceclose);
+        title.setTextColor(Color.WHITE);
+        title.setTextSize(18);
+        title.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        title.setGravity(Gravity.START);
+        content.addView(title, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        TextView message = new TextView(ctx);
+        message.setText(R.string.mcn_exit_confirm);
+        message.setTextColor(0xffd6d6d6);
+        message.setTextSize(15);
+        message.setPadding(0, dp(ctx, 14), 0, dp(ctx, 18));
+        content.addView(message, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        LinearLayout buttonRow = new LinearLayout(ctx);
+        buttonRow.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+        buttonRow.setOrientation(LinearLayout.HORIZONTAL);
+
+        AlertDialog dialog = new AlertDialog.Builder(ctx)
+                .setView(content)
+                .create();
+
+        TextView cancelButton = createForceCloseDialogButton(ctx, android.R.string.cancel, 0xffd6d6d6);
+        TextView okButton = createForceCloseDialogButton(ctx, android.R.string.ok, 0xffff8a00);
+        cancelButton.setOnClickListener(v -> dialog.cancel());
+        okButton.setOnClickListener(v -> {
+            try {
+                Tools.fullyExit();
+            } catch (Throwable th) {
+                Log.w(Tools.APP_NAME, "Could not enable System.exit() method!", th);
+            }
+        });
+        buttonRow.addView(cancelButton);
+        buttonRow.addView(okButton);
+        content.addView(buttonRow, new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        dialog.setOnShowListener(d -> {
+            Window window = dialog.getWindow();
+            if (window != null) window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        });
+        dialog.show();
+    }
+
+    private static TextView createForceCloseDialogButton(Context context, int textRes, int textColor) {
+        TextView button = new TextView(context);
+        button.setText(textRes);
+        button.setTextColor(textColor);
+        button.setTextSize(14);
+        button.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        button.setGravity(Gravity.CENTER);
+        button.setPadding(dp(context, 12), dp(context, 10), dp(context, 12), dp(context, 10));
+        button.setClickable(true);
+        button.setFocusable(true);
+        return button;
+    }
+
+    private static GradientDrawable createForceCloseDialogBackground(Context context) {
+        GradientDrawable drawable = new GradientDrawable();
+        drawable.setColor(0xff252525);
+        drawable.setCornerRadius(dp(context, 18));
+        return drawable;
+    }
+
+    private static int dp(Context context, int value) {
+        return Math.round(value * context.getResources().getDisplayMetrics().density);
     }
 
     public static void switchDemo(boolean isDemo){

@@ -93,12 +93,9 @@ public class Touchpad extends View implements GrabListener, AbstractTouchpad {
     private void init(){
         // Setup mouse pointer
         mMousePointerDrawable = CustomCursorTexture.loadCursorDrawable(getContext());
-        mBaseCursorWidth = mMousePointerDrawable.getIntrinsicWidth();
-        mBaseCursorHeight = mMousePointerDrawable.getIntrinsicHeight();
-        if (mBaseCursorWidth <= 0 || mBaseCursorHeight <= 0) {
-            mBaseCursorWidth = 36;
-            mBaseCursorHeight = 54;
-        }
+        int baseCursorSizePx = Math.round(24f * getResources().getDisplayMetrics().density);
+        mBaseCursorWidth = baseCursorSizePx;
+        mBaseCursorHeight = baseCursorSizePx;
         updateCursorBounds();
         mMousePointerDrawable.setAlpha(255);
         setFocusable(false);

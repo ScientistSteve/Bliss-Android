@@ -34,7 +34,7 @@
             android:layout_height="32dp"
             android:layout_marginStart="10dp"
             android:indeterminate="true"
-            android:visibility="gone" />
+            android:visibility="invisible" />
 
         <ImageButton
             android:id="@+id/setting_button"

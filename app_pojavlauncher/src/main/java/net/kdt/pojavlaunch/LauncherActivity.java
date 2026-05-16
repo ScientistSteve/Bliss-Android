@@ -111,7 +111,7 @@ public class LauncherActivity extends BaseActivity implements PreferenceFragment
             mHeaderTaskIndicator.animate()
                     .alpha(0f)
                     .setDuration(200)
-                    .withEndAction(() -> mHeaderTaskIndicator.setVisibility(View.GONE))
+                    .withEndAction(() -> mHeaderTaskIndicator.setVisibility(View.INVISIBLE))
                     .start();
         }
     });
