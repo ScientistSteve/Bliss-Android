@@ -40,17 +40,37 @@ public final class ServerListManager {
 
     public static boolean save(@NonNull ServerList serverList) {
         try {
-            File parent = serverList.file.getParentFile();
-            if (parent != null && !parent.exists() && !parent.mkdirs()) return false;
-            NbtList list = new NbtList("servers", NbtCompound.ID);
-            for (ServerEntry entry : serverList.servers) list.value.add(entry.toNbt());
-            serverList.root.value.put("servers", list);
-            writeRoot(serverList.file, serverList.root);
+            writeServerList(serverList);
             return true;
         } catch (IOException | RuntimeException e) {
             Log.w(TAG, "Unable to write servers.dat", e);
             return false;
         }
+    }
+
+    public static void saveOrThrow(@NonNull ServerList serverList) throws IOException {
+        try {
+            writeServerList(serverList);
+        } catch (RuntimeException e) {
+            IOException ioException = new IOException("Unable to write servers.dat", e);
+            throw ioException;
+        }
+    }
+
+    public static void rewriteForLaunch(@NonNull File gameDir) throws IOException {
+        saveOrThrow(load(gameDir));
+    }
+
+    private static void writeServerList(@NonNull ServerList serverList) throws IOException {
+        File parent = serverList.file.getParentFile();
+        if (parent != null && !parent.exists() && !parent.mkdirs()) {
+            throw new IOException("Unable to create servers.dat parent directory");
+        }
+        NbtCompound root = new NbtCompound("");
+        NbtList list = new NbtList("servers", NbtCompound.ID);
+        for (ServerEntry entry : serverList.servers) list.value.add(entry.toNbt());
+        root.value.put("servers", list);
+        writeRoot(serverList.file, root);
     }
 
     @NonNull
@@ -93,11 +113,18 @@ public final class ServerListManager {
     }
 
     private static void writeRoot(@NonNull File file, @NonNull NbtCompound root) throws IOException {
-        File temp = new File(file.getParentFile(), file.getName() + ".tmp");
-        try (DataOutputStream output = new DataOutputStream(new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(temp))))) {
+        File parent = file.getParentFile();
+        File temp = new File(parent, file.getName() + ".tmp");
+        try (FileOutputStream fileOutputStream = new FileOutputStream(temp);
+             GZIPOutputStream gzipOutputStream = new GZIPOutputStream(new BufferedOutputStream(fileOutputStream));
+             DataOutputStream output = new DataOutputStream(gzipOutputStream)) {
             output.writeByte(NbtCompound.ID);
             output.writeUTF(root.name == null ? "" : root.name);
             writeCompoundPayload(output, root);
+            output.flush();
+            gzipOutputStream.finish();
+            gzipOutputStream.flush();
+            fileOutputStream.getFD().sync();
         }
         if (file.exists() && !file.delete()) throw new IOException("Unable to replace old servers.dat");
         if (!temp.renameTo(file)) throw new IOException("Unable to move new servers.dat into place");

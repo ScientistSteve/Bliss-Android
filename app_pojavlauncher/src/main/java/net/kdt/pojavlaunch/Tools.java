@@ -61,6 +61,7 @@ import net.kdt.pojavlaunch.lifecycle.ContextExecutorTask;
 import net.kdt.pojavlaunch.lifecycle.LifecycleAwareAlertDialog;
 import net.kdt.pojavlaunch.memory.MemoryHoleFinder;
 import net.kdt.pojavlaunch.memory.SelfMapsParser;
+import net.kdt.pojavlaunch.minecraft.ServerListManager;
 import net.kdt.pojavlaunch.multirt.MultiRTUtils;
 import net.kdt.pojavlaunch.multirt.Runtime;
 import net.kdt.pojavlaunch.plugins.FFmpegPlugin;
@@ -442,6 +443,11 @@ public final class Tools {
 
         // Pre-process specific files
         disableSplash(gamedir);
+        try {
+            ServerListManager.rewriteForLaunch(gamedir);
+        } catch (IOException e) {
+            Log.w("ServerListManager", "Unable to prepare servers.dat before launch", e);
+        }
         String[] launchArgs = getMinecraftClientArgs(minecraftAccount, versionInfo, gamedir);
 
         // Select the appropriate openGL version

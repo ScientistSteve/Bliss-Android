@@ -1,6 +1,9 @@
 package net.kdt.pojavlaunch.customcontrols.mouse;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
@@ -68,8 +71,15 @@ public final class CustomCursorTexture {
     @Nullable
     private static Drawable loadCustomCursorDrawable(Context context) {
         if (!hasCustomCursorTexture(context)) return null;
-        Drawable drawable = Drawable.createFromPath(getCursorFile(context).getAbsolutePath());
-        if (drawable != null) return drawable;
-        return null;
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        options.inScaled = false;
+        Bitmap bitmap = BitmapFactory.decodeFile(getCursorFile(context).getAbsolutePath(), options);
+        if (bitmap == null) return null;
+        bitmap.setHasAlpha(true);
+        BitmapDrawable drawable = new BitmapDrawable(context.getResources(), bitmap);
+        drawable.setDither(true);
+        drawable.setFilterBitmap(false);
+        return drawable;
     }
 }
