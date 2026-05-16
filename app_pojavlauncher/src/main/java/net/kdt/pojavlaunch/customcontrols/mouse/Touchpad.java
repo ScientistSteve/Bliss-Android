@@ -4,11 +4,9 @@ import static net.kdt.pojavlaunch.Tools.currentDisplayMetrics;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -88,26 +86,9 @@ public class Touchpad extends View implements GrabListener, AbstractTouchpad {
         mMousePointerDrawable = CustomCursorTexture.loadCursorDrawable(getContext());
         int cursorWidth = mMousePointerDrawable.getIntrinsicWidth();
         int cursorHeight = mMousePointerDrawable.getIntrinsicHeight();
-        if (mMousePointerDrawable instanceof BitmapDrawable) {
-            BitmapDrawable bitmapDrawable = (BitmapDrawable) mMousePointerDrawable;
-            if (bitmapDrawable.getBitmap() != null) {
-                cursorWidth = bitmapDrawable.getBitmap().getWidth();
-                cursorHeight = bitmapDrawable.getBitmap().getHeight();
-            }
-        }
-        int maxCursorSize = (int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                24,
-                getResources().getDisplayMetrics());
         if (cursorWidth <= 0 || cursorHeight <= 0) {
-            cursorWidth = maxCursorSize;
-            cursorHeight = maxCursorSize;
-        } else {
-            float scale = Math.min(
-                    maxCursorSize / (float) cursorWidth,
-                    maxCursorSize / (float) cursorHeight);
-            cursorWidth = Math.max(1, Math.round(cursorWidth * scale));
-            cursorHeight = Math.max(1, Math.round(cursorHeight * scale));
+            cursorWidth = (int) (36 * LauncherPreferences.PREF_MOUSESCALE);
+            cursorHeight = (int) (54 * LauncherPreferences.PREF_MOUSESCALE);
         }
         mMousePointerDrawable.setBounds(0, 0, cursorWidth, cursorHeight);
         mMousePointerDrawable.setAlpha(255);

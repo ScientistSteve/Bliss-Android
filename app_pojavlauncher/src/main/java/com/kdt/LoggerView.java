@@ -3,8 +3,10 @@ package com.kdt;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,9 +21,9 @@ import net.kdt.pojavlaunch.R;
  */
 public class LoggerView extends ConstraintLayout {
     private Logger.eventLogListener mLogListener;
+    private ToggleButton mLogToggle;
     private DefocusableScrollView mScrollView;
     private TextView mLogTextView;
-    private boolean mLogListenerRegistered;
 
 
     public LoggerView(@NonNull Context context) {
@@ -36,19 +38,8 @@ public class LoggerView extends ConstraintLayout {
     @Override
     public void setVisibility(int visibility) {
         super.setVisibility(visibility);
-        updateLogListenerRegistration(visibility == VISIBLE);
-    }
-
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        updateLogListenerRegistration(getVisibility() == VISIBLE);
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        updateLogListenerRegistration(false);
-        super.onDetachedFromWindow();
+        // Triggers the log view shown state by default when viewing it
+        mLogToggle.setChecked(visibility == VISIBLE);
     }
 
     /**
@@ -61,7 +52,21 @@ public class LoggerView extends ConstraintLayout {
         //TODO clamp the max text so it doesn't go oob
         mLogTextView.setMaxLines(Integer.MAX_VALUE);
         mLogTextView.setEllipsize(null);
-        mLogTextView.setVisibility(VISIBLE);
+        mLogTextView.setVisibility(GONE);
+
+        // Toggle log visibility
+        mLogToggle = findViewById(R.id.content_log_toggle_log);
+        mLogToggle.setOnCheckedChangeListener(
+                (compoundButton, isChecked) -> {
+                    mLogTextView.setVisibility(isChecked ? VISIBLE : GONE);
+                    if(isChecked) {
+                        Logger.addLogListener(mLogListener);
+                    }else{
+                        mLogTextView.setText("");
+                        Logger.removeLogListener(mLogListener);
+                    }
+                });
+        mLogToggle.setChecked(false);
 
         // Remove the loggerView from the user View
         ImageButton cancelButton = findViewById(R.id.log_view_cancel);
@@ -71,25 +76,25 @@ public class LoggerView extends ConstraintLayout {
         mScrollView = findViewById(R.id.content_log_scroll);
         mScrollView.setKeepFocusing(true);
 
+        //Set up the autoscroll switch
+        ToggleButton autoscrollToggle = findViewById(R.id.content_log_toggle_autoscroll);
+        autoscrollToggle.setOnCheckedChangeListener(
+                (compoundButton, isChecked) -> {
+                    if(isChecked) mScrollView.fullScroll(View.FOCUS_DOWN);
+                    mScrollView.setKeepFocusing(isChecked);
+                }
+        );
+        autoscrollToggle.setChecked(true);
+
         // Listen to logs
-        mLogListener = text -> post(() -> {
-            if (!mLogListenerRegistered) return;
-            mLogTextView.append(text + '\n');
-            mScrollView.post(() -> mScrollView.fullScroll(FOCUS_DOWN));
-        });
-        updateLogListenerRegistration(getVisibility() == VISIBLE);
+        mLogListener = text -> {
+            if(mLogTextView.getVisibility() != VISIBLE) return;
+            post(() -> {
+                mLogTextView.append(text + '\n');
+                if(mScrollView.isKeepFocusing()) mScrollView.fullScroll(View.FOCUS_DOWN);
+            });
+
+        };
     }
 
-    private void updateLogListenerRegistration(boolean shouldRegister) {
-        if (mLogListener == null) return;
-        if (shouldRegister == mLogListenerRegistered) return;
-        mLogListenerRegistered = shouldRegister;
-        if (shouldRegister) {
-            Logger.addLogListener(mLogListener);
-            post(() -> mScrollView.fullScroll(FOCUS_DOWN));
-        } else {
-            mLogTextView.setText("");
-            Logger.removeLogListener(mLogListener);
-        }
-    }
 }
