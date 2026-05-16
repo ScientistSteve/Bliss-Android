@@ -75,18 +75,23 @@ public class Touchpad extends View implements GrabListener, AbstractTouchpad {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        int saveCount = canvas.save();
         canvas.translate(mMouseX, mMouseY);
         mMousePointerDrawable.draw(canvas);
+        canvas.restoreToCount(saveCount);
     }
 
     private void init(){
         // Setup mouse pointer
         mMousePointerDrawable = CustomCursorTexture.loadCursorDrawable(getContext());
-        mMousePointerDrawable.setBounds(
-                0, 0,
-                (int) (36 * LauncherPreferences.PREF_MOUSESCALE),
-                (int) (54 * LauncherPreferences.PREF_MOUSESCALE)
-        );
+        int cursorWidth = mMousePointerDrawable.getIntrinsicWidth();
+        int cursorHeight = mMousePointerDrawable.getIntrinsicHeight();
+        if (cursorWidth <= 0 || cursorHeight <= 0) {
+            cursorWidth = (int) (36 * LauncherPreferences.PREF_MOUSESCALE);
+            cursorHeight = (int) (54 * LauncherPreferences.PREF_MOUSESCALE);
+        }
+        mMousePointerDrawable.setBounds(0, 0, cursorWidth, cursorHeight);
+        mMousePointerDrawable.setAlpha(255);
         setFocusable(false);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             setDefaultFocusHighlightEnabled(false);
