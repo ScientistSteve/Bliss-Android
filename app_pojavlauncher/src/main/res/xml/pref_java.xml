@@ -21,6 +21,7 @@
 
         <net.kdt.pojavlaunch.prefs.CustomSeekBarPreference
             android:key="allocation"
+            android:defaultValue="980"
 
             android:summary="@string/mcl_memory_allocation_subtitle"
             android:title="@string/mcl_memory_allocation"
@@ -32,7 +33,8 @@
         <SwitchPreference
             android:defaultValue="false"
             android:key="disable_autojre_select"
-            android:title="Disable automatic JRE selection"
+            android:title="@string/preference_disable_autojre_select_title"
+            android:summary="@string/preference_disable_autojre_select_description"
             />
 
         <SwitchPreference

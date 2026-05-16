@@ -2,17 +2,27 @@ package net.kdt.pojavlaunch.prefs.screens;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 
 import net.kdt.pojavlaunch.R;
 import net.kdt.pojavlaunch.Tools;
+import net.kdt.pojavlaunch.customcontrols.mouse.CustomCursorTexture;
 import net.kdt.pojavlaunch.prefs.CustomSeekBarPreference;
 import net.kdt.pojavlaunch.prefs.LauncherPreferences;
 
 public class LauncherPreferenceControlFragment extends LauncherPreferenceFragment {
     private boolean mGyroAvailable = false;
+    private Preference mCustomCursorPreference;
+    private final ActivityResultLauncher<String> mCustomCursorPicker = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            this::saveCustomCursorTexture);
 
     @Override
     public void onCreatePreferences(Bundle b, String str) {
@@ -80,7 +90,36 @@ public class LauncherPreferenceControlFragment extends LauncherPreferenceFragmen
         touchControllerVibrateLengthSeek.setValue(touchControllerVibrateLength);
         touchControllerVibrateLengthSeek.setSuffix(" ms");
 
+        setupCustomCursorPreference();
         computeVisibility();
+    }
+
+
+    private void setupCustomCursorPreference() {
+        mCustomCursorPreference = requirePreference(CustomCursorTexture.PREF_KEY);
+        updateCustomCursorSummary();
+        mCustomCursorPreference.setOnPreferenceClickListener(preference -> {
+            mCustomCursorPicker.launch("image/*");
+            return true;
+        });
+    }
+
+    private void saveCustomCursorTexture(Uri uri) {
+        if (uri == null || getContext() == null) return;
+        try {
+            CustomCursorTexture.saveCursorTexture(requireContext(), uri);
+            updateCustomCursorSummary();
+            Toast.makeText(requireContext(), R.string.preference_custom_virtual_cursor_texture_saved, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Tools.showErrorRemote(e);
+        }
+    }
+
+    private void updateCustomCursorSummary() {
+        if (mCustomCursorPreference == null || getContext() == null) return;
+        mCustomCursorPreference.setSummary(CustomCursorTexture.hasCustomCursorTexture(requireContext())
+                ? R.string.preference_custom_virtual_cursor_texture_selected
+                : R.string.preference_custom_virtual_cursor_texture_description);
     }
 
     @Override
