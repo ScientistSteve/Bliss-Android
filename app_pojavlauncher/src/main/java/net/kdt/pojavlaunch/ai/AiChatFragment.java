@@ -87,6 +87,8 @@ public class AiChatFragment extends Fragment {
 
         back.setBackground(new GradientCircleStrokeDrawable(dp(2)));
         back.setOnClickListener(v -> requireActivity().onBackPressed());
+        overflow.setBackground(new GradientCircleStrokeDrawable(dp(2)));
+        overflow.setColorFilter(Color.WHITE);
         overflow.setOnClickListener(this::showOverflowMenu);
 
         adapter = new AiChatAdapter(requireContext(), messages, this::beginEditingMessage);
@@ -180,7 +182,8 @@ public class AiChatFragment extends Fragment {
         List<AiChatAdapter.Message> snapshot = conversationSnapshot();
         String provider = AiAssistantConfig.getProvider(requireContext());
         String key = AiAssistantConfig.getApiKey(requireContext()).trim();
-        networkExecutor.execute(() -> fetchAiResponse(provider, key, snapshot, typingIndex));
+        String model = AiAssistantConfig.getModel(requireContext());
+        networkExecutor.execute(() -> fetchAiResponse(provider, key, model, snapshot, typingIndex));
     }
 
     private List<AiChatAdapter.Message> conversationSnapshot() {
@@ -193,12 +196,13 @@ public class AiChatFragment extends Fragment {
         return snapshot;
     }
 
-    private void fetchAiResponse(String provider, String key, List<AiChatAdapter.Message> history, int responseIndex) {
+    private void fetchAiResponse(String provider, String key, String model, List<AiChatAdapter.Message> history, int responseIndex) {
         try {
             if (key.isEmpty()) throw new Exception("Set your API key in Settings → Miscellaneous");
+            String selectedModel = AiAssistantConfig.normalizeModel(provider, model);
             String response = AiAssistantConfig.PROVIDER_GEMINI.equals(provider)
-                    ? callGemini(key, history)
-                    : callOpenAiCompatible(provider, key, history);
+                    ? callGemini(key, selectedModel, history)
+                    : callOpenAiCompatible(provider, key, selectedModel, history);
             mainHandler.post(() -> replaceTyping(responseIndex, new AiChatAdapter.Message(AiChatAdapter.ROLE_AI, response)));
         } catch (Exception e) {
             String reason = e.getMessage() == null ? "Unable to reach AI provider." : e.getMessage();
@@ -219,11 +223,11 @@ public class AiChatFragment extends Fragment {
         scrollToBottom();
     }
 
-    private String callOpenAiCompatible(String provider, String key, List<AiChatAdapter.Message> history) throws Exception {
+    private String callOpenAiCompatible(String provider, String key, String model, List<AiChatAdapter.Message> history) throws Exception {
         boolean groq = AiAssistantConfig.PROVIDER_GROQ.equals(provider);
         String endpoint = groq ? "https://api.groq.com/openai/v1/chat/completions" : "https://api.openai.com/v1/chat/completions";
         JsonObject root = new JsonObject();
-        root.addProperty("model", groq ? "llama3-8b-8192" : "gpt-4o-mini");
+        root.addProperty("model", model);
         JsonArray messagesJson = new JsonArray();
         for (AiChatAdapter.Message message : history) {
             JsonObject item = new JsonObject();
@@ -238,8 +242,8 @@ public class AiChatFragment extends Fragment {
         return choices.get(0).getAsJsonObject().getAsJsonObject("message").get("content").getAsString().trim();
     }
 
-    private String callGemini(String key, List<AiChatAdapter.Message> history) throws Exception {
-        String endpoint = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + key;
+    private String callGemini(String key, String model, List<AiChatAdapter.Message> history) throws Exception {
+        String endpoint = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + key;
         JsonObject root = new JsonObject();
         JsonArray contents = new JsonArray();
         for (AiChatAdapter.Message message : history) {

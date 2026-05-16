@@ -94,6 +94,7 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
     private static final int SERVER_EDIT_BUTTON_DP = 40;
     private static final int SERVER_REFRESH_INTERVAL_MS = 300;
     private static final int DIALOG_CORNER_RADIUS_DP = 12;
+    private static final String STATE_SERVERS_GRID_MODE = "serversGridMode";
 
     public MainMenuFragment(){
         super(R.layout.fragment_launcher);
@@ -116,6 +117,10 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
         ImageButton serversAddButton = view.findViewById(R.id.servers_add_button);
         ImageButton serversToggleButton = view.findViewById(R.id.servers_toggle_button);
         ImageButton aiAssistantFab = view.findViewById(R.id.ai_assistant_fab);
+
+        if (savedInstanceState != null) {
+            isServersGridMode = savedInstanceState.getBoolean(STATE_SERVERS_GRID_MODE, isServersGridMode);
+        }
 
         if (quickActionsContainer != null) {
             updateQuickActionsLayout(quickActionsContainer);
@@ -175,8 +180,12 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
 
     private void updateQuickActionsLayout(LinearLayout quickActionsContainer) {
         quickActionsContainer.setOrientation(isQuickActionsListMode ? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
+        quickActionsContainer.setPadding(0, 0, 0, 0);
         for (int i = 0; i < quickActionsContainer.getChildCount(); i++) {
             View child = quickActionsContainer.getChildAt(i);
+            if (child instanceof LinearLayout) {
+                ((LinearLayout) child).setGravity(isQuickActionsListMode ? Gravity.CENTER_VERTICAL : Gravity.CENTER);
+            }
             LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) child.getLayoutParams();
             params.width = isQuickActionsListMode ? LinearLayout.LayoutParams.MATCH_PARENT : 0;
             params.height = LinearLayout.LayoutParams.WRAP_CONTENT;
@@ -215,8 +224,14 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
     public void onResume() {
         super.onResume();
         mVersionSpinner.reloadProfiles();
-        loadServersForCurrentProfile();
+        loadServersForCurrentProfile(true);
         startServerRefreshCycle();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(STATE_SERVERS_GRID_MODE, isServersGridMode);
     }
 
     @Override
@@ -245,8 +260,12 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
     }
 
     private void loadServersForCurrentProfile() {
+        loadServersForCurrentProfile(false);
+    }
+
+    private void loadServersForCurrentProfile(boolean forceReload) {
         File profileDirectory = getCurrentProfileDirectory();
-        if (profileDirectory.equals(mLoadedProfileDirectory) && mServerList != null) return;
+        if (!forceReload && profileDirectory.equals(mLoadedProfileDirectory) && mServerList != null) return;
         mLoadedProfileDirectory = profileDirectory;
         int generation = ++mServersLoadGeneration;
         if (mServersEmptyText != null) {
@@ -336,6 +355,10 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
             cell.addView(createServerIconButton(server), new FrameLayout.LayoutParams(dp(QUICK_ACTION_ICON_BUTTON_DP), dp(QUICK_ACTION_ICON_BUTTON_DP), Gravity.CENTER));
             final ServerListManager.ServerEntry selectedServer = server;
             cell.setOnClickListener(v -> showServerDialog(selectedServer));
+            cell.setOnLongClickListener(v -> {
+                showDeleteServerDialog(selectedServer);
+                return true;
+            });
             row.addView(cell, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f));
         }
     }
@@ -379,12 +402,17 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
         edit.setContentDescription(getString(R.string.main_servers_edit));
         edit.setOnClickListener(v -> showServerDialog(server));
         item.addView(edit, new LinearLayout.LayoutParams(dp(SERVER_EDIT_BUTTON_DP), dp(SERVER_EDIT_BUTTON_DP)));
+        item.setOnClickListener(v -> showServerDialog(server));
+        item.setOnLongClickListener(v -> {
+            showDeleteServerDialog(server);
+            return true;
+        });
         return item;
     }
 
     private String getServerDetails(MinecraftServerPinger.PingResult ping) {
         if (ping == null) return getString(R.string.main_servers_loading);
-        if (!ping.online) return getString(R.string.main_servers_offline) + " • " + getString(R.string.main_servers_ping_unknown);
+        if (!ping.online) return getString(R.string.main_servers_offline);
         String players = ping.playersOnline >= 0 && ping.playersMax >= 0 ? ping.playersOnline + "/" + ping.playersMax : getString(R.string.main_servers_players_unknown);
         return getString(R.string.main_servers_online) + " • " + players + " • " + ping.latencyMs + " ms";
     }
@@ -538,6 +566,92 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
         return getResources().getColor(colorRes);
     }
 
+    private void showDeleteServerDialog(ServerListManager.ServerEntry server) {
+        if (!isAdded() || server == null) return;
+        int dialogPadding = dp(20);
+        LinearLayout content = new LinearLayout(requireContext());
+        content.setOrientation(LinearLayout.VERTICAL);
+        content.setPadding(dialogPadding, dialogPadding, dialogPadding, dialogPadding);
+        content.setBackground(createRoundedDrawable(0xff252525, DIALOG_CORNER_RADIUS_DP));
+
+        TextView title = new TextView(requireContext());
+        title.setText("Delete server?");
+        title.setTextColor(Color.WHITE);
+        title.setTextSize(18);
+        title.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        title.setGravity(Gravity.START);
+        content.addView(title, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        TextView body = new TextView(requireContext());
+        String serverName = server.name == null || server.name.trim().isEmpty() ? server.address : server.name;
+        body.setText("Are you sure you want to remove " + serverName + "?");
+        body.setTextColor(0xffd6d6d6);
+        body.setTextSize(15);
+        body.setPadding(0, dp(14), 0, dp(18));
+        content.addView(body, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        LinearLayout buttonRow = new LinearLayout(requireContext());
+        buttonRow.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
+        buttonRow.setOrientation(LinearLayout.HORIZONTAL);
+        TextView cancelButton = createDialogActionButton(android.R.string.cancel, getColorCompat(R.color.secondary_text));
+        TextView deleteButton = createDialogActionButton(R.string.global_delete, 0xffff5252);
+        buttonRow.addView(cancelButton);
+        buttonRow.addView(deleteButton);
+        content.addView(buttonRow, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+
+        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                .setView(content)
+                .create();
+        cancelButton.setOnClickListener(v -> dialog.cancel());
+        deleteButton.setOnClickListener(v -> deleteServer(dialog, server));
+        dialog.setOnShowListener(d -> {
+            Window window = dialog.getWindow();
+            if (window != null) window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        });
+        dialog.show();
+    }
+
+    private void deleteServer(Dialog dialog, ServerListManager.ServerEntry server) {
+        if (server == null) return;
+        File profileDirectory = getCurrentProfileDirectory();
+        String targetName = server.name;
+        String targetAddress = server.address;
+        if (mServerList != null) {
+            mServerList.servers.remove(server);
+            serverPingState.remove(server);
+            renderServers();
+        }
+        mServerExecutor.execute(() -> {
+            boolean saved = false;
+            try {
+                ServerListManager.ServerList list = ServerListManager.load(profileDirectory);
+                for (int i = list.servers.size() - 1; i >= 0; i--) {
+                    ServerListManager.ServerEntry candidate = list.servers.get(i);
+                    if (serverMatches(candidate, targetName, targetAddress)) {
+                        list.servers.remove(i);
+                        break;
+                    }
+                }
+                saved = ServerListManager.save(list);
+            } catch (RuntimeException ignored) { }
+            boolean finalSaved = saved;
+            mMainHandler.post(() -> {
+                if (!isAdded()) return;
+                dialog.dismiss();
+                if (!finalSaved) Toast.makeText(requireContext(), R.string.main_servers_save_failed, Toast.LENGTH_LONG).show();
+                mLoadedProfileDirectory = null;
+                loadServersForCurrentProfile(true);
+            });
+        });
+    }
+
+    private boolean serverMatches(ServerListManager.ServerEntry candidate, String name, String address) {
+        if (candidate == null) return false;
+        boolean sameAddress = (address == null && candidate.address == null) || (address != null && address.equals(candidate.address));
+        boolean sameName = (name == null && candidate.name == null) || (name != null && name.equals(candidate.name));
+        return sameAddress && sameName;
+    }
+
     private void saveServerFromDialog(Dialog dialog, ServerListManager.ServerEntry existingServer, EditText nameField, EditText addressField) {
         String name = nameField.getText() == null ? "" : nameField.getText().toString().trim();
         String address = addressField.getText() == null ? "" : addressField.getText().toString().trim();
@@ -550,29 +664,29 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
         final String finalAddress = address;
         File profileDirectory = getCurrentProfileDirectory();
         mServerExecutor.execute(() -> {
-            ServerListManager.ServerList list = ServerListManager.load(profileDirectory);
-            MinecraftServerPinger.PingResult ping = MinecraftServerPinger.ping(finalAddress);
-            if (existingServer == null && (ping == null || !ping.online)) {
-                mMainHandler.post(() -> { if (isAdded()) Toast.makeText(requireContext(), R.string.main_servers_add_failed, Toast.LENGTH_LONG).show(); });
-                return;
+            boolean saved;
+            try {
+                ServerListManager.ServerList list = ServerListManager.load(profileDirectory);
+                int index = existingServer == null || mServerList == null ? -1 : mServerList.servers.indexOf(existingServer);
+                ServerListManager.ServerEntry target;
+                if (index >= 0 && index < list.servers.size()) target = list.servers.get(index);
+                else {
+                    target = new ServerListManager.ServerEntry(finalName, finalAddress);
+                    list.servers.add(target);
+                }
+                target.name = finalName;
+                target.address = finalAddress;
+                saved = ServerListManager.save(list);
+            } catch (RuntimeException e) {
+                saved = false;
             }
-            int index = existingServer == null || mServerList == null ? -1 : mServerList.servers.indexOf(existingServer);
-            ServerListManager.ServerEntry target;
-            if (index >= 0 && index < list.servers.size()) target = list.servers.get(index);
-            else {
-                target = new ServerListManager.ServerEntry(finalName, finalAddress);
-                list.servers.add(target);
-            }
-            target.name = finalName;
-            target.address = finalAddress;
-            if (ping != null && ping.favicon != null) target.icon = ping.favicon;
-            boolean saved = ServerListManager.save(list);
+            boolean finalSaved = saved;
             mMainHandler.post(() -> {
                 if (!isAdded()) return;
-                if (saved) {
+                if (finalSaved) {
                     dialog.dismiss();
                     mLoadedProfileDirectory = null;
-                    loadServersForCurrentProfile();
+                    loadServersForCurrentProfile(true);
                     Toast.makeText(requireContext(), R.string.main_servers_saved, Toast.LENGTH_SHORT).show();
                 } else Toast.makeText(requireContext(), R.string.main_servers_save_failed, Toast.LENGTH_LONG).show();
             });

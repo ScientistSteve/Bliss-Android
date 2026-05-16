@@ -60,8 +60,8 @@ public class LauncherPreferenceMiscellaneousFragment extends LauncherPreferenceF
 
         Spinner providerSpinner = new Spinner(requireContext());
         String[] providers = {AiAssistantConfig.PROVIDER_OPENAI, AiAssistantConfig.PROVIDER_GEMINI, AiAssistantConfig.PROVIDER_GROQ};
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_dropdown_item, providers);
-        providerSpinner.setAdapter(adapter);
+        ArrayAdapter<String> providerAdapter = new ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_dropdown_item, providers);
+        providerSpinner.setAdapter(providerAdapter);
         String savedProvider = AiAssistantConfig.getProvider(requireContext());
         for (int i = 0; i < providers.length; i++) if (providers[i].equals(savedProvider)) providerSpinner.setSelection(i);
         providerSpinner.setBackground(createDialogFieldBackground(false));
@@ -69,12 +69,56 @@ public class LauncherPreferenceMiscellaneousFragment extends LauncherPreferenceF
         spinnerParams.setMargins(0, dp(18), 0, dp(12));
         content.addView(providerSpinner, spinnerParams);
         providerSpinner.setOnFocusChangeListener((v, hasFocus) -> v.setBackground(createDialogFieldBackground(hasFocus)));
-        providerSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        TextView modelLabel = new TextView(requireContext());
+        modelLabel.setText("Model");
+        modelLabel.setTextColor(Color.WHITE);
+        modelLabel.setTextSize(14);
+        modelLabel.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        LinearLayout.LayoutParams modelLabelParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        modelLabelParams.setMargins(0, 0, 0, dp(6));
+        content.addView(modelLabel, modelLabelParams);
+
+        Spinner modelSpinner = new Spinner(requireContext());
+        modelSpinner.setBackground(createDialogFieldBackground(false));
+        LinearLayout.LayoutParams modelSpinnerParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(52));
+        modelSpinnerParams.setMargins(0, 0, 0, dp(12));
+        content.addView(modelSpinner, modelSpinnerParams);
+        modelSpinner.setOnFocusChangeListener((v, hasFocus) -> v.setBackground(createDialogFieldBackground(hasFocus)));
+        modelSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (view instanceof TextView) ((TextView) view).setTextColor(Color.WHITE);
             }
             @Override public void onNothingSelected(AdapterView<?> parent) { }
         });
+
+        String savedModel = AiAssistantConfig.getModel(requireContext());
+        providerSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (view instanceof TextView) ((TextView) view).setTextColor(Color.WHITE);
+                String provider = parent.getItemAtPosition(position) == null ? AiAssistantConfig.PROVIDER_OPENAI : parent.getItemAtPosition(position).toString();
+                String[] models = AiAssistantConfig.getModelsForProvider(provider);
+                ArrayAdapter<String> modelAdapter = new ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_dropdown_item, models);
+                modelSpinner.setAdapter(modelAdapter);
+                String selectedModel = AiAssistantConfig.normalizeModel(provider, savedModel);
+                for (int i = 0; i < models.length; i++) {
+                    if (models[i].equals(selectedModel)) {
+                        modelSpinner.setSelection(i);
+                        break;
+                    }
+                }
+            }
+            @Override public void onNothingSelected(AdapterView<?> parent) { }
+        });
+        String initialProvider = providerSpinner.getSelectedItem() == null ? savedProvider : providerSpinner.getSelectedItem().toString();
+        String[] initialModels = AiAssistantConfig.getModelsForProvider(initialProvider);
+        modelSpinner.setAdapter(new ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_dropdown_item, initialModels));
+        String initialModel = AiAssistantConfig.normalizeModel(initialProvider, savedModel);
+        for (int i = 0; i < initialModels.length; i++) {
+            if (initialModels[i].equals(initialModel)) {
+                modelSpinner.setSelection(i);
+                break;
+            }
+        }
 
         FrameLayout keyContainer = new FrameLayout(requireContext());
         keyContainer.setBackground(createDialogFieldBackground(false));
@@ -118,8 +162,9 @@ public class LauncherPreferenceMiscellaneousFragment extends LauncherPreferenceF
         cancelButton.setOnClickListener(v -> dialog.cancel());
         saveButton.setOnClickListener(v -> {
             String provider = providerSpinner.getSelectedItem() == null ? AiAssistantConfig.PROVIDER_OPENAI : providerSpinner.getSelectedItem().toString();
+            String model = modelSpinner.getSelectedItem() == null ? AiAssistantConfig.getDefaultModel(provider) : modelSpinner.getSelectedItem().toString();
             String apiKey = keyField.getText() == null ? "" : keyField.getText().toString().trim();
-            AiAssistantConfig.save(requireContext(), provider, apiKey);
+            AiAssistantConfig.save(requireContext(), provider, apiKey, model);
             dialog.dismiss();
         });
         dialog.setOnShowListener(d -> {
