@@ -534,4 +534,9 @@
     <string name="main_servers_save_failed">Could not save servers.dat.</string>
     <string name="main_servers_saved">Server saved.</string>
     <string name="main_servers_add_failed">Server could not be reached.</string>
+    <string name="ai_assistant_api_key_title">AI Assistant API Key</string>
+    <string name="ai_assistant_api_key_summary">Connect OpenAI, Gemini, or Groq to enable the AI assistant.</string>
+    <string name="ai_assistant_provider">AI provider</string>
+    <string name="ai_assistant_api_key_hint">API key</string>
+
 </resources>

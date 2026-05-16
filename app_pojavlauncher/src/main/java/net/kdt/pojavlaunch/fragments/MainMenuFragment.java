@@ -36,9 +36,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.material.snackbar.Snackbar;
+
 import com.kdt.mcgui.mcVersionSpinner;
 
 import net.kdt.pojavlaunch.CustomControlsActivity;
+import net.kdt.pojavlaunch.ai.AiAssistantConfig;
+import net.kdt.pojavlaunch.ai.AiChatFragment;
 import net.kdt.pojavlaunch.R;
 import net.kdt.pojavlaunch.Tools;
 import net.kdt.pojavlaunch.extra.ExtraConstants;
@@ -111,6 +115,7 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
         mServersEmptyText = view.findViewById(R.id.servers_empty_text);
         ImageButton serversAddButton = view.findViewById(R.id.servers_add_button);
         ImageButton serversToggleButton = view.findViewById(R.id.servers_toggle_button);
+        ImageButton aiAssistantFab = view.findViewById(R.id.ai_assistant_fab);
 
         if (quickActionsContainer != null) {
             updateQuickActionsLayout(quickActionsContainer);
@@ -131,6 +136,8 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
             });
         }
         loadServersForCurrentProfile();
+
+        if (aiAssistantFab != null) aiAssistantFab.setOnClickListener(v -> openAiAssistantOrPrompt());
 
         mCustomControlButton.setOnClickListener(v -> startActivity(new Intent(requireContext(), CustomControlsActivity.class)));
         mInstallJarButton.setOnClickListener(v -> runInstallerWithConfirmation(false));
@@ -155,6 +162,15 @@ public class MainMenuFragment extends Fragment implements SharedPreferences.OnSh
         applyPressAnimation(quickActionsToggleButton);
         applyPressAnimation(serversAddButton);
         applyPressAnimation(serversToggleButton);
+        applyPressAnimation(aiAssistantFab);
+    }
+
+    private void openAiAssistantOrPrompt() {
+        if (!AiAssistantConfig.hasApiKey(requireContext())) {
+            Snackbar.make(requireView(), "Set your API key in Settings → Miscellaneous", Snackbar.LENGTH_LONG).show();
+            return;
+        }
+        Tools.swapFragment(requireActivity(), AiChatFragment.class, AiChatFragment.TAG, null);
     }
 
     private void updateQuickActionsLayout(LinearLayout quickActionsContainer) {
