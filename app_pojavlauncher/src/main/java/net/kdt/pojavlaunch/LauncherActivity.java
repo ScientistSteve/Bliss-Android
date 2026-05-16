@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -26,7 +27,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
-import com.kdt.mcgui.ProgressLayout;
 import com.kdt.mcgui.mcAccountSpinner;
 
 import net.kdt.pojavlaunch.contracts.OpenDocumentWithExtension;
@@ -93,10 +93,28 @@ public class LauncherActivity extends BaseActivity implements PreferenceFragment
     private mcAccountSpinner mAccountSpinner;
     private FragmentContainerView mFragmentView;
     private ImageButton mSettingsButton;
-    private ProgressLayout mProgressLayout;
+    private ProgressBar mHeaderTaskIndicator;
     private ProgressServiceKeeper mProgressServiceKeeper;
     private ModloaderInstallTracker mInstallTracker;
     private NotificationManager mNotificationManager;
+
+    private final TaskCountListener mHeaderTaskIndicatorListener = taskCount -> runOnUiThread(() -> {
+        boolean hasTasks = taskCount > 0;
+        mHeaderTaskIndicator.animate().cancel();
+        if (hasTasks) {
+            if (mHeaderTaskIndicator.getVisibility() != View.VISIBLE) {
+                mHeaderTaskIndicator.setAlpha(0f);
+                mHeaderTaskIndicator.setVisibility(View.VISIBLE);
+            }
+            mHeaderTaskIndicator.animate().alpha(1f).setDuration(200).start();
+        } else {
+            mHeaderTaskIndicator.animate()
+                    .alpha(0f)
+                    .setDuration(200)
+                    .withEndAction(() -> mHeaderTaskIndicator.setVisibility(View.GONE))
+                    .start();
+        }
+    });
 
     /* Allows to switch from one button "type" to another */
     private final FragmentManager.FragmentLifecycleCallbacks mFragmentCallbackListener = new FragmentManager.FragmentLifecycleCallbacks() {
@@ -136,7 +154,7 @@ public class LauncherActivity extends BaseActivity implements PreferenceFragment
     };
 
     private final ExtraListener<Boolean> mLaunchGameListener = (key, value) -> {
-        if(mProgressLayout.hasProcesses()){
+        if(ProgressKeeper.hasOngoingTasks()){
             Toast.makeText(this, R.string.tasks_ongoing, Toast.LENGTH_LONG).show();
             return false;
         }
@@ -206,7 +224,11 @@ public class LauncherActivity extends BaseActivity implements PreferenceFragment
             // There must be a better way to handle the root though...
             // (artDev: No, there is not. I've spent days researching this for another unrelated project.)
             fragmentManager.beginTransaction()
-                    .setCustomAnimations(R.anim.fragment_fade_in, R.anim.fragment_fade_out)
+                    .setCustomAnimations(
+                        R.anim.fragment_slide_in_right,
+                        R.anim.fragment_slide_out_left,
+                        R.anim.fragment_slide_in_left,
+                        R.anim.fragment_slide_out_right)
                     .setReorderingAllowed(true)
                     .addToBackStack("ROOT")
                     .add(R.id.container_fragment, MainMenuFragment.class, null, "ROOT").commit();
@@ -242,7 +264,7 @@ public class LauncherActivity extends BaseActivity implements PreferenceFragment
         ProgressKeeper.addTaskCountListener((mProgressServiceKeeper = new ProgressServiceKeeper(this)));
 
         mSettingsButton.setOnClickListener(mSettingButtonListener);
-        ProgressKeeper.addTaskCountListener(mProgressLayout);
+        ProgressKeeper.addTaskCountListener(mHeaderTaskIndicatorListener);
         ExtraCore.addExtraListener(ExtraConstants.BACK_PREFERENCE, mBackPreferenceListener);
         ExtraCore.addExtraListener(ExtraConstants.SELECT_AUTH_METHOD, mSelectAuthMethod);
 
@@ -252,11 +274,6 @@ public class LauncherActivity extends BaseActivity implements PreferenceFragment
 
         mInstallTracker = new ModloaderInstallTracker(this);
 
-        mProgressLayout.observe(ProgressLayout.DOWNLOAD_MINECRAFT);
-        mProgressLayout.observe(ProgressLayout.UNPACK_RUNTIME);
-        mProgressLayout.observe(ProgressLayout.INSTALL_MODPACK);
-        mProgressLayout.observe(ProgressLayout.AUTHENTICATE_MICROSOFT);
-        mProgressLayout.observe(ProgressLayout.DOWNLOAD_VERSION_LIST);
     }
 
     @Override
@@ -282,8 +299,7 @@ public class LauncherActivity extends BaseActivity implements PreferenceFragment
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mProgressLayout.cleanUpObservers();
-        ProgressKeeper.removeTaskCountListener(mProgressLayout);
+        ProgressKeeper.removeTaskCountListener(mHeaderTaskIndicatorListener);
         ProgressKeeper.removeTaskCountListener(mProgressServiceKeeper);
         ExtraCore.removeExtraListenerFromValue(ExtraConstants.BACK_PREFERENCE, mBackPreferenceListener);
         ExtraCore.removeExtraListenerFromValue(ExtraConstants.SELECT_AUTH_METHOD, mSelectAuthMethod);
@@ -323,8 +339,8 @@ public class LauncherActivity extends BaseActivity implements PreferenceFragment
         getSupportFragmentManager().beginTransaction()
                 .setCustomAnimations(
                         R.anim.fragment_slide_in_right,
-                        R.anim.fragment_fade_out,
-                        R.anim.fragment_fade_in,
+                        R.anim.fragment_slide_out_left,
+                        R.anim.fragment_slide_in_left,
                         R.anim.fragment_slide_out_right)
                 .setReorderingAllowed(true)
                 .replace(R.id.container_fragment, fragment, pref.getFragment())
@@ -419,6 +435,6 @@ public class LauncherActivity extends BaseActivity implements PreferenceFragment
         mFragmentView = findViewById(R.id.container_fragment);
         mSettingsButton = findViewById(R.id.setting_button);
         mAccountSpinner = findViewById(R.id.account_spinner);
-        mProgressLayout = findViewById(R.id.progress_layout);
+        mHeaderTaskIndicator = findViewById(R.id.header_task_indicator);
     }
 }

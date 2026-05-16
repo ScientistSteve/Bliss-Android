@@ -1457,8 +1457,8 @@ public final class Tools {
         fragmentActivity.getSupportFragmentManager().beginTransaction()
                 .setCustomAnimations(
                         R.anim.fragment_slide_in_right,
-                        R.anim.fragment_fade_out,
-                        R.anim.fragment_fade_in,
+                        R.anim.fragment_slide_out_left,
+                        R.anim.fragment_slide_in_left,
                         R.anim.fragment_slide_out_right)
                 .setReorderingAllowed(true)
                 .addToBackStack(fragmentClass.getName())

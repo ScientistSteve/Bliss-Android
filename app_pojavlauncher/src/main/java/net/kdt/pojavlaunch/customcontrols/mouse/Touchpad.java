@@ -24,6 +24,8 @@ public class Touchpad extends View implements GrabListener, AbstractTouchpad {
     private boolean mDisplayState;
     /* Mouse pointer icon used by the touchpad */
     private Drawable mMousePointerDrawable;
+    private int mBaseCursorWidth;
+    private int mBaseCursorHeight;
     private float mMouseX, mMouseY;
     public Touchpad(@NonNull Context context) {
         this(context, null);
@@ -77,20 +79,27 @@ public class Touchpad extends View implements GrabListener, AbstractTouchpad {
     protected void onDraw(Canvas canvas) {
         int saveCount = canvas.save();
         canvas.translate(mMouseX, mMouseY);
+        updateCursorBounds();
         mMousePointerDrawable.draw(canvas);
         canvas.restoreToCount(saveCount);
+    }
+
+
+    private void updateCursorBounds() {
+        float mouseScale = LauncherPreferences.DEFAULT_PREF.getInt("mousescale", 100) / 100f;
+        mMousePointerDrawable.setBounds(0, 0, Math.round(mBaseCursorWidth * mouseScale), Math.round(mBaseCursorHeight * mouseScale));
     }
 
     private void init(){
         // Setup mouse pointer
         mMousePointerDrawable = CustomCursorTexture.loadCursorDrawable(getContext());
-        int cursorWidth = mMousePointerDrawable.getIntrinsicWidth();
-        int cursorHeight = mMousePointerDrawable.getIntrinsicHeight();
-        if (cursorWidth <= 0 || cursorHeight <= 0) {
-            cursorWidth = (int) (36 * LauncherPreferences.PREF_MOUSESCALE);
-            cursorHeight = (int) (54 * LauncherPreferences.PREF_MOUSESCALE);
+        mBaseCursorWidth = mMousePointerDrawable.getIntrinsicWidth();
+        mBaseCursorHeight = mMousePointerDrawable.getIntrinsicHeight();
+        if (mBaseCursorWidth <= 0 || mBaseCursorHeight <= 0) {
+            mBaseCursorWidth = 36;
+            mBaseCursorHeight = 54;
         }
-        mMousePointerDrawable.setBounds(0, 0, cursorWidth, cursorHeight);
+        updateCursorBounds();
         mMousePointerDrawable.setAlpha(255);
         setFocusable(false);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
