@@ -49,15 +49,12 @@ public final class AiAssistantConfig {
         preferences(context).edit()
                 .putString(KEY_PROVIDER, provider)
                 .putString(KEY_API_KEY, apiKey)
-                .putString(KEY_MODEL, normalizeModel(provider, model))
+                .putString(KEY_MODEL, model)
                 .apply();
     }
 
-    /**
-     * Kept for older callers; saves the default model for the selected provider.
-     */
     public static void save(@NonNull Context context, @NonNull String provider, @NonNull String apiKey) {
-        save(context, provider, apiKey, getDefaultModel(provider));
+        save(context, provider, apiKey, "");
     }
 
     @NonNull
@@ -75,8 +72,8 @@ public final class AiAssistantConfig {
 
     @NonNull
     public static String getModel(@NonNull Context context) {
-        String provider = getProvider(context);
-        return normalizeModel(provider, preferences(context).getString(KEY_MODEL, getDefaultModel(provider)));
+        String model = preferences(context).getString(KEY_MODEL, "");
+        return model == null ? "" : model;
     }
 
     @NonNull
@@ -98,12 +95,7 @@ public final class AiAssistantConfig {
 
     @NonNull
     public static String normalizeModel(@NonNull String provider, String model) {
-        String savedModel = model == null ? "" : model.trim();
-        String[] models = getModelsForProvider(provider);
-        for (String supportedModel : models) {
-            if (supportedModel.equals(savedModel)) return supportedModel;
-        }
-        return models.length == 0 ? "" : models[0];
+        return model == null ? "" : model;
     }
 
     public static boolean hasApiKey(@NonNull Context context) {

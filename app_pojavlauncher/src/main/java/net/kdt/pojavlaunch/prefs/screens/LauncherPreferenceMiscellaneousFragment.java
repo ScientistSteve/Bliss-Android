@@ -69,6 +69,12 @@ public class LauncherPreferenceMiscellaneousFragment extends LauncherPreferenceF
         spinnerParams.setMargins(0, dp(18), 0, dp(12));
         content.addView(providerSpinner, spinnerParams);
         providerSpinner.setOnFocusChangeListener((v, hasFocus) -> v.setBackground(createDialogFieldBackground(hasFocus)));
+        providerSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (view instanceof TextView) ((TextView) view).setTextColor(Color.WHITE);
+            }
+            @Override public void onNothingSelected(AdapterView<?> parent) { }
+        });
         TextView modelLabel = new TextView(requireContext());
         modelLabel.setText("Model");
         modelLabel.setTextColor(Color.WHITE);
@@ -78,47 +84,27 @@ public class LauncherPreferenceMiscellaneousFragment extends LauncherPreferenceF
         modelLabelParams.setMargins(0, 0, 0, dp(6));
         content.addView(modelLabel, modelLabelParams);
 
-        Spinner modelSpinner = new Spinner(requireContext());
-        modelSpinner.setBackground(createDialogFieldBackground(false));
-        LinearLayout.LayoutParams modelSpinnerParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(52));
-        modelSpinnerParams.setMargins(0, 0, 0, dp(12));
-        content.addView(modelSpinner, modelSpinnerParams);
-        modelSpinner.setOnFocusChangeListener((v, hasFocus) -> v.setBackground(createDialogFieldBackground(hasFocus)));
-        modelSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (view instanceof TextView) ((TextView) view).setTextColor(Color.WHITE);
-            }
-            @Override public void onNothingSelected(AdapterView<?> parent) { }
-        });
+        EditText modelField = new EditText(requireContext());
+        modelField.setText(AiAssistantConfig.getModel(requireContext()));
+        modelField.setHint("e.g. gemini-2.0-flash");
+        modelField.setSingleLine(true);
+        modelField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_NORMAL);
+        modelField.setTextColor(Color.WHITE);
+        modelField.setHintTextColor(0xffbdbdbd);
+        modelField.setBackground(createDialogFieldBackground(false));
+        modelField.setPadding(dp(14), 0, dp(14), 0);
+        LinearLayout.LayoutParams modelFieldParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(52));
+        content.addView(modelField, modelFieldParams);
+        modelField.setOnFocusChangeListener((v, hasFocus) -> modelField.setBackground(createDialogFieldBackground(hasFocus)));
 
-        String savedModel = AiAssistantConfig.getModel(requireContext());
-        providerSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (view instanceof TextView) ((TextView) view).setTextColor(Color.WHITE);
-                String provider = parent.getItemAtPosition(position) == null ? AiAssistantConfig.PROVIDER_OPENAI : parent.getItemAtPosition(position).toString();
-                String[] models = AiAssistantConfig.getModelsForProvider(provider);
-                ArrayAdapter<String> modelAdapter = new ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_dropdown_item, models);
-                modelSpinner.setAdapter(modelAdapter);
-                String selectedModel = AiAssistantConfig.normalizeModel(provider, savedModel);
-                for (int i = 0; i < models.length; i++) {
-                    if (models[i].equals(selectedModel)) {
-                        modelSpinner.setSelection(i);
-                        break;
-                    }
-                }
-            }
-            @Override public void onNothingSelected(AdapterView<?> parent) { }
-        });
-        String initialProvider = providerSpinner.getSelectedItem() == null ? savedProvider : providerSpinner.getSelectedItem().toString();
-        String[] initialModels = AiAssistantConfig.getModelsForProvider(initialProvider);
-        modelSpinner.setAdapter(new ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_dropdown_item, initialModels));
-        String initialModel = AiAssistantConfig.normalizeModel(initialProvider, savedModel);
-        for (int i = 0; i < initialModels.length; i++) {
-            if (initialModels[i].equals(initialModel)) {
-                modelSpinner.setSelection(i);
-                break;
-            }
-        }
+        TextView modelError = new TextView(requireContext());
+        modelError.setText("Model name required");
+        modelError.setTextColor(0xffff8a80);
+        modelError.setTextSize(12);
+        modelError.setVisibility(View.GONE);
+        LinearLayout.LayoutParams modelErrorParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        modelErrorParams.setMargins(dp(14), dp(4), 0, dp(12));
+        content.addView(modelError, modelErrorParams);
 
         FrameLayout keyContainer = new FrameLayout(requireContext());
         keyContainer.setBackground(createDialogFieldBackground(false));
@@ -162,7 +148,14 @@ public class LauncherPreferenceMiscellaneousFragment extends LauncherPreferenceF
         cancelButton.setOnClickListener(v -> dialog.cancel());
         saveButton.setOnClickListener(v -> {
             String provider = providerSpinner.getSelectedItem() == null ? AiAssistantConfig.PROVIDER_OPENAI : providerSpinner.getSelectedItem().toString();
-            String model = modelSpinner.getSelectedItem() == null ? AiAssistantConfig.getDefaultModel(provider) : modelSpinner.getSelectedItem().toString();
+            String model = modelField.getText() == null ? "" : modelField.getText().toString();
+            if (model.isEmpty()) {
+                modelError.setVisibility(View.VISIBLE);
+                modelField.setBackground(createDialogFieldBackground(true));
+                modelField.requestFocus();
+                return;
+            }
+            modelError.setVisibility(View.GONE);
             String apiKey = keyField.getText() == null ? "" : keyField.getText().toString().trim();
             AiAssistantConfig.save(requireContext(), provider, apiKey, model);
             dialog.dismiss();

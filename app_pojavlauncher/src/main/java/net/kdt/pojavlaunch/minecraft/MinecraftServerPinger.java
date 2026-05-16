@@ -21,6 +21,7 @@ public final class MinecraftServerPinger {
     private static final int DEFAULT_PORT = 25565;
     private static final int PROTOCOL_VERSION = 763;
     private static final int TIMEOUT_MS = 5000;
+    private static final int MAX_PACKET_SIZE = 2 * 1024 * 1024;
 
     private MinecraftServerPinger() {}
 
@@ -28,36 +29,67 @@ public final class MinecraftServerPinger {
     public static PingResult ping(@Nullable String address) {
         ParsedAddress parsed = ParsedAddress.parse(address);
         if (parsed.host.isEmpty()) return PingResult.offline();
-        long start = System.currentTimeMillis();
         try (Socket socket = new Socket()) {
             socket.connect(new InetSocketAddress(parsed.host, parsed.port), TIMEOUT_MS);
             socket.setSoTimeout(TIMEOUT_MS);
             DataInputStream input = new DataInputStream(socket.getInputStream());
             DataOutputStream output = new DataOutputStream(socket.getOutputStream());
 
-            ByteArrayOutputStream handshakePayload = new ByteArrayOutputStream();
-            DataOutputStream handshake = new DataOutputStream(handshakePayload);
-            writeVarInt(handshake, 0x00);
-            writeVarInt(handshake, PROTOCOL_VERSION);
-            writeString(handshake, parsed.host);
-            handshake.writeShort(parsed.port);
-            writeVarInt(handshake, 1);
-            writePacket(output, handshakePayload.toByteArray());
+            sendStatusHandshake(output, parsed);
+            sendStatusRequest(output);
 
-            ByteArrayOutputStream requestPayload = new ByteArrayOutputStream();
-            writeVarInt(new DataOutputStream(requestPayload), 0x00);
-            writePacket(output, requestPayload.toByteArray());
+            Packet statusPacket = readPacket(input);
+            if (statusPacket.id != 0x00) return PingResult.offline();
+            String json = readString(statusPacket.input);
 
-            readVarInt(input); // packet length
-            int packetId = readVarInt(input);
-            if (packetId != 0x00) return PingResult.offline();
-            String json = readString(input);
-            long latency = Math.max(0, System.currentTimeMillis() - start);
+            long pingPayload = System.currentTimeMillis();
+            sendPing(output, pingPayload);
+            Packet pongPacket = readPacket(input);
+            if (pongPacket.id != 0x01) return PingResult.offline();
+            long pongPayload = pongPacket.input.readLong();
+            long latency = Math.max(0, System.currentTimeMillis() - pongPayload);
             return parseStatus(json, latency);
         } catch (IOException | RuntimeException e) {
             Log.d(TAG, "Server ping failed for " + address, e);
             return PingResult.offline();
         }
+    }
+
+    private static void sendStatusHandshake(@NonNull DataOutputStream output, @NonNull ParsedAddress parsed) throws IOException {
+        ByteArrayOutputStream handshakePayload = new ByteArrayOutputStream();
+        DataOutputStream handshake = new DataOutputStream(handshakePayload);
+        writeVarInt(handshake, 0x00);
+        writeVarInt(handshake, PROTOCOL_VERSION);
+        writeString(handshake, parsed.host);
+        handshake.writeShort(parsed.port);
+        writeVarInt(handshake, 1);
+        writePacket(output, handshakePayload.toByteArray());
+    }
+
+    private static void sendStatusRequest(@NonNull DataOutputStream output) throws IOException {
+        ByteArrayOutputStream requestPayload = new ByteArrayOutputStream();
+        DataOutputStream request = new DataOutputStream(requestPayload);
+        writeVarInt(request, 0x00);
+        writePacket(output, requestPayload.toByteArray());
+    }
+
+    private static void sendPing(@NonNull DataOutputStream output, long payload) throws IOException {
+        ByteArrayOutputStream pingPayload = new ByteArrayOutputStream();
+        DataOutputStream ping = new DataOutputStream(pingPayload);
+        writeVarInt(ping, 0x01);
+        ping.writeLong(payload);
+        writePacket(output, pingPayload.toByteArray());
+    }
+
+    @NonNull
+    private static Packet readPacket(@NonNull DataInputStream input) throws IOException {
+        int packetLength = readVarInt(input);
+        if (packetLength <= 0 || packetLength > MAX_PACKET_SIZE) throw new IOException("Invalid packet length");
+        byte[] packetData = new byte[packetLength];
+        input.readFully(packetData);
+        DataInputStream packetInput = new DataInputStream(new java.io.ByteArrayInputStream(packetData));
+        int packetId = readVarInt(packetInput);
+        return new Packet(packetId, packetInput);
     }
 
     @NonNull
@@ -68,10 +100,23 @@ public final class MinecraftServerPinger {
             int online = players == null ? -1 : players.optInt("online", -1);
             int max = players == null ? -1 : players.optInt("max", -1);
             String favicon = root.optString("favicon", null);
-            return new PingResult(true, latency, online, max, favicon == null || favicon.isEmpty() ? null : favicon);
+            String description = parseDescription(root.opt("description"));
+            return new PingResult(true, latency, online, max, favicon == null || favicon.isEmpty() ? null : favicon, description);
         } catch (JSONException | RuntimeException e) {
-            return new PingResult(true, latency, -1, -1, null);
+            return new PingResult(true, latency, -1, -1, null, null);
         }
+    }
+
+    @Nullable
+    private static String parseDescription(@Nullable Object description) {
+        if (description == null || JSONObject.NULL.equals(description)) return null;
+        if (description instanceof String) return (String) description;
+        if (description instanceof JSONObject) {
+            JSONObject object = (JSONObject) description;
+            String text = object.optString("text", "");
+            return text.isEmpty() ? object.toString() : text;
+        }
+        return String.valueOf(description);
     }
 
     private static void writePacket(@NonNull DataOutputStream output, @NonNull byte[] payload) throws IOException {
@@ -117,24 +162,36 @@ public final class MinecraftServerPinger {
         return result;
     }
 
+    private static final class Packet {
+        final int id;
+        final DataInputStream input;
+
+        private Packet(int id, DataInputStream input) {
+            this.id = id;
+            this.input = input;
+        }
+    }
+
     public static final class PingResult {
         public final boolean online;
         public final long latencyMs;
         public final int playersOnline;
         public final int playersMax;
         @Nullable public final String favicon;
+        @Nullable public final String description;
 
-        private PingResult(boolean online, long latencyMs, int playersOnline, int playersMax, @Nullable String favicon) {
+        private PingResult(boolean online, long latencyMs, int playersOnline, int playersMax, @Nullable String favicon, @Nullable String description) {
             this.online = online;
             this.latencyMs = latencyMs;
             this.playersOnline = playersOnline;
             this.playersMax = playersMax;
             this.favicon = favicon;
+            this.description = description;
         }
 
         @NonNull
         public static PingResult offline() {
-            return new PingResult(false, -1, -1, -1, null);
+            return new PingResult(false, -1, -1, -1, null, null);
         }
     }
 
