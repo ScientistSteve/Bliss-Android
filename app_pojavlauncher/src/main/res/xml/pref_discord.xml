@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <net.kdt.pojavlaunch.prefs.BackButtonPreference/>
+    <PreferenceCategory android:title="@string/discord_title">
+        <Preference android:key="discord_connect" android:title="@string/discord_connect" android:summary="@string/discord_connect_summary" android:icon="@drawable/ic_discord"/>
+        <SwitchPreference android:key="discord_rich_presence_enabled" android:title="@string/discord_rich_presence" android:summary="@string/discord_rich_presence_summary" android:defaultValue="true"/>
+        <EditTextPreference android:key="discord_details" android:title="@string/discord_details" android:defaultValue="Playing Minecraft {version}"/>
+        <EditTextPreference android:key="discord_state" android:title="@string/discord_state" android:defaultValue="Instance: {instance}"/>
+    </PreferenceCategory>
+</PreferenceScreen>
