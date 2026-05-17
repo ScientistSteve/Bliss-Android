@@ -6,6 +6,7 @@ import static net.kdt.pojavlaunch.Tools.hasNoOnlineProfileDialog;
 import android.Manifest;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -474,5 +475,7 @@ public class LauncherActivity extends BaseActivity implements PreferenceFragment
         mSettingsButton = findViewById(R.id.setting_button);
         mAccountSpinner = findViewById(R.id.account_spinner);
         mHeaderTaskIndicator = findViewById(R.id.header_task_indicator);
+        mHeaderTaskIndicator.setIndeterminateTintList(ColorStateList.valueOf(0xFFFFFFFF));
+        mHeaderTaskIndicator.setProgressTintList(ColorStateList.valueOf(0xFFFFFFFF));
     }
 }
