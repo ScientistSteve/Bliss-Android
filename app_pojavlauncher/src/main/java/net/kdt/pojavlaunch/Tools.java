@@ -215,10 +215,6 @@ public final class Tools {
      * Any value (in)directly dependent on DIR_GAME_HOME should be set only here.
      * You ABSOLUTELY MUST check for storage presence using checkStorageRoot() before calling this.
      */
-    public static void runAsync(@NonNull Runnable runnable) {
-        sExecutorService.execute(runnable);
-    }
-
     public static void initStorageConstants(Context ctx){
         initEarlyConstants(ctx);
         DIR_GAME_HOME = getPojavStorageRoot(ctx).getAbsolutePath();
