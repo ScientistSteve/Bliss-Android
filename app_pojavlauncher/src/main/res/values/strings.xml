@@ -558,7 +558,7 @@
     <string name="discord_settings_summary">Connect your Discord account and configure Rich Presence.</string>
     <string name="discord_connect">Connect Discord</string>
     <string name="discord_connect_summary">Authorize BlissLauncher with Discord OAuth2.</string>
-    <string name="discord_rich_presence">Show what you're playing on your Discord profile.</string>
+    <string name="discord_rich_presence">Show what you are playing on your Discord profile.</string>
     <string name="discord_rich_presence_summary">Master toggle for Discord Rich Presence.</string>
     <string name="discord_details">Details</string>
     <string name="discord_state">State</string>
