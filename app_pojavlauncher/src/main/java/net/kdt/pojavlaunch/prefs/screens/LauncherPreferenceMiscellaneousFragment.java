@@ -94,6 +94,7 @@ public class LauncherPreferenceMiscellaneousFragment extends LauncherPreferenceF
         modelField.setBackground(createDialogFieldBackground(false));
         modelField.setPadding(dp(14), 0, dp(14), 0);
         LinearLayout.LayoutParams modelFieldParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(52));
+        modelFieldParams.setMargins(0, 0, 0, dp(12));
         content.addView(modelField, modelFieldParams);
         modelField.setOnFocusChangeListener((v, hasFocus) -> modelField.setBackground(createDialogFieldBackground(hasFocus)));
 

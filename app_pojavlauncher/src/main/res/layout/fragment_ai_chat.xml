@@ -35,17 +35,17 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageButton
-        android:id="@+id/ai_chat_overflow_button"
+        android:id="@+id/ai_chat_clear_button"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:background="@android:color/transparent"
-        android:contentDescription="Chat options"
+        android:contentDescription="Clear chat"
         android:elevation="10dp"
         android:padding="12dp"
         android:scaleType="center"
-        android:src="@drawable/ic_more_vert_white"
+        android:src="@drawable/ic_menu_delete_forever"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

@@ -24,8 +24,8 @@ public class Touchpad extends View implements GrabListener, AbstractTouchpad {
     private boolean mDisplayState;
     /* Mouse pointer icon used by the touchpad */
     private Drawable mMousePointerDrawable;
-    private int mBaseCursorWidth;
-    private int mBaseCursorHeight;
+    private int mSourceCursorWidth;
+    private int mSourceCursorHeight;
     private float mMouseX, mMouseY;
     public Touchpad(@NonNull Context context) {
         this(context, null);
@@ -87,15 +87,17 @@ public class Touchpad extends View implements GrabListener, AbstractTouchpad {
 
     private void updateCursorBounds() {
         float mouseScale = LauncherPreferences.DEFAULT_PREF.getInt("mousescale", 100) / 100f;
-        mMousePointerDrawable.setBounds(0, 0, Math.round(mBaseCursorWidth * mouseScale), Math.round(mBaseCursorHeight * mouseScale));
+        int targetHeight = Math.round(24f * getResources().getDisplayMetrics().density * mouseScale);
+        float aspectRatio = (float) mSourceCursorWidth / (float) mSourceCursorHeight;
+        int targetWidth = Math.round(targetHeight * aspectRatio);
+        mMousePointerDrawable.setBounds(0, 0, targetWidth, targetHeight);
     }
 
     private void init(){
         // Setup mouse pointer
         mMousePointerDrawable = CustomCursorTexture.loadCursorDrawable(getContext());
-        int baseCursorSizePx = Math.round(24f * getResources().getDisplayMetrics().density);
-        mBaseCursorWidth = baseCursorSizePx;
-        mBaseCursorHeight = baseCursorSizePx;
+        mSourceCursorWidth = Math.max(1, mMousePointerDrawable.getIntrinsicWidth());
+        mSourceCursorHeight = Math.max(1, mMousePointerDrawable.getIntrinsicHeight());
         updateCursorBounds();
         mMousePointerDrawable.setAlpha(255);
         setFocusable(false);

@@ -13,7 +13,7 @@ import static org.lwjgl.glfw.CallbackBridge.windowHeight;
 import static org.lwjgl.glfw.CallbackBridge.windowWidth;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.ComponentName;
@@ -232,7 +232,7 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
 
             // Menu
             gameActionArrayAdapter = new ArrayAdapter<>(this,
-                    android.R.layout.simple_list_item_1, getResources().getStringArray(R.array.menu_ingame));
+                    R.layout.item_ingame_menu, getResources().getStringArray(R.array.menu_ingame));
             gameActionClickListener = (parent, view, position, id) -> {
                 switch(position) {
                     case 0: dialogForceClose(MainActivity.this); break;
@@ -471,7 +471,10 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
         AlertDialog.Builder dialog = new AlertDialog.Builder(this);
         dialog.setTitle(R.string.control_customkey);
         dialog.setItems(EfficientAndroidLWJGLKeycode.generateKeyName(), (dInterface, position) -> EfficientAndroidLWJGLKeycode.execKeyIndex(position));
-        dialog.show();
+        AlertDialog shownDialog = dialog.show();
+        if (shownDialog.getWindow() != null) {
+            shownDialog.getWindow().setBackgroundDrawable(ContextCompat.getDrawable(this, R.drawable.background_control_editor));
+        }
     }
 
     boolean isInEditor;
@@ -613,8 +616,11 @@ public class MainActivity extends BaseActivity implements ControlButtonMenuListe
 
     @Override
     public void onClickedMenu() {
+        navDrawer.setBackgroundColor(ContextCompat.getColor(this, R.color.background_app));
         drawerLayout.openDrawer(navDrawer);
         navDrawer.requestLayout();
+        navDrawer.postInvalidate();
+        drawerLayout.postInvalidate();
     }
 
     @Override
