@@ -36,8 +36,8 @@
             app:indicatorSize="32dp"
             app:indicatorInset="0dp"
             app:trackThickness="4dp"
-            app:indeterminate="false"
-            app:max="100" />
+            android:indeterminate="false"
+            android:max="100" />
 
         <ImageButton
             android:id="@+id/setting_button"
