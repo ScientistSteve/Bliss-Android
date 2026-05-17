@@ -29,10 +29,10 @@
         android:id="@+id/delete_account_button"
         android:layout_width="@dimen/_52sdp"
         android:layout_height="match_parent"
-        android:background="?attr/selectableItemBackground"
-        android:src="@drawable/ic_menu_delete_forever"
+        android:background="@drawable/bg_delete_action_button"
+        android:src="@android:color/transparent"
 
-        android:padding="@dimen/padding_moderate"
+        android:padding="10dp"
         />
 
 </LinearLayout>

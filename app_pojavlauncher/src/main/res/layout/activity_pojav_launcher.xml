@@ -36,6 +36,8 @@
             app:indicatorSize="32dp"
             app:indicatorInset="0dp"
             app:trackThickness="4dp"
+            app:indicatorColor="@android:color/white"
+            app:trackColor="#33FFFFFF"
             android:indeterminate="false"
             android:max="100" />
 

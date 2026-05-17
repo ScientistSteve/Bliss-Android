@@ -17,7 +17,7 @@ public class DiscordAuthManager {
 
     public static String getAuthorizeUrl() {
         return "https://discord.com/oauth2/authorize?response_type=code&client_id=" + BuildConfig.DISCORD_CLIENT_ID +
-                "&scope=" + Uri.encode("identify rpc.activities.write") +
+                "&scope=identify%20rpc.activities.write" +
                 "&redirect_uri=" + Uri.encode(BuildConfig.DISCORD_REDIRECT_URI);
     }
 
@@ -27,4 +27,26 @@ public class DiscordAuthManager {
                 EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
     }
+
+    public static void saveTokens(Context context, DiscordApiClient.DiscordTokenResponse tokenResponse) throws Exception {
+        securePrefs(context).edit()
+                .putString(KEY_ACCESS, tokenResponse.access_token)
+                .putString(KEY_REFRESH, tokenResponse.refresh_token)
+                .putLong(KEY_EXPIRY, System.currentTimeMillis() + (tokenResponse.expires_in * 1000L))
+                .apply();
+    }
+
+    public static String getValidAccessToken(Context context) throws Exception {
+        SharedPreferences prefs = securePrefs(context);
+        String access = prefs.getString(KEY_ACCESS, null);
+        long expiry = prefs.getLong(KEY_EXPIRY, 0L);
+        if(access != null && System.currentTimeMillis() < expiry) return access;
+
+        String refresh = prefs.getString(KEY_REFRESH, null);
+        if(refresh == null || refresh.isEmpty()) return null;
+        DiscordApiClient.DiscordTokenResponse refreshed = new DiscordApiClient().refreshToken(refresh);
+        saveTokens(context, refreshed);
+        return refreshed.access_token;
+    }
+
 }

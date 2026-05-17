@@ -44,11 +44,11 @@
         android:id="@+id/multirt_view_removebtn"
         android:layout_width="@dimen/_35sdp"
         android:layout_height="0dp"
-        android:background="?attr/selectableItemBackground"
-        android:paddingVertical="@dimen/padding_heavy"
+        android:background="@drawable/bg_delete_action_button"
+        android:padding="8dp"
         android:scaleType="fitCenter"
 
-        android:src="@drawable/ic_menu_delete_forever"
+        android:src="@android:color/transparent"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -61,7 +61,7 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
 
-        android:background="?attr/selectableItemBackground"
+        android:background="@drawable/bg_delete_action_button"
         android:text="@string/multirt_config_setdefault"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
