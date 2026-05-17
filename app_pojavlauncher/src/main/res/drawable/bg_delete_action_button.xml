@@ -1,0 +1,12 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@android:color/transparent"/>
+            <stroke android:width="2dp">
+                <gradient android:startColor="#FF6B00" android:endColor="#FFB300" android:angle="45"/>
+            </stroke>
+        </shape>
+    </item>
+    <item android:gravity="center" android:width="28dp" android:height="28dp" android:drawable="@drawable/bg_delete_icon_square"/>
+    <item android:gravity="center" android:width="16dp" android:height="16dp" android:drawable="@drawable/ic_menu_delete_forever"/>
+</layer-list>

@@ -24,6 +24,8 @@
         android:visibility="gone"
         app:indicatorInset="0dp"
         app:trackThickness="4dp"
+            app:indicatorColor="@android:color/white"
+            app:trackColor="#33FFFFFF"
         android:indeterminate="false"
         android:max="100"
         app:layout_constraintBottom_toBottomOf="@id/setting_button"
