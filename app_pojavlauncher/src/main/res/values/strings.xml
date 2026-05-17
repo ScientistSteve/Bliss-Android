@@ -561,6 +561,8 @@
     <string name="discord_rich_presence">Show what you are playing on your Discord profile.</string>
     <string name="discord_rich_presence_summary">Master toggle for Discord Rich Presence.</string>
     <string name="discord_details">Details</string>
+    <string name="save">Save</string>
+    <string name="disconnect">Disconnect</string>
     <string name="discord_state">State</string>
     <string name="discord_token">Discord Token</string>
     <string name="discord_token_hint">Paste your Discord account token here</string>
