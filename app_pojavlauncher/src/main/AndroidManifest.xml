@@ -37,6 +37,17 @@
         android:process=":launcher"
         android:resizeableActivity="true"
         android:theme="@style/AppTheme">
+                <activity
+            android:name=".discord.DiscordOAuthCallbackActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="blisslauncher" android:host="discord" android:path="/callback" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".MissingStorageActivity"
             android:exported="false" />

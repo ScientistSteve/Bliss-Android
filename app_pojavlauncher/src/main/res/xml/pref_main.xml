@@ -53,6 +53,15 @@
             android:summary="@string/preference_experimental_description"
             android:fragment="net.kdt.pojavlaunch.prefs.screens.LauncherPreferenceExperimentalFragment"
             />
+    
+        <Preference
+            android:key="discord_screen_setting"
+            android:title="@string/discord_title"
+            android:summary="@string/discord_settings_summary"
+            android:fragment="net.kdt.pojavlaunch.prefs.screens.LauncherPreferenceDiscordFragment"
+            android:icon="@drawable/ic_discord"
+            />
+
     </PreferenceCategory>
 
     <SwitchPreference

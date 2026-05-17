@@ -553,4 +553,13 @@
     <string name="mg_renderer_fsr_summary">Choose the AMD FSR 1 upscaling mode used by MobileGlues.</string>
     <string name="mg_renderer_error_setting_summary">Choose how MobileGlues filters OpenGL error checks.</string>
 
+
+    <string name="discord_title">Discord</string>
+    <string name="discord_settings_summary">Connect your Discord account and configure Rich Presence.</string>
+    <string name="discord_connect">Connect Discord</string>
+    <string name="discord_connect_summary">Authorize BlissLauncher with Discord OAuth2.</string>
+    <string name="discord_rich_presence">Show what you're playing on your Discord profile.</string>
+    <string name="discord_rich_presence_summary">Master toggle for Discord Rich Presence.</string>
+    <string name="discord_details">Details</string>
+    <string name="discord_state">State</string>
 </resources>
