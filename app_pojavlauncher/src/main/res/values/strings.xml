@@ -562,4 +562,13 @@
     <string name="discord_rich_presence_summary">Master toggle for Discord Rich Presence.</string>
     <string name="discord_details">Details</string>
     <string name="discord_state">State</string>
+    <string name="discord_token">Discord Token</string>
+    <string name="discord_token_hint">Paste your Discord account token here</string>
+    <string name="discord_token_warning">⚠ Use at your own risk. See Discord's Terms of Service.</string>
+    <string name="discord_how_to_get_token">How to get my token?</string>
+    <string name="discord_token_help_content">Open Discord in a browser → Press F12 → Go to Console tab → Type: window.webpackChunkdiscord_app.push([[Math.random()],{},e=>{m=[];for(let c in e.c)m.push(e.c[c])}]); m.find(m=>m?.exports?.default?.getToken!==void 0).exports.default.getToken()</string>
+    <string name="discord_token_invalid">Invalid token. Please check and try again.</string>
+    <string name="discord_connected_as">Connected as %1$s
+%2$s</string>
+
 </resources>

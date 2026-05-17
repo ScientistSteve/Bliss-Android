@@ -124,9 +124,6 @@ android {
         versionName getVersionName()
         multiDexEnabled true //important
         resValue 'string', 'curseforge_api_key', getCFApiKey()
-        buildConfigField "String", "DISCORD_CLIENT_ID", '"' + (getSecret("DISCORD_CLIENT_ID", "discord.clientId") ?: "") + '"'
-        buildConfigField "String", "DISCORD_CLIENT_SECRET", '"' + (getSecret("DISCORD_CLIENT_SECRET", "discord.clientSecret") ?: "") + '"'
-        buildConfigField "String", "DISCORD_REDIRECT_URI", '"blisslauncher://discord/callback"'
         ndk {
             abiFilters "arm64-v8a", "armeabi-v7a"
         }
@@ -253,6 +250,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.12.0'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     implementation 'io.noties.markwon:core:4.6.2'
+    implementation 'com.github.dead8309:KizzyRPC:1.0.72'
 
     implementation "androidx.constraintlayout:constraintlayout:2.1.4"
 

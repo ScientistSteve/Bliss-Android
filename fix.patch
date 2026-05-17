@@ -1,0 +1,764 @@
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/app_pojavlauncher/build.gradle b/app_pojavlauncher/build.gradle
+index 04f26b8eb7af159d0ae51ef3aeeaeb258f2b27ef..5b6ac914db5114f30582768ac56c30836e6b6a12 100644
+--- a/app_pojavlauncher/build.gradle
++++ b/app_pojavlauncher/build.gradle
+@@ -102,53 +102,50 @@ android {
+             keyAlias "androiddebugkey"
+             keyPassword "android"
+         }
+         customRelease {
+             storeFile file(getSecret("XDAETHERIUM_RELEASE_STORE_FILE", "xdaetherium.release.storeFile") ?: "release.jks")
+             storePassword getSecret("XDAETHERIUM_RELEASE_STORE_PASSWORD", "xdaetherium.release.storePassword") ?: ""
+             keyAlias getSecret("XDAETHERIUM_RELEASE_KEY_ALIAS", "xdaetherium.release.keyAlias") ?: "release"
+             keyPassword getSecret("XDAETHERIUM_RELEASE_KEY_PASSWORD", "xdaetherium.release.keyPassword") ?: ""
+         }
+         googlePlayBuild {
+             storeFile file("upload.jks")
+             storePassword System.getenv("GPLAY_KEYSTORE_PASSWORD")
+             keyAlias "upload"
+             keyPassword System.getenv("GPLAY_KEYSTORE_PASSWORD")
+         }
+     }
+ 
+     defaultConfig {
+         applicationId "com.launcher.bliss"
+         minSdkVersion 21
+         targetSdkVersion 34
+         versionCode 10000000
+         versionName getVersionName()
+         multiDexEnabled true //important
+         resValue 'string', 'curseforge_api_key', getCFApiKey()
+-        buildConfigField "String", "DISCORD_CLIENT_ID", '"' + (getSecret("DISCORD_CLIENT_ID", "discord.clientId") ?: "") + '"'
+-        buildConfigField "String", "DISCORD_CLIENT_SECRET", '"' + (getSecret("DISCORD_CLIENT_SECRET", "discord.clientSecret") ?: "") + '"'
+-        buildConfigField "String", "DISCORD_REDIRECT_URI", '"blisslauncher://discord/callback"'
+         ndk {
+             abiFilters "arm64-v8a", "armeabi-v7a"
+         }
+         externalNativeBuild {
+             ndkBuild {
+                 // Fix for Windows command line length limit
+                 arguments "APP_SHORT_COMMANDS=true"
+             }
+         }
+     }
+ 
+     buildTypes {
+         debug {
+             applicationIdSuffix '.debug'
+             minifyEnabled false
+             shrinkResources false
+             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+             signingConfig customDebugKeystore.isFile() ? signingConfigs.customDebug : signingConfigs.debug
+             resValue "string", "app_name", "BlissLauncher (Debug)"
+             resValue "string", "app_short_name", "BlissLauncher (Debug)"
+             resValue 'string', 'application_package', 'com.launcher.bliss.debug'
+             resValue 'string', 'storageProviderAuthorities', 'com.launcher.bliss.scoped.gamefolder.debug'
+             resValue 'string', 'shareProviderAuthority', 'com.launcher.bliss.scoped.controlfolder.debug'
+         }
+         proguard {
+@@ -231,50 +228,51 @@ afterEvaluate {
+                     "$componentsDir/lwjgl-3.3.3-natives/x86",
+                     "$componentsDir/lwjgl-3.3.3-natives/x86_64",
+                     "$componentsDir/lwjgl-3.4.1-natives/x86",
+                     "$componentsDir/lwjgl-3.4.1-natives/x86_64"
+             )
+         }
+     }
+ }
+ 
+ dependencies {
+     implementation 'javax.annotation:javax.annotation-api:1.3.2'
+     implementation 'commons-codec:commons-codec:1.15'
+     implementation 'com.google.code.gson:gson:2.8.9'
+     // implementation 'com.wu-man:android-bsf-api:3.1.3'
+     implementation 'androidx.preference:preference:1.2.0'
+     //implementation 'androidx.core:core:1.7.0'
+     implementation 'androidx.drawerlayout:drawerlayout:1.2.0'
+     implementation 'androidx.browser:browser:1.8.0'
+     implementation 'androidx.viewpager2:viewpager2:1.1.0-beta01'
+     implementation 'androidx.annotation:annotation:1.5.0'
+     implementation 'androidx.recyclerview:recyclerview:1.3.2'
+     implementation 'androidx.security:security-crypto:1.1.0-alpha06'
+     implementation 'com.google.android.material:material:1.12.0'
+     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+     implementation 'io.noties.markwon:core:4.6.2'
++    implementation 'com.github.dead8309:KizzyRPC:1.0.72'
+ 
+     implementation "androidx.constraintlayout:constraintlayout:2.1.4"
+ 
+     implementation 'com.github.duanhong169:checkerboarddrawable:1.0.2'
+     implementation 'com.github.PojavLauncherTeam:portrait-sdp:ed33e89cbc'
+     implementation 'com.github.PojavLauncherTeam:portrait-ssp:6c02fd739b'
+     implementation 'com.github.Mathias-Boulay:ExtendedView:1.0.0'
+     implementation 'com.github.Mathias-Boulay:android_gamepad_remapper:2.0.3'
+     implementation 'com.github.Mathias-Boulay:virtual-joystick-android:1.14'
+ 
+     // implementation 'com.intuit.sdp:sdp-android:1.0.5'
+     // implementation 'com.intuit.ssp:ssp-android:1.0.5'
+ 
+     implementation 'org.tukaani:xz:1.8'
+     // Our version of exp4j can be built from source at
+     // https://github.com/PojavLauncherTeam/exp4j
+     implementation 'net.sourceforge.htmlcleaner:htmlcleaner:2.6.1'
+     implementation 'com.bytedance:bytehook:1.0.9'
+ 
+     // implementation 'net.sourceforge.streamsupport:streamsupport-cfuture:1.7.0'
+ 
+     implementation 'top.fifthlight.touchcontroller:proxy-client-android:0.0.4'
+ 
+     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
+ 
+diff --git a/app_pojavlauncher/src/main/AndroidManifest.xml b/app_pojavlauncher/src/main/AndroidManifest.xml
+index 4756395bc0adb855e6f61719a97b845aca0319c2..59b5c7f0c186b167bf67d6892aa0f4e6377cade7 100644
+--- a/app_pojavlauncher/src/main/AndroidManifest.xml
++++ b/app_pojavlauncher/src/main/AndroidManifest.xml
+@@ -15,60 +15,51 @@
+         android:maxSdkVersion="28" />
+     <uses-permission
+         android:name="android.permission.READ_EXTERNAL_STORAGE"
+         android:maxSdkVersion="28" />
+     <uses-permission android:name="android.permission.INTERNET" />
+     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+     <uses-permission android:name="android.permission.VIBRATE" />
+ 
+     <application
+         android:name=".PojavApplication"
+         android:allowBackup="true"
+         android:allowNativeHeapPointerTagging="false"
+         android:appCategory="game"
+         android:hasFragileUserData="true"
+         android:icon="@mipmap/ic_launcher"
+         android:roundIcon="@mipmap/ic_launcher_round"
+         android:isGame="true"
+         android:label="@string/app_name"
+         android:process=":launcher"
+         android:resizeableActivity="true"
+         android:theme="@style/AppTheme">
+-                <activity
+-            android:name=".discord.DiscordOAuthCallbackActivity"
+-            android:exported="true">
+-            <intent-filter>
+-                <action android:name="android.intent.action.VIEW" />
+-                <category android:name="android.intent.category.DEFAULT" />
+-                <category android:name="android.intent.category.BROWSABLE" />
+-                <data android:scheme="blisslauncher" android:host="discord" android:path="/callback" />
+-            </intent-filter>
+-        </activity>
++                
+ 
+         <activity
+             android:name=".MissingStorageActivity"
+             android:exported="false" />
+ 
+         <meta-data
+             android:name="android.max_aspect"
+             android:value="ratio_float" />
+ 
+         <activity
+             android:name=".TestStorageActivity"
+             android:exported="true"
+             android:label="@string/app_short_name"
+             android:launchMode="singleTop">
+             <intent-filter>
+                 <action android:name="android.intent.action.MAIN" />
+ 
+                 <category android:name="android.intent.category.LAUNCHER" />
+             </intent-filter>
+         </activity>
+         <activity
+             android:name=".LauncherActivity"
+             android:label="@string/app_short_name"
+             android:windowSoftInputMode="adjustResize"/>
+         <activity
+diff --git a/app_pojavlauncher/src/main/assets/components/methods_injector_agent/methods_injector_agent.jar b/app_pojavlauncher/src/main/assets/components/methods_injector_agent/methods_injector_agent.jar
+index fc0e4a46eb3ecb70e9ec51f41d50ff3ba86053eb..3069ce773525a5baf337e16dd38c0fe9b183a201 100644
+GIT binary patch
+delta 717
+zcmV;;0y6#4Y|?D7v?2xbD`3EQler>-f7@=;KoC8fq;XRWO+r;@Y3YR&+?3XoyHr4w
+zwn&yziUf)fLaH|Q%H7JBU^@Zc_@zpuNIdWXd=z5VPC??L^o3aR&Uk0$%$f0e{O$Xf
+zuK;f2ehE3`H57D=pvVx0k!$k66&~+I+_z0%BnP1rTfw2QlQ7zJMUa?&=<M5}f8XYb
+zY)MZhANFP6ZZ?JVEZ^<Oy{?EN>4<F^^Oh%SeYu<BZ92T2h^V&Cpm(`fbA%^co(P78
+zhGG!56x=(}GI{KqSxi&Lk}_;4#-ln)7-J|V2QseRAl{9k65kkuj<Xuh=@>_uVQv6v
+zV){S^GI_+XWLN`BTy84-s*dxRe_$we)%I5CP<!&ma#O=3!_=P`du^M1VikH(#}uYd
+zLaiVU7z&1!;m+uo#pM&@E`J|0j2KqmI<I3vWgSheJAuQ{GltyV!5un93#sC)XX6bS
+zh-V$YC8C!q7eloX+T3gMNUG=lW<i}LhPT75wYI)Nsd?nmA!b&l(pOQ=f1I9kVj#$k
+zh>g7nJCQA(N=0_|UrE*ud6!eoJAv(mu?*Y{NCV;fL#<55P28eNT#@|tEo>WuU*A9v
+znjBUTh-k~>aV%mDcNt#&uL2n+{#GL9X%^`;NOR?~nx6nk8cb@3?r|)Vyh7S*<jD?H
+z>r;guSbe1jtv<8*8E1}Cf8QFdMKD?)Vu{u|3d$Q-aScc{h00RRz;cRSC9fjku8>|K
+z_m5@#yod%<!-H0p{tdaQ;KlkUuwzt|sNm=r7nGLIALCMHnfpa&G9~;N8a7eE6HH@^
+z2E%qrPtVZ$^zyi#My+CvWC14D>Cd7F=19MTdnl!Z>G}asO9KQHv$ZA04h8coV8D2j
+zfHb%Qu_cqy1t*gbA2gF4BNUUJFcy=)H5vj9E0fU$CzB8#Gm|wo76ykc00000Pk~g?
+
+delta 717
+zcmV;;0y6#5Y|(76v?2vO8fH#+ler>-e``+@K@>ehTb9;U+DcFm<YCdJ2y1;Os1X5^
+zO+ZXEjWH%<x;t5h?4#~(tA6t@kw{Ja;1BRe8Sm^CO?;$$v72=6?c8(EJ$JTq`|bOe
+zuK;f2ei0+cX~^p+V3Z*YBiH1CD?HwbxNn=jNDe|Lwt_=pCt<YViXbul(Al>`f4|KW
+z*^-`2KJ3eW+-wTzS-#tmdtDJl(h*xS<}FXu`gS+v+i-Y05mBwdFq$05xORg|?+mr}
+zy6SvPM-e3kz019tBRt{qL@+F*Qo@$veJ5Hbk9{*sZpv6vsr3?coYinn$2iIia|7_y
+z<^vhX<PpP?VGU$oZYut&j`Nsce<*g<_GajivYfHp)G)~~^(V((+a^q`QZMS5!t_b1
+z6~qBU-mo&>86C5@d=lK{?_-97VfCZ)Iu=ybu{63JI1I<ekYCN<6FS8aQpeeujqk`n
+zJnQ%^5xrEk7^*v=&Ald%r25|9%&Q+F!`tEZT5GIRX&$+B1DKV$bSugkf9N?U1%hBC
+ztn?!6M7DS;mDt&T6<IsvT~0l32euc+GH^2@4aDycwKE+zaf>=}Me^HS*fIvczJUn3
+zv{n#^Xw&0yEMg6J8D9Ob1{o&))*|L<hUhd%N6KY2NC2`lN7W8}#<58D3VE-QqkW)S
+zUpWS=PvwuH)n`^e<IGWtf349v3P$TgEYVs=UZHUn*MQV3^y5_+SWeligenp53i%a+
+ze=OtYLo%2e9<-|RZwRK67wey(^-xi!f}<WTC@+`m;Zhcv`z2>G75o?)Hc-J6Ok<M<
+z!&WL!&)E9%a=4ymtzwOA9wr*}&!Pm5kbejFP)r5W^8-*z0|XQRv$rM14h1|KW=?mL
+zfi$=RuqBhx1t*gbA2gF4BNUUKFcy=*H5vj8E0fU$CzDVsIg>m#5C(=V00000lA}<B
+
+diff --git a/app_pojavlauncher/src/main/assets/components/methods_injector_agent/version b/app_pojavlauncher/src/main/assets/components/methods_injector_agent/version
+index 6dd656361053faefbd47d896d7b0557bb50a1dee..3d725a1a6053a2f24af33560a42bfc1dd8445d2f 100644
+--- a/app_pojavlauncher/src/main/assets/components/methods_injector_agent/version
++++ b/app_pojavlauncher/src/main/assets/components/methods_injector_agent/version
+@@ -1 +1 @@
+-2be860186e97caa614b289022a73b9774adcb85b
+\ No newline at end of file
++b85d124785cb966474478f1d56e0389db7dd8f5d
+\ No newline at end of file
+diff --git a/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/discord/DiscordApiClient.java b/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/discord/DiscordApiClient.java
+deleted file mode 100644
+index 1800ed57ac12faf4a04788cfdfaaaec412562f5f..0000000000000000000000000000000000000000
+--- a/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/discord/DiscordApiClient.java
++++ /dev/null
+@@ -1,175 +0,0 @@
+-package net.kdt.pojavlaunch.discord;
+-
+-import androidx.annotation.Keep;
+-
+-import net.kdt.pojavlaunch.BuildConfig;
+-
+-import org.json.JSONArray;
+-import org.json.JSONObject;
+-
+-import java.io.BufferedReader;
+-import java.io.IOException;
+-import java.io.InputStream;
+-import java.io.InputStreamReader;
+-import java.io.OutputStream;
+-import java.net.HttpURLConnection;
+-import java.net.URL;
+-import java.net.URLEncoder;
+-import java.nio.charset.StandardCharsets;
+-import java.util.concurrent.Executors;
+-import java.util.concurrent.ScheduledExecutorService;
+-import java.util.concurrent.TimeUnit;
+-
+-import okhttp3.OkHttpClient;
+-import okhttp3.Request;
+-import okhttp3.Response;
+-import okhttp3.WebSocket;
+-import okhttp3.WebSocketListener;
+-
+-public class DiscordApiClient {
+-    private static final String OAUTH_TOKEN_URL = "https://discord.com/api/oauth2/token";
+-    private static final String HEADLESS_SESSIONS_URL = "https://discord.com/api/v10/users/@me/headless-sessions";
+-    private static final String GATEWAY_URL = "wss://gateway.discord.gg/?v=10&encoding=json";
+-
+-    @Keep
+-    public static class DiscordTokenResponse {
+-        public String access_token;
+-        public String refresh_token;
+-        public long expires_in;
+-        public String token_type;
+-    }
+-
+-    public DiscordTokenResponse exchangeAuthorizationCode(String code) throws Exception {
+-        return postTokenForm("authorization_code", code, null);
+-    }
+-
+-    public DiscordTokenResponse refreshToken(String refreshToken) throws Exception {
+-        return postTokenForm("refresh_token", null, refreshToken);
+-    }
+-
+-    public int updateRichPresence(String accessToken, String details, String state, long startEpochMs) throws Exception {
+-        HttpURLConnection connection = (HttpURLConnection) new URL(HEADLESS_SESSIONS_URL).openConnection();
+-        connection.setRequestMethod("PATCH");
+-        connection.setDoOutput(true);
+-        connection.setRequestProperty("Authorization", "Bearer " + accessToken);
+-        connection.setRequestProperty("Content-Type", "application/json");
+-
+-        JSONObject payload = new JSONObject();
+-        JSONObject activity = new JSONObject();
+-        activity.put("type", 0);
+-        activity.put("name", "Minecraft");
+-        activity.put("details", details == null ? "" : details);
+-        activity.put("state", state == null ? "" : state);
+-        activity.put("timestamps", new JSONObject().put("start", startEpochMs));
+-        payload.put("activities", new JSONArray().put(activity));
+-
+-        try(OutputStream out = connection.getOutputStream()) {
+-            out.write(payload.toString().getBytes(StandardCharsets.UTF_8));
+-        }
+-
+-        int code = connection.getResponseCode();
+-        if(code == HttpURLConnection.HTTP_NOT_FOUND) {
+-            startGatewayFallback(accessToken, details, state, startEpochMs);
+-        }
+-        if(code == HttpURLConnection.HTTP_UNAUTHORIZED) {
+-            throw new SecurityException("Discord access token unauthorized");
+-        }
+-        return code;
+-    }
+-
+-    private DiscordTokenResponse postTokenForm(String grantType, String code, String refreshToken) throws Exception {
+-        HttpURLConnection connection = (HttpURLConnection) new URL(OAUTH_TOKEN_URL).openConnection();
+-        connection.setRequestMethod("POST");
+-        connection.setDoOutput(true);
+-        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+-
+-        StringBuilder form = new StringBuilder();
+-        appendForm(form, "client_id", BuildConfig.DISCORD_CLIENT_ID);
+-        appendForm(form, "client_secret", BuildConfig.DISCORD_CLIENT_SECRET);
+-        appendForm(form, "grant_type", grantType);
+-        if(code != null) appendForm(form, "code", code);
+-        if(refreshToken != null) appendForm(form, "refresh_token", refreshToken);
+-        appendForm(form, "redirect_uri", BuildConfig.DISCORD_REDIRECT_URI);
+-
+-        try(OutputStream out = connection.getOutputStream()) {
+-            out.write(form.toString().getBytes(StandardCharsets.UTF_8));
+-        }
+-
+-        int responseCode = connection.getResponseCode();
+-        String raw = readFully(responseCode >= 400 ? connection.getErrorStream() : connection.getInputStream());
+-        if(responseCode < 200 || responseCode >= 300) {
+-            throw new IOException("Discord token request failed: " + responseCode + " " + raw);
+-        }
+-
+-        JSONObject jsonObject = new JSONObject(raw);
+-        DiscordTokenResponse response = new DiscordTokenResponse();
+-        response.access_token = jsonObject.optString("access_token", "");
+-        response.refresh_token = jsonObject.optString("refresh_token", "");
+-        response.expires_in = jsonObject.optLong("expires_in", 0);
+-        response.token_type = jsonObject.optString("token_type", "Bearer");
+-        return response;
+-    }
+-
+-    private void startGatewayFallback(String accessToken, String details, String state, long startEpochMs) {
+-        OkHttpClient client = new OkHttpClient();
+-        Request request = new Request.Builder().url(GATEWAY_URL).build();
+-        client.newWebSocket(request, new WebSocketListener() {
+-            ScheduledExecutorService heartbeat;
+-
+-            @Override
+-            public void onMessage(WebSocket webSocket, String text) {
+-                try {
+-                    JSONObject msg = new JSONObject(text);
+-                    int op = msg.optInt("op", -1);
+-                    if(op == 10) {
+-                        long heartbeatInterval = msg.optJSONObject("d").optLong("heartbeat_interval", 30000L);
+-                        heartbeat = Executors.newSingleThreadScheduledExecutor();
+-                        heartbeat.scheduleAtFixedRate(() -> webSocket.send("{\"op\":1,\"d\":null}"), heartbeatInterval, heartbeatInterval, TimeUnit.MILLISECONDS);
+-
+-                        JSONObject identify = new JSONObject();
+-                        identify.put("op", 2);
+-                        identify.put("d", new JSONObject()
+-                                .put("token", "Bearer " + accessToken)
+-                                .put("properties", new JSONObject().put("os", "Android").put("browser", "BlissLauncher").put("device", "BlissLauncher")));
+-                        webSocket.send(identify.toString());
+-
+-                        JSONObject presence = new JSONObject();
+-                        presence.put("op", 3);
+-                        JSONObject d = new JSONObject();
+-                        d.put("since", JSONObject.NULL);
+-                        d.put("activities", new JSONArray().put(new JSONObject()
+-                                .put("name", "Minecraft")
+-                                .put("type", 0)
+-                                .put("details", details == null ? "" : details)
+-                                .put("state", state == null ? "" : state)
+-                                .put("timestamps", new JSONObject().put("start", startEpochMs))));
+-                        d.put("status", "online");
+-                        d.put("afk", false);
+-                        presence.put("d", d);
+-                        webSocket.send(presence.toString());
+-                    }
+-                } catch (Exception ignored) { }
+-            }
+-
+-            @Override
+-            public void onFailure(WebSocket webSocket, Throwable t, Response response) {
+-                if(heartbeat != null) heartbeat.shutdownNow();
+-            }
+-        });
+-    }
+-
+-    private static void appendForm(StringBuilder form, String key, String value) throws Exception {
+-        if(form.length() > 0) form.append('&');
+-        form.append(URLEncoder.encode(key, "UTF-8")).append('=').append(URLEncoder.encode(value == null ? "" : value, "UTF-8"));
+-    }
+-
+-    private static String readFully(InputStream stream) throws IOException {
+-        if(stream == null) return "";
+-        StringBuilder builder = new StringBuilder();
+-        try(BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8))) {
+-            String line;
+-            while((line = reader.readLine()) != null) builder.append(line);
+-        }
+-        return builder.toString();
+-    }
+-}
+diff --git a/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/discord/DiscordAuthManager.java b/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/discord/DiscordAuthManager.java
+deleted file mode 100644
+index b79dfc1a67f70983338d577497856b70dacf3856..0000000000000000000000000000000000000000
+--- a/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/discord/DiscordAuthManager.java
++++ /dev/null
+@@ -1,52 +0,0 @@
+-package net.kdt.pojavlaunch.discord;
+-
+-import android.content.Context;
+-import android.content.SharedPreferences;
+-import android.net.Uri;
+-
+-import androidx.security.crypto.EncryptedSharedPreferences;
+-import androidx.security.crypto.MasterKey;
+-
+-import net.kdt.pojavlaunch.BuildConfig;
+-
+-public class DiscordAuthManager {
+-    public static final String PREF_NAME = "discord_secure";
+-    public static final String KEY_ACCESS = "access";
+-    public static final String KEY_REFRESH = "refresh";
+-    public static final String KEY_EXPIRY = "expiry";
+-
+-    public static String getAuthorizeUrl() {
+-        return "https://discord.com/oauth2/authorize?response_type=code&client_id=" + BuildConfig.DISCORD_CLIENT_ID +
+-                "&scope=identify%20rpc.activities.write" +
+-                "&redirect_uri=" + Uri.encode(BuildConfig.DISCORD_REDIRECT_URI);
+-    }
+-
+-    public static SharedPreferences securePrefs(Context context) throws Exception {
+-        MasterKey masterKey = new MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build();
+-        return EncryptedSharedPreferences.create(context, PREF_NAME, masterKey,
+-                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+-                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
+-    }
+-
+-    public static void saveTokens(Context context, DiscordApiClient.DiscordTokenResponse tokenResponse) throws Exception {
+-        securePrefs(context).edit()
+-                .putString(KEY_ACCESS, tokenResponse.access_token)
+-                .putString(KEY_REFRESH, tokenResponse.refresh_token)
+-                .putLong(KEY_EXPIRY, System.currentTimeMillis() + (tokenResponse.expires_in * 1000L))
+-                .apply();
+-    }
+-
+-    public static String getValidAccessToken(Context context) throws Exception {
+-        SharedPreferences prefs = securePrefs(context);
+-        String access = prefs.getString(KEY_ACCESS, null);
+-        long expiry = prefs.getLong(KEY_EXPIRY, 0L);
+-        if(access != null && System.currentTimeMillis() < expiry) return access;
+-
+-        String refresh = prefs.getString(KEY_REFRESH, null);
+-        if(refresh == null || refresh.isEmpty()) return null;
+-        DiscordApiClient.DiscordTokenResponse refreshed = new DiscordApiClient().refreshToken(refresh);
+-        saveTokens(context, refreshed);
+-        return refreshed.access_token;
+-    }
+-
+-}
+diff --git a/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/discord/DiscordOAuthCallbackActivity.java b/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/discord/DiscordOAuthCallbackActivity.java
+deleted file mode 100644
+index af2480830e891872a2dde72b9e0f601e5263b11d..0000000000000000000000000000000000000000
+--- a/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/discord/DiscordOAuthCallbackActivity.java
++++ /dev/null
+@@ -1,29 +0,0 @@
+-package net.kdt.pojavlaunch.discord;
+-
+-import android.app.Activity;
+-import android.content.Intent;
+-import android.net.Uri;
+-import android.os.Bundle;
+-
+-import net.kdt.pojavlaunch.PojavApplication;
+-
+-public class DiscordOAuthCallbackActivity extends Activity {
+-    @Override
+-    protected void onCreate(Bundle savedInstanceState) {
+-        super.onCreate(savedInstanceState);
+-        Uri data = getIntent() == null ? null : getIntent().getData();
+-        if(data != null) {
+-            String code = data.getQueryParameter("code");
+-            if(code != null && !code.isEmpty()) {
+-                PojavApplication.sExecutorService.execute(() -> {
+-                    try {
+-                        DiscordApiClient.DiscordTokenResponse tokenResponse = new DiscordApiClient().exchangeAuthorizationCode(code);
+-                        DiscordAuthManager.saveTokens(this, tokenResponse);
+-                    } catch (Exception ignored) { }
+-                });
+-            }
+-        }
+-        startActivity(new Intent(this, net.kdt.pojavlaunch.LauncherActivity.class));
+-        finish();
+-    }
+-}
+diff --git a/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/discord/DiscordTokenManager.java b/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/discord/DiscordTokenManager.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..1f0730f687734925dee9100683f52f430a191e4f
+--- /dev/null
++++ b/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/discord/DiscordTokenManager.java
+@@ -0,0 +1,21 @@
++package net.kdt.pojavlaunch.discord;
++
++import android.content.Context;
++import android.content.SharedPreferences;
++
++import androidx.security.crypto.EncryptedSharedPreferences;
++import androidx.security.crypto.MasterKey;
++
++public class DiscordTokenManager {
++    public static final String PREF_NAME = "discord_secure";
++    public static final String KEY_TOKEN = "discord_token";
++    public static final String KEY_USERNAME = "discord_username";
++    public static final String KEY_AVATAR_URL = "discord_avatar_url";
++
++    public static SharedPreferences securePrefs(Context context) throws Exception {
++        MasterKey masterKey = new MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build();
++        return EncryptedSharedPreferences.create(context, PREF_NAME, masterKey,
++                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
++                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM);
++    }
++}
+diff --git a/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/discord/DiscordTokenValidator.java b/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/discord/DiscordTokenValidator.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..3988fc5dfbf5666ea697953dca8c37554225aca8
+--- /dev/null
++++ b/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/discord/DiscordTokenValidator.java
+@@ -0,0 +1,42 @@
++package net.kdt.pojavlaunch.discord;
++
++import org.json.JSONObject;
++
++import java.io.InputStream;
++import java.net.HttpURLConnection;
++import java.net.URL;
++import java.nio.charset.StandardCharsets;
++import java.util.Scanner;
++
++public class DiscordTokenValidator {
++    public static class Result {
++        public final boolean valid;
++        public final String username;
++        public final String avatarUrl;
++
++        public Result(boolean valid, String username, String avatarUrl) {
++            this.valid = valid;
++            this.username = username;
++            this.avatarUrl = avatarUrl;
++        }
++    }
++
++    public Result validate(String token) throws Exception {
++        HttpURLConnection connection = (HttpURLConnection) new URL("https://discord.com/api/v9/users/@me").openConnection();
++        connection.setRequestMethod("GET");
++        connection.setRequestProperty("Authorization", token);
++        int code = connection.getResponseCode();
++        if (code == HttpURLConnection.HTTP_OK) {
++            try (InputStream stream = connection.getInputStream(); Scanner scanner = new Scanner(stream, StandardCharsets.UTF_8.name()).useDelimiter("\\A")) {
++                String body = scanner.hasNext() ? scanner.next() : "{}";
++                JSONObject json = new JSONObject(body);
++                String username = json.optString("username", "") + "#" + json.optString("discriminator", "0");
++                String avatar = json.optString("avatar", null);
++                String id = json.optString("id", "");
++                String avatarUrl = (avatar == null || id.isEmpty()) ? "" : "https://cdn.discordapp.com/avatars/" + id + "/" + avatar + ".png";
++                return new Result(true, username, avatarUrl);
++            }
++        }
++        return new Result(false, "", "");
++    }
++}
+diff --git a/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/prefs/screens/LauncherPreferenceDiscordFragment.java b/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/prefs/screens/LauncherPreferenceDiscordFragment.java
+index 62a0f20cae9891b3d4b1cc34d8ab631beeecefc6..eb06629a51b4c77e463e5051c1737a8844adef5b 100644
+--- a/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/prefs/screens/LauncherPreferenceDiscordFragment.java
++++ b/app_pojavlauncher/src/main/java/net/kdt/pojavlaunch/prefs/screens/LauncherPreferenceDiscordFragment.java
+@@ -1,28 +1,118 @@
+ package net.kdt.pojavlaunch.prefs.screens;
+ 
+-import android.content.Intent;
+-import android.net.Uri;
++import android.content.SharedPreferences;
+ import android.os.Bundle;
++import android.text.InputType;
++import android.widget.EditText;
++import android.widget.LinearLayout;
++import android.widget.TextView;
+ 
+-import androidx.browser.customtabs.CustomTabsIntent;
++import androidx.appcompat.app.AlertDialog;
+ import androidx.preference.Preference;
+ 
++import net.kdt.pojavlaunch.PojavApplication;
+ import net.kdt.pojavlaunch.R;
+-import net.kdt.pojavlaunch.discord.DiscordAuthManager;
++import net.kdt.pojavlaunch.discord.DiscordTokenManager;
++import net.kdt.pojavlaunch.discord.DiscordTokenValidator;
+ 
+ public class LauncherPreferenceDiscordFragment extends LauncherPreferenceFragment {
+     @Override
+     public void onCreatePreferences(Bundle b, String str) {
+         addPreferencesFromResource(R.xml.pref_discord);
+         Preference connect = requirePreference("discord_connect");
++        updateConnectSummary(connect);
++
+         connect.setOnPreferenceClickListener(preference -> {
++            showTokenDialog(connect);
++            return true;
++        });
++
++        Preference howTo = requirePreference("discord_how_to_get_token");
++        howTo.setOnPreferenceClickListener(preference -> {
++            new AlertDialog.Builder(requireContext())
++                    .setTitle(R.string.discord_how_to_get_token)
++                    .setMessage(getString(R.string.discord_token_help_content))
++                    .setPositiveButton(android.R.string.ok, null)
++                    .show();
++            return true;
++        });
++    }
++
++    private void showTokenDialog(Preference connectPreference) {
++        EditText input = new EditText(requireContext());
++        input.setHint(R.string.discord_token_hint);
++        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
++
++        LinearLayout container = new LinearLayout(requireContext());
++        container.setOrientation(LinearLayout.VERTICAL);
++        int pad = (int) (16 * requireContext().getResources().getDisplayMetrics().density);
++        container.setPadding(pad, pad, pad, pad);
++        TextView warning = new TextView(requireContext());
++        warning.setText(R.string.discord_token_warning);
++        warning.setTextColor(0xFFFFA000);
++        container.addView(input);
++        container.addView(warning);
++
++        new AlertDialog.Builder(requireContext())
++                .setTitle(R.string.discord_token)
++                .setView(container)
++                .setPositiveButton(R.string.save, (d, w) -> saveToken(input.getText().toString().trim(), connectPreference))
++                .setNeutralButton(R.string.disconnect, (d, w) -> clearToken(connectPreference))
++                .setNegativeButton(android.R.string.cancel, null)
++                .show();
++    }
++
++    private void saveToken(String token, Preference connectPreference) {
++        PojavApplication.sExecutorService.execute(() -> {
+             try {
+-                CustomTabsIntent tabsIntent = new CustomTabsIntent.Builder().build();
+-                tabsIntent.launchUrl(requireContext(), Uri.parse(DiscordAuthManager.getAuthorizeUrl()));
++                SharedPreferences prefs = DiscordTokenManager.securePrefs(requireContext());
++                DiscordTokenValidator.Result result = new DiscordTokenValidator().validate(token);
++                if (result.valid) {
++                    prefs.edit().putString(DiscordTokenManager.KEY_TOKEN, token)
++                            .putString(DiscordTokenManager.KEY_USERNAME, result.username)
++                            .putString(DiscordTokenManager.KEY_AVATAR_URL, result.avatarUrl)
++                            .apply();
++                    requireActivity().runOnUiThread(() -> {
++                        updateConnectSummary(connectPreference);
++                    });
++                } else {
++                    prefs.edit().remove(DiscordTokenManager.KEY_TOKEN)
++                            .remove(DiscordTokenManager.KEY_USERNAME)
++                            .remove(DiscordTokenManager.KEY_AVATAR_URL)
++                            .apply();
++                    requireActivity().runOnUiThread(() -> connectPreference.setSummary(R.string.discord_token_invalid));
++                }
+             } catch (Exception e) {
+-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(DiscordAuthManager.getAuthorizeUrl())));
++                requireActivity().runOnUiThread(() -> connectPreference.setSummary(R.string.discord_token_invalid));
+             }
+-            return true;
+         });
+     }
++
++    private void clearToken(Preference connectPreference) {
++        PojavApplication.sExecutorService.execute(() -> {
++            try {
++                DiscordTokenManager.securePrefs(requireContext()).edit()
++                        .remove(DiscordTokenManager.KEY_TOKEN)
++                        .remove(DiscordTokenManager.KEY_USERNAME)
++                        .remove(DiscordTokenManager.KEY_AVATAR_URL)
++                        .apply();
++            } catch (Exception ignored) { }
++            requireActivity().runOnUiThread(() -> updateConnectSummary(connectPreference));
++        });
++    }
++
++    private void updateConnectSummary(Preference connectPreference) {
++        try {
++            SharedPreferences prefs = DiscordTokenManager.securePrefs(requireContext());
++            String username = prefs.getString(DiscordTokenManager.KEY_USERNAME, "");
++            String avatar = prefs.getString(DiscordTokenManager.KEY_AVATAR_URL, "");
++            if (username == null || username.isEmpty()) {
++                connectPreference.setSummary(getString(R.string.discord_connect_summary));
++            } else {
++                connectPreference.setSummary(getString(R.string.discord_connected_as, username, avatar));
++            }
++        } catch (Exception e) {
++            connectPreference.setSummary(getString(R.string.discord_connect_summary));
++        }
++    }
+ }
+diff --git a/app_pojavlauncher/src/main/res/values/strings.xml b/app_pojavlauncher/src/main/res/values/strings.xml
+index 388089b18fc9a480153b535d3d78a6a6ea72b8ef..d3216ec776ec82a985d8d26c0f2b1b3327cfde95 100644
+--- a/app_pojavlauncher/src/main/res/values/strings.xml
++++ b/app_pojavlauncher/src/main/res/values/strings.xml
+@@ -540,26 +540,35 @@
+     <string name="ai_assistant_api_key_hint">API key</string>
+ 
+ 
+     <string name="preference_custom_virtual_cursor_texture_title">Custom Virtual Cursor Texture</string>
+     <string name="preference_custom_virtual_cursor_texture_description">Replace the default in-game virtual mouse cursor with a custom image. Tap to select an image from your gallery.</string>
+     <string name="preference_custom_virtual_cursor_texture_selected">A custom cursor image is selected. Tap to choose a different image from your gallery.</string>
+     <string name="preference_custom_virtual_cursor_texture_saved">Custom virtual cursor image saved.</string>
+     <string name="preference_disable_autojre_select_title">Disable automatic JRE selection</string>
+     <string name="preference_disable_autojre_select_description">Keeps the selected Java runtime when installing or launching a .jar file.</string>
+     <string name="preference_back_description">Return to the previous settings screen.</string>
+     <string name="mg_renderer_glsl_cache_summary">Sets the maximum shader cache size used by MobileGlues.</string>
+     <string name="mg_renderer_angle_summary">Choose whether MobileGlues should route rendering through ANGLE.</string>
+     <string name="mg_renderer_multidraw_summary">Select how MobileGlues emulates multidraw rendering calls.</string>
+     <string name="mg_renderer_fsr_summary">Choose the AMD FSR 1 upscaling mode used by MobileGlues.</string>
+     <string name="mg_renderer_error_setting_summary">Choose how MobileGlues filters OpenGL error checks.</string>
+ 
+ 
+     <string name="discord_title">Discord</string>
+     <string name="discord_settings_summary">Connect your Discord account and configure Rich Presence.</string>
+     <string name="discord_connect">Connect Discord</string>
+     <string name="discord_connect_summary">Authorize BlissLauncher with Discord OAuth2.</string>
+     <string name="discord_rich_presence">Show what you are playing on your Discord profile.</string>
+     <string name="discord_rich_presence_summary">Master toggle for Discord Rich Presence.</string>
+     <string name="discord_details">Details</string>
+     <string name="discord_state">State</string>
++    <string name="discord_token">Discord Token</string>
++    <string name="discord_token_hint">Paste your Discord account token here</string>
++    <string name="discord_token_warning">⚠ Use at your own risk. See Discord's Terms of Service.</string>
++    <string name="discord_how_to_get_token">How to get my token?</string>
++    <string name="discord_token_help_content">Open Discord in a browser → Press F12 → Go to Console tab → Type: window.webpackChunkdiscord_app.push([[Math.random()],{},e=>{m=[];for(let c in e.c)m.push(e.c[c])}]); m.find(m=>m?.exports?.default?.getToken!==void 0).exports.default.getToken()</string>
++    <string name="discord_token_invalid">Invalid token. Please check and try again.</string>
++    <string name="discord_connected_as">Connected as %1$s
++%2$s</string>
++
+ </resources>
+diff --git a/app_pojavlauncher/src/main/res/xml/pref_discord.xml b/app_pojavlauncher/src/main/res/xml/pref_discord.xml
+index 8f72da3a8140dc73adf013041009895d8cff8e68..791df5309533a8465c78bae5fbb98ef5c1a451fa 100644
+--- a/app_pojavlauncher/src/main/res/xml/pref_discord.xml
++++ b/app_pojavlauncher/src/main/res/xml/pref_discord.xml
+@@ -1,10 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+     <net.kdt.pojavlaunch.prefs.BackButtonPreference/>
+     <PreferenceCategory android:title="@string/discord_title">
+-        <Preference android:key="discord_connect" android:title="@string/discord_connect" android:summary="@string/discord_connect_summary" android:icon="@drawable/ic_discord"/>
++        <Preference android:key="discord_connect" android:title="@string/discord_token" android:summary="@string/discord_connect_summary" android:icon="@drawable/ic_discord"/>
++        <Preference android:key="discord_how_to_get_token" android:title="@string/discord_how_to_get_token"/>
+         <SwitchPreference android:key="discord_rich_presence_enabled" android:title="@string/discord_rich_presence" android:summary="@string/discord_rich_presence_summary" android:defaultValue="true"/>
+         <EditTextPreference android:key="discord_details" android:title="@string/discord_details" android:defaultValue="Playing Minecraft {version}"/>
+         <EditTextPreference android:key="discord_state" android:title="@string/discord_state" android:defaultValue="Instance: {instance}"/>
+     </PreferenceCategory>
+ </PreferenceScreen>
+diff --git a/gradlew b/gradlew
+old mode 100644
+new mode 100755
+ 
+EOF
+)
