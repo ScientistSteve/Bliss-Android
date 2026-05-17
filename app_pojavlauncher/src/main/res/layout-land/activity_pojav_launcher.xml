@@ -15,15 +15,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ProgressBar
+    <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/header_task_indicator"
-        style="?android:attr/progressBarStyleSmall"
         android:layout_width="@dimen/_32sdp"
         android:layout_height="@dimen/_32sdp"
         android:layout_marginStart="@dimen/_6sdp"
         android:layout_marginEnd="@dimen/_6sdp"
-        android:indeterminate="true"
         android:visibility="gone"
+        app:indicatorInset="0dp"
+        app:trackThickness="4dp"
+        app:indeterminate="false"
+        app:max="100"
         app:layout_constraintBottom_toBottomOf="@id/setting_button"
         app:layout_constraintEnd_toStartOf="@id/setting_button"
         app:layout_constraintTop_toTopOf="@id/setting_button" />

@@ -102,6 +102,20 @@ public class ProgressKeeper {
         return sProgressStates.size();
     }
 
+    public static synchronized int getCombinedProgress() {
+        if(sProgressStates.isEmpty()) return -1;
+        int sum = 0;
+        int count = 0;
+        for(ProgressState state : sProgressStates.values()) {
+            if(state != null && state.progress >= 0) {
+                sum += Math.min(state.progress, 100);
+                count++;
+            }
+        }
+        if(count == 0) return -1;
+        return sum / count;
+    }
+
     public static boolean hasOngoingTasks() {
         return getTaskCount() > 0;
     }

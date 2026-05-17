@@ -9,7 +9,9 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.animation.ValueAnimator;
 import android.util.Log;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ProgressBar;
@@ -98,23 +100,59 @@ public class LauncherActivity extends BaseActivity implements PreferenceFragment
     private ModloaderInstallTracker mInstallTracker;
     private NotificationManager mNotificationManager;
 
+    private boolean mHeaderIndicatorShown = false;
+    private final AccelerateDecelerateInterpolator mEaseInOut = new AccelerateDecelerateInterpolator();
+    private final Runnable mProgressUpdateRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if(!mHeaderIndicatorShown) return;
+            int progress = ProgressKeeper.getCombinedProgress();
+            if(progress >= 0) mHeaderTaskIndicator.setProgress(progress);
+            Tools.MAIN_HANDLER.postDelayed(this, 100);
+        }
+    };
+
     private final TaskCountListener mHeaderTaskIndicatorListener = taskCount -> runOnUiThread(() -> {
         boolean hasTasks = taskCount > 0;
         mHeaderTaskIndicator.animate().cancel();
-        if (hasTasks) {
-            if (mHeaderTaskIndicator.getVisibility() != View.VISIBLE) {
-                mHeaderTaskIndicator.setAlpha(0f);
-                mHeaderTaskIndicator.setVisibility(View.VISIBLE);
+        if(hasTasks) {
+            if(!mHeaderIndicatorShown) {
+                animateHeaderIndicator(true);
             }
-            mHeaderTaskIndicator.animate().alpha(1f).setDuration(200).start();
+            int progress = ProgressKeeper.getCombinedProgress();
+            if(progress >= 0) mHeaderTaskIndicator.setProgress(progress);
+            Tools.MAIN_HANDLER.removeCallbacks(mProgressUpdateRunnable);
+            Tools.MAIN_HANDLER.post(mProgressUpdateRunnable);
         } else {
-            mHeaderTaskIndicator.animate()
-                    .alpha(0f)
-                    .setDuration(200)
-                    .withEndAction(() -> mHeaderTaskIndicator.setVisibility(View.INVISIBLE))
-                    .start();
+            Tools.MAIN_HANDLER.removeCallbacks(mProgressUpdateRunnable);
+            int current = Math.max(mHeaderTaskIndicator.getProgress(), 0);
+            ValueAnimator finishAnimator = ValueAnimator.ofInt(current, 100);
+            finishAnimator.setDuration(300);
+            finishAnimator.addUpdateListener(anim -> mHeaderTaskIndicator.setProgress((int) anim.getAnimatedValue()));
+            finishAnimator.start();
+            mHeaderTaskIndicator.postDelayed(() -> animateHeaderIndicator(false), 700);
         }
     });
+
+    private void animateHeaderIndicator(boolean show) {
+        mHeaderIndicatorShown = show;
+        if(show) {
+            mHeaderTaskIndicator.setVisibility(View.VISIBLE);
+            mHeaderTaskIndicator.setAlpha(0f);
+            mHeaderTaskIndicator.setScaleX(0.8f);
+            mHeaderTaskIndicator.setScaleY(0.8f);
+            mAccountSpinner.animate().alpha(0.85f).translationX(-8f).setInterpolator(mEaseInOut).setDuration(250).start();
+            mHeaderTaskIndicator.animate().alpha(1f).scaleX(1f).scaleY(1f).setInterpolator(mEaseInOut).setDuration(250).start();
+        } else {
+            mHeaderTaskIndicator.animate()
+                    .alpha(0f).scaleX(0.75f).scaleY(0.75f)
+                    .setInterpolator(mEaseInOut)
+                    .setDuration(250)
+                    .withEndAction(() -> mHeaderTaskIndicator.setVisibility(View.INVISIBLE))
+                    .start();
+            mAccountSpinner.animate().alpha(1f).translationX(0f).setInterpolator(mEaseInOut).setDuration(250).start();
+        }
+    }
 
     /* Allows to switch from one button "type" to another */
     private final FragmentManager.FragmentLifecycleCallbacks mFragmentCallbackListener = new FragmentManager.FragmentLifecycleCallbacks() {

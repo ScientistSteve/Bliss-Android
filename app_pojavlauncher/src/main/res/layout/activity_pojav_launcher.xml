@@ -27,14 +27,17 @@
             android:dropDownWidth="250dp"
             android:dropDownVerticalOffset="52dp" />
 
-        <ProgressBar
+        <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/header_task_indicator"
-            style="?android:attr/progressBarStyleSmall"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_marginStart="10dp"
-            android:indeterminate="true"
-            android:visibility="invisible" />
+            android:visibility="invisible"
+            app:indicatorSize="32dp"
+            app:indicatorInset="0dp"
+            app:trackThickness="4dp"
+            app:indeterminate="false"
+            app:max="100" />
 
         <ImageButton
             android:id="@+id/setting_button"
