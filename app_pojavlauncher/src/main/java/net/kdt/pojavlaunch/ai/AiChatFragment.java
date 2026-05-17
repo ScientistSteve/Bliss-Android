@@ -13,18 +13,17 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.view.KeyEvent;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -45,29 +44,24 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class AiChatFragment extends Fragment {
     public static final String TAG = "AiChatFragment";
 
-    private final List<AiChatAdapter.Message> messages = new ArrayList<>();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
-    private final ExecutorService networkExecutor = Executors.newSingleThreadExecutor();
     private AiChatAdapter adapter;
     private RecyclerView recyclerView;
     private EditText input;
-    private int editingUserIndex = RecyclerView.NO_POSITION;
-    private int typingIndex = RecyclerView.NO_POSITION;
+    private AiChatViewModel viewModel;
     private int dotsFrame = 0;
     private final Runnable typingAnimator = new Runnable() {
         @Override
         public void run() {
-            if (typingIndex >= 0 && typingIndex < messages.size()) {
+            if (viewModel.typingIndex >= 0 && viewModel.typingIndex < viewModel.messages.size()) {
                 String[] frames = {"•  •  •", "••  •", "•••"};
-                messages.get(typingIndex).text = frames[dotsFrame % frames.length];
+                viewModel.messages.get(viewModel.typingIndex).text = frames[dotsFrame % frames.length];
                 dotsFrame++;
-                adapter.notifyItemChanged(typingIndex);
+                adapter.notifyItemChanged(viewModel.typingIndex);
                 mainHandler.postDelayed(this, 420);
             }
         }
@@ -79,23 +73,25 @@ public class AiChatFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        viewModel = new ViewModelProvider(requireActivity()).get(AiChatViewModel.class);
         recyclerView = view.findViewById(R.id.ai_chat_recycler);
         input = view.findViewById(R.id.ai_chat_input);
         ImageButton send = view.findViewById(R.id.ai_chat_send_button);
         ImageButton back = view.findViewById(R.id.ai_chat_back_button);
-        ImageButton overflow = view.findViewById(R.id.ai_chat_overflow_button);
+        ImageButton clear = view.findViewById(R.id.ai_chat_clear_button);
 
         back.setBackground(new GradientCircleStrokeDrawable(dp(2)));
         back.setOnClickListener(v -> requireActivity().onBackPressed());
-        overflow.setBackground(new GradientCircleStrokeDrawable(dp(2)));
-        overflow.setColorFilter(Color.WHITE);
-        overflow.setOnClickListener(this::showOverflowMenu);
+        clear.setBackground(new GradientCircleStrokeDrawable(dp(2)));
+        clear.setColorFilter(Color.WHITE);
+        clear.setOnClickListener(v -> clearChat());
 
-        adapter = new AiChatAdapter(requireContext(), messages, this::beginEditingMessage);
+        adapter = new AiChatAdapter(requireContext(), viewModel.messages, this::beginEditingMessage);
         LinearLayoutManager layoutManager = new LinearLayoutManager(requireContext());
         layoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
+        if (viewModel.typingIndex != RecyclerView.NO_POSITION) mainHandler.post(typingAnimator);
 
         send.setOnClickListener(v -> sendCurrentInput());
         input.setOnEditorActionListener((v, actionId, event) -> {
@@ -123,33 +119,18 @@ public class AiChatFragment extends Fragment {
         super.onDestroyView();
     }
 
-    @Override
-    public void onDestroy() {
-        networkExecutor.shutdownNow();
-        super.onDestroy();
-    }
-
-    private void showOverflowMenu(View anchor) {
-        PopupMenu menu = new PopupMenu(requireContext(), anchor);
-        menu.getMenu().add("Clear chat");
-        menu.setOnMenuItemClickListener((MenuItem item) -> {
-            clearChat();
-            return true;
-        });
-        menu.show();
-    }
-
     private void clearChat() {
         mainHandler.removeCallbacks(typingAnimator);
-        messages.clear();
-        typingIndex = RecyclerView.NO_POSITION;
-        editingUserIndex = RecyclerView.NO_POSITION;
+        viewModel.messages.clear();
+        viewModel.typingIndex = RecyclerView.NO_POSITION;
+        viewModel.editingUserIndex = RecyclerView.NO_POSITION;
+        viewModel.requestGeneration++;
         adapter.notifyDataSetChanged();
     }
 
     private void beginEditingMessage(int position, AiChatAdapter.Message message) {
-        if (position < 0 || position >= messages.size()) return;
-        editingUserIndex = position;
+        if (position < 0 || position >= viewModel.messages.size()) return;
+        viewModel.editingUserIndex = position;
         input.setText(message.text);
         input.setSelection(input.length());
         input.requestFocus();
@@ -157,38 +138,41 @@ public class AiChatFragment extends Fragment {
 
     private void sendCurrentInput() {
         String prompt = input.getText() == null ? "" : input.getText().toString().trim();
-        if (TextUtils.isEmpty(prompt) || typingIndex != RecyclerView.NO_POSITION) return;
+        if (TextUtils.isEmpty(prompt) || viewModel.typingIndex != RecyclerView.NO_POSITION) return;
         input.setText("");
         int userIndex;
-        if (editingUserIndex != RecyclerView.NO_POSITION && editingUserIndex < messages.size()) {
-            userIndex = editingUserIndex;
-            messages.get(userIndex).text = prompt;
+        if (viewModel.editingUserIndex != RecyclerView.NO_POSITION && viewModel.editingUserIndex < viewModel.messages.size()) {
+            userIndex = viewModel.editingUserIndex;
+            viewModel.messages.get(userIndex).text = prompt;
             adapter.notifyItemChanged(userIndex);
-            if (userIndex + 1 < messages.size() && messages.get(userIndex + 1).role != AiChatAdapter.ROLE_USER) {
-                messages.remove(userIndex + 1);
+            if (userIndex + 1 < viewModel.messages.size() && viewModel.messages.get(userIndex + 1).role != AiChatAdapter.ROLE_USER) {
+                viewModel.messages.remove(userIndex + 1);
                 adapter.notifyItemRemoved(userIndex + 1);
             }
-            editingUserIndex = RecyclerView.NO_POSITION;
+            viewModel.editingUserIndex = RecyclerView.NO_POSITION;
         } else {
-            userIndex = messages.size();
-            messages.add(new AiChatAdapter.Message(AiChatAdapter.ROLE_USER, prompt));
+            userIndex = viewModel.messages.size();
+            viewModel.messages.add(new AiChatAdapter.Message(AiChatAdapter.ROLE_USER, prompt));
             adapter.notifyItemInserted(userIndex);
         }
-        typingIndex = userIndex + 1;
-        messages.add(typingIndex, new AiChatAdapter.Message(AiChatAdapter.ROLE_TYPING, "•  •  •"));
-        adapter.notifyItemInserted(typingIndex);
+        viewModel.requestGeneration++;
+        int requestGeneration = viewModel.requestGeneration;
+        viewModel.typingIndex = userIndex + 1;
+        viewModel.messages.add(viewModel.typingIndex, new AiChatAdapter.Message(AiChatAdapter.ROLE_TYPING, "•  •  •"));
+        adapter.notifyItemInserted(viewModel.typingIndex);
         scrollToBottom();
         mainHandler.post(typingAnimator);
         List<AiChatAdapter.Message> snapshot = conversationSnapshot();
         String provider = AiAssistantConfig.getProvider(requireContext());
         String key = AiAssistantConfig.getApiKey(requireContext()).trim();
         String model = AiAssistantConfig.getModel(requireContext());
-        networkExecutor.execute(() -> fetchAiResponse(provider, key, model, snapshot, typingIndex));
+        int responseIndex = viewModel.typingIndex;
+        viewModel.networkExecutor.execute(() -> fetchAiResponse(provider, key, model, snapshot, responseIndex, requestGeneration));
     }
 
     private List<AiChatAdapter.Message> conversationSnapshot() {
         List<AiChatAdapter.Message> snapshot = new ArrayList<>();
-        for (AiChatAdapter.Message message : messages) {
+        for (AiChatAdapter.Message message : viewModel.messages) {
             if (message.role == AiChatAdapter.ROLE_USER || message.role == AiChatAdapter.ROLE_AI) {
                 snapshot.add(new AiChatAdapter.Message(message.role, message.text));
             }
@@ -196,29 +180,30 @@ public class AiChatFragment extends Fragment {
         return snapshot;
     }
 
-    private void fetchAiResponse(String provider, String key, String model, List<AiChatAdapter.Message> history, int responseIndex) {
+    private void fetchAiResponse(String provider, String key, String model, List<AiChatAdapter.Message> history, int responseIndex, int requestGeneration) {
         try {
             if (key.isEmpty()) throw new Exception("Set your API key in Settings → Miscellaneous");
             String response = AiAssistantConfig.PROVIDER_GEMINI.equals(provider)
                     ? callGemini(key, model, history)
                     : callOpenAiCompatible(provider, key, model, history);
-            mainHandler.post(() -> replaceTyping(responseIndex, new AiChatAdapter.Message(AiChatAdapter.ROLE_AI, response)));
+            mainHandler.post(() -> replaceTyping(responseIndex, requestGeneration, new AiChatAdapter.Message(AiChatAdapter.ROLE_AI, response)));
         } catch (Exception e) {
             String reason = e.getMessage() == null ? "Unable to reach AI provider." : e.getMessage();
-            mainHandler.post(() -> replaceTyping(responseIndex, new AiChatAdapter.Message(AiChatAdapter.ROLE_ERROR, reason)));
+            mainHandler.post(() -> replaceTyping(responseIndex, requestGeneration, new AiChatAdapter.Message(AiChatAdapter.ROLE_ERROR, reason)));
         }
     }
 
-    private void replaceTyping(int index, AiChatAdapter.Message replacement) {
+    private void replaceTyping(int index, int requestGeneration, AiChatAdapter.Message replacement) {
+        if (requestGeneration != viewModel.requestGeneration) return;
         mainHandler.removeCallbacks(typingAnimator);
-        if (index >= 0 && index < messages.size() && messages.get(index).role == AiChatAdapter.ROLE_TYPING) {
-            messages.set(index, replacement);
+        if (index >= 0 && index < viewModel.messages.size() && viewModel.messages.get(index).role == AiChatAdapter.ROLE_TYPING) {
+            viewModel.messages.set(index, replacement);
             adapter.notifyItemChanged(index);
-        } else {
-            messages.add(replacement);
-            adapter.notifyItemInserted(messages.size() - 1);
+        } else if (viewModel.typingIndex == index) {
+            viewModel.messages.add(replacement);
+            adapter.notifyItemInserted(viewModel.messages.size() - 1);
         }
-        typingIndex = RecyclerView.NO_POSITION;
+        viewModel.typingIndex = RecyclerView.NO_POSITION;
         scrollToBottom();
     }
 

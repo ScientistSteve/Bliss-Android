@@ -114,6 +114,7 @@ public abstract class SideDialogView {
 
         mDialogLayout.setVisibility(View.VISIBLE);
         mDialogLayout.setBackground(ResourcesCompat.getDrawable(mDialogLayout.getResources(), R.drawable.background_control_editor, null));
+        mDialogLayout.setWillNotDraw(false);
 
         //TODO offset better according to view width
         mDialogLayout.setX(-mDialogLayout.getResources().getDimensionPixelOffset(R.dimen._280sdp));
@@ -162,6 +163,7 @@ public abstract class SideDialogView {
         // To avoid UI sizing issue when the dialog is not fully inflated
         onAppear();
         Tools.runOnUiThread(() -> {
+            forceRedraw();
             if (fromRight) {
                 if (!mDisplaying || !isAtRight()) {
                     mSideDialogAnimator.setFloatValues(currentDisplayMetrics.widthPixels, currentDisplayMetrics.widthPixels - mScrollView.getWidth() - mMargin);
@@ -176,6 +178,13 @@ public abstract class SideDialogView {
                 }
             }
         });
+    }
+
+    private void forceRedraw() {
+        if (mDialogLayout == null) return;
+        mDialogLayout.postInvalidate();
+        if (mScrollView != null) mScrollView.postInvalidate();
+        if (mDialogContent != null) mDialogContent.postInvalidate();
     }
 
     protected final boolean isAtRight() {
